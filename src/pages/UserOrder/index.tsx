@@ -1,4 +1,4 @@
-import { userOrder } from '@/services/ant-design-pro/api';
+import { query_user_order } from '@/services/api';
 import { PageContainer, ProColumns, ProTable } from '@ant-design/pro-components';
 import React from 'react';
 
@@ -48,7 +48,7 @@ const UserOrder: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<API.UserOrderItem, API.PageParams> request={userOrder} columns={columns}></ProTable>
+      <ProTable<API.UserOrderItem, API.PageParams> request={query_user_order} columns={columns}></ProTable>
     </PageContainer>
   );
 };
