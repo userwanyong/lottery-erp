@@ -111,4 +111,18 @@ declare namespace API {
     createTime?: string;
     updateTime?: string;
   };
+
+  type ActivityAccountItem = {
+    id?: string;
+    userId?: string;
+    activityId?: string;
+    totalCount?: string;
+    totalCountSurplus?: string;
+    dayCount?: string;
+    dayCountSurplus?: string;
+    monthCount?: string;
+    monthCountSurplus?: string;
+    createTime?: string;
+    updateTime?: string;
+  };
 }

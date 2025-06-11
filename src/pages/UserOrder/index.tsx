@@ -20,18 +20,13 @@ const UserOrder: React.FC = () => {
       valueType: 'textarea',
     },
     {
-      title: '抽奖策略',
+      title: '抽奖策略ID',
       dataIndex: 'strategyId',
       valueType: 'textarea',
     },
     {
       title: '订单ID',
       dataIndex: 'orderId',
-      valueType: 'textarea',
-    },
-    {
-      title: '下单时间',
-      dataIndex: 'orderTime',
       valueType: 'textarea',
     },
     {

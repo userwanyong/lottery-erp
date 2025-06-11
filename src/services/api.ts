@@ -12,3 +12,12 @@ export async function query_user_order() {
     },
   });
 }
+
+export async function query_activity_account() {
+  return request<API.ActivityAccountItem>(`${apiHostUrl}/api/v1/erp/query_activity_account`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}

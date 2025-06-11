@@ -52,6 +52,12 @@ export default [
     component: './TableList',
   },
   {
+    name: '活动账户',
+    icon: 'table',
+    path: '/activity_account',
+    component: './ActivityAccount',
+  },
+  {
     name: '抽奖订单',
     icon: 'table',
     path: '/user_order_list',
