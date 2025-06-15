@@ -30,18 +30,14 @@ export default [
   },
   {
     path: '/admin',
-    name: 'admin',
+    name: '管理',
     icon: 'crown',
     access: 'canAdmin',
     routes: [
       {
-        path: '/admin',
-        redirect: '/admin/sub-page',
-      },
-      {
-        path: '/admin/sub-page',
-        name: 'sub-page',
-        component: './Admin',
+        path: '/admin/activity',
+        name: '活动配置',
+        component: './Activity',
       },
     ],
   },
@@ -58,10 +54,40 @@ export default [
     component: './ActivityAccount',
   },
   {
-    name: '抽奖订单',
+    name: '活动账户流水',
+    icon: 'table',
+    path: '/activity_record',
+    component: './ActivityRecord',
+  },
+  {
+    name: '用户抽奖订单',
     icon: 'table',
     path: '/user_order_list',
     component: './UserOrder',
+  },
+  {
+    name: '用户中奖流水',
+    icon: 'table',
+    path: '/user_award_record',
+    component: './UserAwardRecord',
+  },
+  {
+    name: '积分账户',
+    icon: 'table',
+    path: '/credit_account',
+    component: './CreditAccount',
+  },
+  {
+    name: '积分账户流水',
+    icon: 'table',
+    path: '/credit_record',
+    component: './CreditRecord',
+  },
+  {
+    name: '用户日常行为返利订单',
+    icon: 'table',
+    path: '/user_behavior_rebate_order',
+    component: './UserBehaviorRebateOrder',
   },
   {
     path: '/',

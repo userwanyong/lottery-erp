@@ -47,18 +47,19 @@ const ActivityAccount: React.FC = () => {
     {
       title: '创建时间',
       dataIndex: 'createTime',
-      valueType: 'textarea',
+      valueType: 'dateTime',
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
-      valueType: 'textarea',
+      valueType: 'dateTime',
     },
   ];
 
   return (
     <PageContainer>
       <ProTable<API.ActivityAccountItem, API.PageParams>
+        rowKey="userId"
         request={query_activity_account}
         columns={columns}
       ></ProTable>

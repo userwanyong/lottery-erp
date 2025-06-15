@@ -125,4 +125,89 @@ declare namespace API {
     createTime?: string;
     updateTime?: string;
   };
+
+  type UserAwardRecordItem = {
+    id?: string;
+    userId?: string;
+    activityId?: string;
+    strategyId?: string;
+    userOrderId?: string;
+    awardId?: string;
+    awardTitle?: string;
+    awardTime?: string;
+    awardState?: string;
+    createTime?: string;
+    updateTime?: string;
+  };
+
+  type CreditAccountItem = {
+    id?: string;
+    userId?: string;
+    totalAmount?: string;
+    availableAmount?: string;
+    accountStatus?: string;
+    createTime?: string;
+    updateTime?: string;
+  }
+
+  type CreditRecordItem = {
+    id?: string;
+    userId?: string;
+    tradeName?: string;
+    tradeType?: string;
+    tradeAmount?: string;
+    outBusinessNo?: string;
+    createTime?: string;
+    updateTime?: string;
+  }
+
+  type ActivityRecordItem = {
+    id?: string;
+    userId?: string;
+    activityId?: string;
+    sku?: string;
+    activityName?: string;
+    strategyId?: string;
+    totalCount?: string;
+    dayCount?: string;
+    monthCount?: string;
+    payAmount?: string;
+    state?: string;
+    outBusinessNo?: string;
+    createTime?: string;
+    updateTime?: string;
+  }
+
+  type UserBehaviorRebateOrderItem = {
+    id?: string;
+    behaviorType?: string;
+    rebateDesc?: string;
+    rebateType?: string;
+    rebateConfig?: string;
+    outBusinessNo?: string;
+    bizId?: string;
+    createTime?: string;
+    updateTime?: string;
+  }
+
+  type ActivityItem = {
+    id?: string;
+    activityId?: string;
+    activityName?: string;
+    activityDesc?: string;
+    beginDateTime?: string;
+    endDateTime?: string;
+    strategyId?: string;
+    state?: string;
+    createTime?: string;
+    updateTime?: string;
+  }
+
+  type CommonResponse = {
+    code?: number;
+    message?: string;
+    data?: any;
+  }
+
+
 }

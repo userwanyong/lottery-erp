@@ -1,8 +1,8 @@
-import { query_user_order } from '@/services/api';
+import {query_user_behavior_rebate_order, query_user_order} from '@/services/api';
 import { PageContainer, ProColumns, ProTable } from '@ant-design/pro-components';
 import React from 'react';
 
-const UserOrder: React.FC = () => {
+const UserBehaviorRebateOrder: React.FC = () => {
   const columns: ProColumns<API.UserOrderItem>[] = [
     {
       title: '用户ID',
@@ -10,37 +10,24 @@ const UserOrder: React.FC = () => {
       valueType: 'textarea',
     },
     {
-      title: '活动ID',
-      dataIndex: 'activityId',
+      title: '返利类型',
+      dataIndex: 'behaviorType',
       valueType: 'textarea',
     },
     {
-      title: '活动名称',
-      dataIndex: 'activityName',
+      title: '返利描述',
+      dataIndex: 'rebateDesc',
       valueType: 'textarea',
     },
     {
-      title: '抽奖策略ID',
-      dataIndex: 'strategyId',
+      title: '返利配置',
+      dataIndex: 'rebateConfig',
       valueType: 'textarea',
     },
     {
-      title: '订单状态',
-      dataIndex: 'orderState',
-      valueEnum: {
-        create: {
-          text: '待使用',
-          status: 'Processing',
-        },
-        used: {
-          text: '已使用',
-          status: 'Success',
-        },
-        cancel: {
-          text: '已作废',
-          status: 'Error',
-        },
-      },
+      title: '业务ID',
+      dataIndex: 'bizId',
+      valueType: 'textarea',
     },
     {
       title: '创建时间',
@@ -53,11 +40,11 @@ const UserOrder: React.FC = () => {
     <PageContainer>
       <ProTable<API.UserOrderItem, API.PageParams>
         rowKey="createTime"
-        request={query_user_order}
+        request={query_user_behavior_rebate_order}
         columns={columns}
       ></ProTable>
     </PageContainer>
   );
 };
 
-export default UserOrder;
+export default UserBehaviorRebateOrder;
