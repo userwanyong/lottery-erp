@@ -1,23 +1,100 @@
 import { query_credit_account } from '@/services/api';
-import { PageContainer, ProColumns, ProTable } from '@ant-design/pro-components';
-import React from 'react';
+import {
+  PageContainer,
+  ProColumns,
+  ProTable,
+  ProDescriptions,
+  ProDescriptionsItemProps,
+} from '@ant-design/pro-components';
+import { Drawer } from 'antd';
+import React, { useState } from 'react';
 
 const CreditAccount: React.FC = () => {
+  const [showDetail, setShowDetail] = useState<boolean>(false);
+  const [currentRow, setCurrentRow] = useState<API.CreditAccountItem>();
+
   const columns: ProColumns<API.CreditAccountItem>[] = [
     {
       title: '用户ID',
       dataIndex: 'userId',
       valueType: 'textarea',
+      render: (dom, entity) => {
+        return (
+          <a
+            style={{ color: '#0862ec' }}
+            onClick={() => {
+              setCurrentRow(entity);
+              setShowDetail(true);
+            }}
+          >
+            {dom}
+          </a>
+        );
+      },
+    },
+    {
+      title: '活动ID',
+      dataIndex: 'activityId',
+      valueType: 'textarea',
+      ellipsis: true,
     },
     {
       title: '总积分',
       dataIndex: 'totalAmount',
       valueType: 'textarea',
+      ellipsis: true,
     },
     {
       title: '可用积分',
       dataIndex: 'availableAmount',
       valueType: 'textarea',
+      ellipsis: true,
+    },
+    {
+      title: '账户状态',
+      dataIndex: 'accountStatus',
+      ellipsis: true,
+      valueEnum: {
+        open: {
+          text: '正常',
+          status: 'Success',
+        },
+        close: {
+          text: '冻结',
+          status: 'Error',
+        },
+      },
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      valueType: 'dateTime',
+      ellipsis: true,
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      valueType: 'dateTime',
+      ellipsis: true,
+    },
+  ];
+
+  const descriptionColumns: ProDescriptionsItemProps<API.CreditAccountItem>[] = [
+    {
+      title: '用户ID',
+      dataIndex: 'userId',
+    },
+    {
+      title: '活动ID',
+      dataIndex: 'activityId',
+    },
+    {
+      title: '总积分',
+      dataIndex: 'totalAmount',
+    },
+    {
+      title: '可用积分',
+      dataIndex: 'availableAmount',
     },
     {
       title: '账户状态',
@@ -36,12 +113,10 @@ const CreditAccount: React.FC = () => {
     {
       title: '创建时间',
       dataIndex: 'createTime',
-      valueType: 'dateTime',
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
-      valueType: 'dateTime',
     },
   ];
 
@@ -52,6 +127,29 @@ const CreditAccount: React.FC = () => {
         request={query_credit_account}
         columns={columns}
       ></ProTable>
+      <Drawer
+        width={600}
+        open={showDetail}
+        onClose={() => {
+          setCurrentRow(undefined);
+          setShowDetail(false);
+        }}
+        closable={false}
+      >
+        {currentRow?.userId && (
+          <ProDescriptions<API.CreditAccountItem>
+            column={2}
+            title={`用户ID: ${currentRow?.userId}`}
+            request={async () => ({
+              data: currentRow || {},
+            })}
+            params={{
+              id: currentRow?.userId,
+            }}
+            columns={descriptionColumns}
+          />
+        )}
+      </Drawer>
     </PageContainer>
   );
 };

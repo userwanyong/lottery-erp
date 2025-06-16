@@ -1,43 +1,134 @@
 import { query_user_award_record } from '@/services/api';
-import { PageContainer, ProColumns, ProTable } from '@ant-design/pro-components';
-import React from 'react';
+import {
+  PageContainer,
+  ProColumns,
+  ProTable,
+  ProDescriptions,
+  ProDescriptionsItemProps,
+} from '@ant-design/pro-components';
+import { Drawer } from 'antd';
+import React, { useState } from 'react';
 
 const UserAwardRecord: React.FC = () => {
+  const [showDetail, setShowDetail] = useState<boolean>(false);
+  const [currentRow, setCurrentRow] = useState<API.UserAwardRecordItem>();
+
   const columns: ProColumns<API.UserAwardRecordItem>[] = [
     {
       title: '用户ID',
       dataIndex: 'userId',
       valueType: 'textarea',
+      render: (dom, entity) => {
+        return (
+          <a
+            style={{ color: '#0862ec' }}
+            onClick={() => {
+              setCurrentRow(entity);
+              setShowDetail(true);
+            }}
+          >
+            {dom}
+          </a>
+        );
+      },
     },
     {
       title: '活动ID',
       dataIndex: 'activityId',
       valueType: 'textarea',
+      ellipsis: true,
     },
     {
       title: '抽奖策略ID',
       dataIndex: 'strategyId',
       valueType: 'textarea',
+      ellipsis: true,
     },
     {
       title: '抽奖单ID',
       dataIndex: 'userOrderId',
       valueType: 'textarea',
+      ellipsis: true,
     },
     {
       title: '奖品ID',
       dataIndex: 'awardId',
       valueType: 'textarea',
+      ellipsis: true,
     },
     {
       title: '奖品标题',
       dataIndex: 'awardTitle',
       valueType: 'textarea',
+      ellipsis: true,
     },
     {
       title: '中奖时间',
       dataIndex: 'awardTime',
       valueType: 'dateTime',
+      ellipsis: true,
+    },
+    {
+      title: '奖品状态',
+      dataIndex: 'awardState',
+      ellipsis: true,
+      valueEnum: {
+        create: {
+          text: '待发放',
+          status: 'Processing',
+        },
+        complete: {
+          text: '已发放',
+          status: 'Success',
+        },
+        fail: {
+          text: '发放失败',
+          status: 'Error',
+        },
+      },
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      valueType: 'dateTime',
+      ellipsis: true,
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      valueType: 'dateTime',
+      ellipsis: true,
+    },
+  ];
+
+  const descriptionColumns: ProDescriptionsItemProps<API.UserAwardRecordItem>[] = [
+    {
+      title: '用户ID',
+      dataIndex: 'userId',
+    },
+    {
+      title: '活动ID',
+      dataIndex: 'activityId',
+    },
+    {
+      title: '抽奖策略ID',
+      dataIndex: 'strategyId',
+    },
+    {
+      title: '抽奖单ID',
+      dataIndex: 'userOrderId',
+    },
+    {
+      title: '奖品ID',
+      dataIndex: 'awardId',
+    },
+    {
+      title: '奖品标题',
+      dataIndex: 'awardTitle',
+    },
+    {
+      title: '中奖时间',
+      dataIndex: 'awardTime',
     },
     {
       title: '奖品状态',
@@ -60,17 +151,10 @@ const UserAwardRecord: React.FC = () => {
     {
       title: '创建时间',
       dataIndex: 'createTime',
-      valueType: 'dateTime',
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
-      valueType: 'dateTime',
-    },
-    {
-      title: '更新时间',
-      dataIndex: 'updateTime',
-      valueType: 'dateTime',
     },
   ];
 
@@ -81,6 +165,29 @@ const UserAwardRecord: React.FC = () => {
         request={query_user_award_record}
         columns={columns}
       ></ProTable>
+      <Drawer
+        width={600}
+        open={showDetail}
+        onClose={() => {
+          setCurrentRow(undefined);
+          setShowDetail(false);
+        }}
+        closable={false}
+      >
+        {currentRow?.userId && (
+          <ProDescriptions<API.UserAwardRecordItem>
+            column={2}
+            title={`用户ID: ${currentRow?.userId}`}
+            request={async () => ({
+              data: currentRow || {},
+            })}
+            params={{
+              id: currentRow?.userId,
+            }}
+            columns={descriptionColumns}
+          />
+        )}
+      </Drawer>
     </PageContainer>
   );
 };

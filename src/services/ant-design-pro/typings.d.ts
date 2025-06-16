@@ -143,6 +143,7 @@ declare namespace API {
   type CreditAccountItem = {
     id?: string;
     userId?: string;
+    activityId?: string;
     totalAmount?: string;
     availableAmount?: string;
     accountStatus?: string;
@@ -153,6 +154,7 @@ declare namespace API {
   type CreditRecordItem = {
     id?: string;
     userId?: string;
+    activityId?: string;
     tradeName?: string;
     tradeType?: string;
     tradeAmount?: string;
@@ -167,7 +169,6 @@ declare namespace API {
     activityId?: string;
     sku?: string;
     activityName?: string;
-    strategyId?: string;
     totalCount?: string;
     dayCount?: string;
     monthCount?: string;
@@ -180,6 +181,8 @@ declare namespace API {
 
   type UserBehaviorRebateOrderItem = {
     id?: string;
+    userId?: string;
+    activityId?: string;
     behaviorType?: string;
     rebateDesc?: string;
     rebateType?: string;
@@ -192,7 +195,6 @@ declare namespace API {
 
   type ActivityItem = {
     id?: string;
-    activityId?: string;
     activityName?: string;
     activityDesc?: string;
     beginDateTime?: string;
@@ -209,5 +211,14 @@ declare namespace API {
     data?: any;
   }
 
+  type ActivityCountItem = {
+    id?: string;
+    activityId?: string;
+    totalCount?: string;
+    dayCount?: string;
+    monthCount?: string;
+    createTime?: string;
+    updateTime?: string;
+  }
 
 }

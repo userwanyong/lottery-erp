@@ -30,64 +30,100 @@ export default [
   },
   {
     path: '/admin',
-    name: '管理',
+    name: '活动管理',
     icon: 'crown',
-    access: 'canAdmin',
+    // access: 'canAdmin',//只有拥有 canAdmin 权限的用户才能访问
     routes: [
+      { path: '/admin', redirect: '/admin/activity' }, //进入这个下拉菜单默认指向该菜单栏下的哪一项
       {
         path: '/admin/activity',
         name: '活动配置',
+        icon: 'table',
         component: './Activity',
+      },
+      {
+        path: '/admin/activity_count',
+        name: '活动sku次数配置',
+        icon: 'table',
+        component: './ActivityCount',
       },
     ],
   },
+  {
+    path: '/lottery',
+    name: '抽奖管理',
+    icon: 'group',
+    // access: 'canAdmin',//只有拥有 canAdmin 权限的用户才能访问
+    routes: [
+      { path: '/lottery', redirect: '/lottery/activity_account' },
+      {
+        name: '抽奖账户',
+        icon: 'table',
+        path: '/lottery/activity_account',
+        component: './ActivityAccount',
+      },
+      {
+        name: '增加抽奖账户次数流水',
+        icon: 'table',
+        path: '/lottery/activity_record',
+        component: './ActivityRecord',
+      },
+      {
+        name: '用户抽奖订单',
+        icon: 'table',
+        path: '/lottery/user_order_list',
+        component: './UserOrder',
+      },
+      {
+        name: '用户中奖流水',
+        icon: 'table',
+        path: '/lottery/user_award_record',
+        component: './UserAwardRecord',
+      },
+    ],
+  },
+  {
+    path: '/credit',
+    name: '积分管理',
+    icon: 'dotChart',
+    // access: 'canAdmin',//只有拥有 canAdmin 权限的用户才能访问
+    routes: [
+      { path: '/credit', redirect: '/credit/credit_account' },
+      {
+        name: '积分账户',
+        icon: 'table',
+        path: '/credit/credit_account',
+        component: './CreditAccount',
+      },
+      {
+        name: '积分账户流水',
+        icon: 'table',
+        path: '/credit/credit_record',
+        component: './CreditRecord',
+      },
+    ],
+  },
+  {
+    path: '/rebate',
+    name: '返利管理',
+    icon: 'sliders',
+    // access: 'canAdmin',//只有拥有 canAdmin 权限的用户才能访问
+    routes: [
+      { path: '/rebate', redirect: '/rebate/user_behavior_rebate_order' },
+      {
+        name: '用户日常行为返利订单',
+        icon: 'table',
+        path: '/rebate/user_behavior_rebate_order',
+        component: './UserBehaviorRebateOrder',
+      },
+    ],
+  },
+
   {
     name: 'list.table-list',
     icon: 'table',
     path: '/list',
     component: './TableList',
-  },
-  {
-    name: '活动账户',
-    icon: 'table',
-    path: '/activity_account',
-    component: './ActivityAccount',
-  },
-  {
-    name: '活动账户流水',
-    icon: 'table',
-    path: '/activity_record',
-    component: './ActivityRecord',
-  },
-  {
-    name: '用户抽奖订单',
-    icon: 'table',
-    path: '/user_order_list',
-    component: './UserOrder',
-  },
-  {
-    name: '用户中奖流水',
-    icon: 'table',
-    path: '/user_award_record',
-    component: './UserAwardRecord',
-  },
-  {
-    name: '积分账户',
-    icon: 'table',
-    path: '/credit_account',
-    component: './CreditAccount',
-  },
-  {
-    name: '积分账户流水',
-    icon: 'table',
-    path: '/credit_record',
-    component: './CreditRecord',
-  },
-  {
-    name: '用户日常行为返利订单',
-    icon: 'table',
-    path: '/user_behavior_rebate_order',
-    component: './UserBehaviorRebateOrder',
   },
   {
     path: '/',

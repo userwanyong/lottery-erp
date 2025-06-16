@@ -1,34 +1,50 @@
 import { ModalForm, ProFormText, ProFormTextArea, ProFormDateTimePicker, ProFormSelect, ProFormGroup, ProFormInstance } from '@ant-design/pro-form';
-import { App } from 'antd'; // 引入 App 组件
-import React, { useRef } from 'react'; // 引入 useRef
-import { add_activity } from '@/services/api';
+import { App } from 'antd';
+import React, { useRef, useEffect } from 'react'; // 引入 useRef 和 useEffect
+import { update_activity } from '@/services/api';
 
-interface AddFormProps {
+interface UpdateFormProps {
   visible: boolean;
   onVisibleChange: (visible: boolean) => void;
   onFinish?: () => void;
+  initialValues: API.ActivityItem; // 接收初始值
 }
 
-const AddForm: React.FC<AddFormProps> = (props) => {
-  const { visible, onVisibleChange, onFinish } = props;
-  const { message } = App.useApp(); // 获取 message 实例
+const UpdateForm: React.FC<UpdateFormProps> = (props) => {
+  const { visible, onVisibleChange, onFinish, initialValues } = props;
+  const { message } = App.useApp();
   const formRef = useRef<ProFormInstance>(); // 创建 formRef
+
+  // 使用 useEffect 监听 initialValues 或 visible 的变化，并设置表单值
+  useEffect(() => {
+    if (visible && initialValues) {
+      // 将日期字符串转换为 Date 对象
+      const formattedValues = {
+        ...initialValues,
+        beginDateTime: initialValues.beginDateTime ? new Date(initialValues.beginDateTime) : undefined,
+        endDateTime: initialValues.endDateTime ? new Date(initialValues.endDateTime) : undefined,
+      };
+      formRef.current?.setFieldsValue(formattedValues);
+    }
+  }, [visible, initialValues]);
 
   return (
     <ModalForm
-      title="新建活动"
+      title="修改活动"
       visible={visible}
-      formRef={formRef} // 绑定 formRef
+      formRef={formRef}
+      key={initialValues.id} // 添加 key 属性，使用 initialValues.id
       onVisibleChange={(v) => {
         if (!v) {
           formRef.current?.resetFields(); // 在关闭时重置表单
         }
         onVisibleChange(v);
       }}
+      initialValues={initialValues}
       onFinish={async (values) => {
-        const result = await add_activity(values);
+        const result = await update_activity(values);
         if (result.code === 1000) {
-          message.success('添加成功');
+          message.success('修改成功');
           if (onFinish) {
             onFinish();
           }
@@ -38,6 +54,12 @@ const AddForm: React.FC<AddFormProps> = (props) => {
         return false;
       }}
     >
+      <ProFormText
+        name="id"
+        label="活动ID"
+        rules={[{ required: true, message: '请输入活动ID' }]}
+        disabled // 活动ID通常不可修改
+      />
       <ProFormText
         name="strategyId"
         label="抽奖策略ID"
@@ -132,4 +154,4 @@ const AddForm: React.FC<AddFormProps> = (props) => {
   );
 };
 
-export default AddForm;
+export default UpdateForm;

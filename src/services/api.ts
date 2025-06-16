@@ -85,3 +85,71 @@ export async function add_activity(options?: { [key: string]: any }) {
     data: options,
   });
 }
+
+export async function update_activity(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/activity/update_activity`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function delete_activity(activityId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/activity/delete_activity/${activityId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function armory_activity(activityId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/activity/armory?activityId=${activityId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function query_activity_count() {
+  return request<API.ActivityCountItem>(`${apiHostUrl}/api/v1/erp/activity_count/query_activity_count`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function add_activity_count(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/activity_count/add_activity_count`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function update_activity_count(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/activity_count/update_activity_count`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function delete_activity_count(activityCountId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/activity_count/delete_activity_count/${activityCountId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+
