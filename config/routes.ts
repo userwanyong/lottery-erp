@@ -115,7 +115,13 @@ export default [
     icon: 'sliders',
     // access: 'canAdmin',//只有拥有 canAdmin 权限的用户才能访问
     routes: [
-      { path: '/rebate', redirect: '/rebate/user_behavior_rebate_order' },
+      { path: '/rebate', redirect: '/rebate/behavior_rebate' },
+      {
+        name: '返利配置',
+        icon: 'table',
+        path: '/rebate/behavior_rebate',
+        component: './BehaviorRebate',
+      },
       {
         name: '用户日常行为返利订单',
         icon: 'table',

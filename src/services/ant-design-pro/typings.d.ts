@@ -231,6 +231,19 @@ declare namespace API {
     productAmount?: string;
     createTime?: string;
     updateTime?: string;
+    data?: ActivitySkuItem[];
+  }
+
+  type BehaviorRebateItem = {
+    id?: string;
+    activityId?: string;
+    behaviorType?: string;
+    rebateDesc?: string;
+    rebateType?: string;
+    rebateConfig?: string;
+    state?: string;
+    createTime?: string;
+    updateTime?: string;
   }
 
 }

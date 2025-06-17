@@ -190,4 +190,42 @@ export async function delete_activity_sku(activitySkuId: any) {
   });
 }
 
+export async function query_behavior_rebate() {
+  return request<API.BehaviorRebateItem>(`${apiHostUrl}/api/v1/erp/behavior/query_behavior`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function add_behavior_rebate(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/behavior/add_behavior`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function update_behavior_rebate(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/behavior/update_behavior`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function delete_behavior_rebate(activitySkuId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/behavior/delete_behavior/${activitySkuId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
 
