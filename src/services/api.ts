@@ -152,4 +152,42 @@ export async function delete_activity_count(activityCountId: any) {
   });
 }
 
+export async function query_activity_sku() {
+  return request<API.ActivitySkuItem>(`${apiHostUrl}/api/v1/erp/activity_sku/query_activity_sku`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function add_activity_sku(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/activity_sku/add_activity_sku`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function update_activity_sku(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/activity_sku/update_activity_sku`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function delete_activity_sku(activitySkuId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/activity_sku/delete_activity_sku/${activitySkuId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
 

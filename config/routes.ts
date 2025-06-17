@@ -43,9 +43,15 @@ export default [
       },
       {
         path: '/admin/activity_count',
-        name: '活动sku次数配置',
+        name: '活动次数配置',
         icon: 'table',
         component: './ActivityCount',
+      },
+      {
+        path: '/admin/activity_sku',
+        name: '活动sku配置',
+        icon: 'table',
+        component: './ActivitySku',
       },
     ],
   },

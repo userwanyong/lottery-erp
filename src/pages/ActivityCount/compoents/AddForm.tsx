@@ -1,5 +1,5 @@
 import { add_activity_count } from '@/services/api';
-import { ModalForm, ProFormInstance, ProFormText, ProFormTextArea } from '@ant-design/pro-form';
+import { ModalForm, ProFormInstance, ProFormText } from '@ant-design/pro-form';
 import { App } from 'antd'; // 引入 App 组件
 import React, { useRef } from 'react'; // 引入 useRef
 
@@ -16,7 +16,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
 
   return (
     <ModalForm
-      title="新建活动sku次数配置"
+      title="新建活动次数配置"
       visible={visible}
       formRef={formRef} // 绑定 formRef
       onVisibleChange={(v) => {

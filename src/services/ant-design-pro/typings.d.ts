@@ -203,6 +203,7 @@ declare namespace API {
     state?: string;
     createTime?: string;
     updateTime?: string;
+    data?: ActivityItem[];
   }
 
   type CommonResponse = {
@@ -217,6 +218,17 @@ declare namespace API {
     totalCount?: string;
     dayCount?: string;
     monthCount?: string;
+    createTime?: string;
+    updateTime?: string;
+    data?: ActivityCountItem[];
+  }
+
+  type ActivitySkuItem = {
+    id?: string;
+    activityId?: string;
+    stockCount?: string;
+    stockCountSurplus?: string;
+    productAmount?: string;
     createTime?: string;
     updateTime?: string;
   }

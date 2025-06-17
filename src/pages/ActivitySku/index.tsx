@@ -1,5 +1,3 @@
-import UpdateForm from '@/pages/ActivityCount/compoents/UpdateForm';
-import { delete_activity_count, query_activity_count } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -8,18 +6,20 @@ import ProTable from '@ant-design/pro-table';
 import { App, Button, Drawer, Popconfirm } from 'antd';
 import { useRef, useState } from 'react';
 import AddForm from './compoents/AddForm';
+import {delete_activity_sku, query_activity_sku} from "@/services/api";
+import UpdateForm from "./compoents/UpdateForm";
 
-const ActivityCount: React.FC = () => {
+const ActivitySku: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false); // 控制修改表单可见性
-  const [currentRow, setCurrentRow] = useState<API.ActivityCountItem>(); // 存储当前编辑行的数据
+  const [currentRow, setCurrentRow] = useState<API.ActivitySkuItem>(); // 存储当前编辑行的数据
   const [showDetail, setShowDetail] = useState<boolean>(false); // 控制详情抽屉可见性
   const actionRef = useRef<ActionType>();
   const { message: msg } = App.useApp(); // 获取 Ant Design 的 message 实例
 
   const handleDelete = async (record: { id: any }) => {
     try {
-      const res = await delete_activity_count(record);
+      const res = await delete_activity_sku(record);
       if (res.code === 1000) {
         msg.success('删除成功');
         actionRef.current?.reload();
@@ -31,9 +31,9 @@ const ActivityCount: React.FC = () => {
     }
   };
 
-  const columns: ProColumns<API.ActivityCountItem>[] = [
+  const columns: ProColumns<API.ActivitySkuItem>[] = [
     {
-      title: 'count_ID',
+      title: 'sku_ID',
       dataIndex: 'id',
       valueType: 'textarea',
       render: (dom, entity) => {
@@ -51,29 +51,41 @@ const ActivityCount: React.FC = () => {
       },
     },
     {
-      title: '总次数',
-      dataIndex: 'totalCount',
+      title: '活动ID',
+      dataIndex: 'activityId',
       valueType: 'textarea',
       ellipsis: true,
     },
     {
-      title: '月次数',
-      dataIndex: 'monthCount',
+      title: 'count_ID',
+      dataIndex: 'activityCountId',
       valueType: 'textarea',
       ellipsis: true,
     },
     {
-      title: '日次数',
-      dataIndex: 'dayCount',
+      title: '总库存',
+      dataIndex: 'stockCount',
       valueType: 'textarea',
       ellipsis: true,
     },
     {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      valueType: 'dateTime',
+      title: '剩余库存',
+      dataIndex: 'stockCountSurplus',
+      valueType: 'textarea',
       ellipsis: true,
     },
+    {
+      title: '兑换所需积分',
+      dataIndex: 'productAmount',
+      valueType: 'textarea',
+      ellipsis: true,
+    },
+    // {
+    //   title: '创建时间',
+    //   dataIndex: 'createTime',
+    //   valueType: 'dateTime',
+    //   ellipsis: true,
+    // },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
@@ -107,22 +119,30 @@ const ActivityCount: React.FC = () => {
     },
   ];
 
-  const descriptionColumns: ProDescriptionsItemProps<API.ActivityCountItem>[] = [
+  const descriptionColumns: ProDescriptionsItemProps<API.ActivitySkuItem>[] = [
     {
-      title: 'count_ID',
+      title: 'sku_ID',
       dataIndex: 'id',
     },
     {
-      title: '总次数',
-      dataIndex: 'totalCount',
+      title: '活动ID',
+      dataIndex: 'activityId',
     },
     {
-      title: '月次数',
-      dataIndex: 'monthCount',
+      title: 'count_ID',
+      dataIndex: 'activityCountId',
     },
     {
-      title: '日次数',
-      dataIndex: 'dayCount',
+      title: '总库存',
+      dataIndex: 'stockCount',
+    },
+    {
+      title: '剩余库存',
+      dataIndex: 'stockCountSurplus',
+    },
+    {
+      title: '兑换所需积分',
+      dataIndex: 'productAmount',
     },
     {
       title: '创建时间',
@@ -138,11 +158,11 @@ const ActivityCount: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<API.ActivityCountItem, API.PageParams>
+      <ProTable<API.ActivitySkuItem, API.PageParams>
         headerTitle="活动次数配置列表"
         actionRef={actionRef}
         rowKey="id"
-        request={query_activity_count}
+        request={query_activity_sku}
         columns={columns}
         toolBarRender={() => [
           <Button
@@ -177,7 +197,7 @@ const ActivityCount: React.FC = () => {
         closable={false}
       >
         {currentRow && (
-          <ProDescriptions<API.ActivityCountItem>
+          <ProDescriptions<API.ActivitySkuItem>
             column={2}
             title={currentRow?.id}
             request={async () => ({
@@ -217,4 +237,4 @@ const ActivityCount: React.FC = () => {
   );
 };
 
-export default ActivityCount;
+export default ActivitySku;

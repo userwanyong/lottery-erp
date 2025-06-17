@@ -17,7 +17,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
 
   return (
     <ModalForm
-      title="修改活动sku次数配置"
+      title="修改活动次数配置"
       visible={visible}
       formRef={formRef}
       key={initialValues.id} // 添加 key 属性，使用 initialValues.id
@@ -43,7 +43,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
     >
       <ProFormText
         name="id"
-        label="skuID"
+        label="count_ID"
         disabled // ID通常不可修改
       />
       <ProFormText
