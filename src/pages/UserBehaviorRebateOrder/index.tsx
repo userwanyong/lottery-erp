@@ -104,7 +104,7 @@ const UserBehaviorRebateOrder: React.FC = () => {
   return (
     <PageContainer>
       <ProTable<API.UserBehaviorRebateOrderItem, API.PageParams>
-        rowKey="createTime"
+        rowKey="bizId"
         request={query_user_behavior_rebate_order}
         columns={columns}
       ></ProTable>

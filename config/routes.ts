@@ -128,6 +128,12 @@ export default [
         path: '/rebate/user_behavior_rebate_order',
         component: './UserBehaviorRebateOrder',
       },
+      {
+        name: '奖品配置',
+        icon: 'table',
+        path: '/rebate/award',
+        component: './Award',
+      },
     ],
   },
 

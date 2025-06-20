@@ -228,4 +228,50 @@ export async function delete_behavior_rebate(activitySkuId: any) {
   });
 }
 
+export async function query_award() {
+  return request<API.AwardItem>(`${apiHostUrl}/api/v1/erp/award/query_award`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
 
+export async function add_award(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/award/add_award`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function update_award(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/award/update_award`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function delete_award(activitySkuId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/award/delete_award/${activitySkuId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function upload(
+  formData: FormData,
+) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/file/upload`, {
+    method: 'POST',
+    data: formData,
+    // requestType: 'form',
+  });
+}

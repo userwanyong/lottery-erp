@@ -246,4 +246,13 @@ declare namespace API {
     updateTime?: string;
   }
 
+  type AwardItem = {
+    id?: string;
+    awardKey?: string;
+    awardConfig?: string;
+    awardDesc?: string;
+    image?: string;
+    createTime?: string;
+    updateTime?: string;
+  }
 }
