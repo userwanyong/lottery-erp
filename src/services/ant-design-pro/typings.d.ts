@@ -255,4 +255,22 @@ declare namespace API {
     createTime?: string;
     updateTime?: string;
   }
+
+  type RuleItem = {
+    id?: string;
+    ruleModel?: string;
+    ruleValue?: string;
+    ruleDesc?: string;
+    createTime?: string;
+    updateTime?: string;
+    data?: RuleItem[];
+  }
+
+  type StrategyItem = {
+    id?: string;
+    strategyDesc?: string;
+    ruleModels?: string;
+    createTime?: string;
+    updateTime?: string;
+  }
 }

@@ -86,6 +86,12 @@ export default [
         path: '/lottery/user_award_record',
         component: './UserAwardRecord',
       },
+      {
+        name: '奖品配置',
+        icon: 'table',
+        path: '/lottery/award',
+        component: './Award',
+      },
     ],
   },
   {
@@ -128,11 +134,26 @@ export default [
         path: '/rebate/user_behavior_rebate_order',
         component: './UserBehaviorRebateOrder',
       },
+    ],
+  },
+  {
+    path: '/strategy',
+    name: '策略管理',
+    icon: 'fund',
+    // access: 'canAdmin',//只有拥有 canAdmin 权限的用户才能访问
+    routes: [
+      { path: '/strategy', redirect: '/strategy/strategy' },
       {
-        name: '奖品配置',
+        name: '策略配置',
         icon: 'table',
-        path: '/rebate/award',
-        component: './Award',
+        path: '/strategy/strategy',
+        component: './Strategy',
+      },
+      {
+        name: '策略规则配置',
+        icon: 'table',
+        path: '/strategy/rule',
+        component: './Rule',
       },
     ],
   },

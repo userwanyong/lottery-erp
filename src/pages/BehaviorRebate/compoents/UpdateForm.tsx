@@ -81,7 +81,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
     >
       <ProFormText
         name="id"
-        label="ID"
+        label="返利ID"
         disabled
       />
       <ProFormSelect

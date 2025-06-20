@@ -275,3 +275,79 @@ export async function upload(
     // requestType: 'form',
   });
 }
+
+export async function query_rule() {
+  return request<API.RuleItem>(`${apiHostUrl}/api/v1/erp/rule/query_rule`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function add_rule(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/add_rule`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function update_rule(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/update_rule`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function delete_rule(activitySkuId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/delete_rule/${activitySkuId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function query_strategy() {
+  return request<API.StrategyItem>(`${apiHostUrl}/api/v1/erp/strategy/query_strategy`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function add_strategy(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/strategy/add_strategy`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function update_strategy(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/strategy/update_strategy`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function delete_strategy(activitySkuId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/strategy/delete_strategy/${activitySkuId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
