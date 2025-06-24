@@ -155,6 +155,12 @@ export default [
         path: '/strategy/rule',
         component: './Rule',
       },
+      {
+        name: '策略奖品配置',
+        icon: 'table',
+        path: '/strategy/award',
+        component: './StrategyAward',
+      },
     ],
   },
 

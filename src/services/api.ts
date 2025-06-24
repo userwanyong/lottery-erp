@@ -219,8 +219,8 @@ export async function update_behavior_rebate(options?: { [key: string]: any }) {
   });
 }
 
-export async function delete_behavior_rebate(activitySkuId: any) {
-  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/behavior/delete_behavior/${activitySkuId}`, {
+export async function delete_behavior_rebate(behaviorRebateId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/behavior/delete_behavior/${behaviorRebateId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -257,8 +257,8 @@ export async function update_award(options?: { [key: string]: any }) {
   });
 }
 
-export async function delete_award(activitySkuId: any) {
-  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/award/delete_award/${activitySkuId}`, {
+export async function delete_award(awardId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/award/delete_award/${awardId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -305,8 +305,8 @@ export async function update_rule(options?: { [key: string]: any }) {
   });
 }
 
-export async function delete_rule(activitySkuId: any) {
-  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/delete_rule/${activitySkuId}`, {
+export async function delete_rule(ruleId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/delete_rule/${ruleId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -343,9 +343,56 @@ export async function update_strategy(options?: { [key: string]: any }) {
   });
 }
 
-export async function delete_strategy(activitySkuId: any) {
-  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/strategy/delete_strategy/${activitySkuId}`, {
+export async function delete_strategy(strategyId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/strategy/delete_strategy/${strategyId}`, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function query_strategy_award() {
+  return request<API.StrategyAwardItem>(`${apiHostUrl}/api/v1/erp/strategy/award/query_strategy_award`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function add_strategy_award(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/strategy/award/add_strategy_award`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function update_strategy_award(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/strategy/award/update_strategy_award`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function delete_strategy_award(strategyAwardId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/strategy/award/delete_strategy_award/${strategyAwardId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function query_rule_tree() {
+  return request<API.RuleTreeItem>(`${apiHostUrl}/api/v1/erp/rule/tree/query_rule_tree`, {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },

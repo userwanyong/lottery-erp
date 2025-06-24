@@ -254,6 +254,7 @@ declare namespace API {
     image?: string;
     createTime?: string;
     updateTime?: string;
+    data?: AwardItem[];
   }
 
   type RuleItem = {
@@ -272,5 +273,32 @@ declare namespace API {
     ruleModels?: string;
     createTime?: string;
     updateTime?: string;
+    data?: StrategyItem[];
+  }
+
+  type StrategyAwardItem = {
+    id?: string;
+    strategyId?: string;
+    awardId?: string;
+    awardTitle?: string;
+    awardSubtitle?: string;
+    awardCount?: string;
+    awardCountSurplus?: string;
+    awardRate?: string;
+    ruleModels?: string;
+    sort?: string;
+    createTime?: string;
+    updateTime?: string;
+  }
+
+  type RuleTreeItem = {
+    id?: string;
+    treeId?: string;
+    treeName?: string;
+    treeDesc?: string;
+    treeNodeRuleKey?: string;
+    createTime?: string;
+    updateTime?: string;
+    data?: RuleTreeItem[];
   }
 }

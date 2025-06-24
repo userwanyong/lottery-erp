@@ -1,4 +1,5 @@
-import { delete_strategy, query_strategy } from '@/services/api';
+import UpdateForm from '@/pages/StrategyAward/compoents/UpdateForm';
+import { delete_strategy_award, query_strategy_award } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -7,19 +8,18 @@ import ProTable from '@ant-design/pro-table';
 import { App, Button, Drawer, Popconfirm } from 'antd';
 import { useRef, useState } from 'react';
 import AddForm from './compoents/AddForm';
-import UpdateForm from "@/pages/Strategy/compoents/UpdateForm";
 
-const Strategy: React.FC = () => {
+const StrategyAward: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false); // 控制修改表单可见性
-  const [currentRow, setCurrentRow] = useState<API.StrategyItem>(); // 存储当前编辑行的数据
+  const [currentRow, setCurrentRow] = useState<API.StrategyAwardItem>(); // 存储当前编辑行的数据
   const [showDetail, setShowDetail] = useState<boolean>(false); // 控制详情抽屉可见性
   const actionRef = useRef<ActionType>();
   const { message: msg } = App.useApp(); // 获取 Ant Design 的 message 实例
 
   const handleDelete = async (record: { id: any }) => {
     try {
-      const res = await delete_strategy(record);
+      const res = await delete_strategy_award(record);
       if (res.code === 1000) {
         msg.success('删除成功');
         actionRef.current?.reload();
@@ -31,9 +31,9 @@ const Strategy: React.FC = () => {
     }
   };
 
-  const columns: ProColumns<API.StrategyItem>[] = [
+  const columns: ProColumns<API.StrategyAwardItem>[] = [
     {
-      title: '策略ID',
+      title: '策略奖品ID',
       dataIndex: 'id',
       valueType: 'textarea',
       render: (dom, entity) => {
@@ -51,29 +51,71 @@ const Strategy: React.FC = () => {
       },
     },
     {
-      title: '策略描述',
-      dataIndex: 'strategyDesc',
+      title: '策略ID',
+      dataIndex: 'strategyId',
       valueType: 'textarea',
       ellipsis: true,
     },
     {
-      title: '策略规则模型',
+      title: '奖品ID',
+      dataIndex: 'awardId',
+      valueType: 'textarea',
+      ellipsis: true,
+    },
+    {
+      title: '奖品标题',
+      dataIndex: 'awardTitle',
+      valueType: 'textarea',
+      ellipsis: true,
+    },
+    // {
+    //   title: '奖品副标题',
+    //   dataIndex: 'awardSubtitle',
+    //   valueType: 'textarea',
+    //   ellipsis: true,
+    // },
+    // {
+    //   title: '总库存',
+    //   dataIndex: 'awardCount',
+    //   valueType: 'textarea',
+    //   ellipsis: true,
+    // },
+    {
+      title: '剩余库存',
+      dataIndex: 'awardCountSurplus',
+      valueType: 'textarea',
+      ellipsis: true,
+    },
+    {
+      title: '中奖概率',
+      dataIndex: 'awardRate',
+      valueType: 'textarea',
+      ellipsis: true,
+    },
+    {
+      title: '奖品规则模型',
       dataIndex: 'ruleModels',
       valueType: 'textarea',
       ellipsis: true,
     },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      valueType: 'dateTime',
-      ellipsis: true,
-    },
-    {
-      title: '更新时间',
-      dataIndex: 'updateTime',
-      valueType: 'dateTime',
-      ellipsis: true,
-    },
+    // {
+    //   title: '排序',
+    //   dataIndex: 'sort',
+    //   valueType: 'textarea',
+    //   ellipsis: true,
+    // },
+    // {
+    //   title: '创建时间',
+    //   dataIndex: 'createTime',
+    //   valueType: 'dateTime',
+    //   ellipsis: true,
+    // },
+    // {
+    //   title: '更新时间',
+    //   dataIndex: 'updateTime',
+    //   valueType: 'dateTime',
+    //   ellipsis: true,
+    // },
     {
       title: '操作',
       dataIndex: 'option',
@@ -90,7 +132,7 @@ const Strategy: React.FC = () => {
         </a>,
         <Popconfirm
           key="delete"
-          title="确定删除该策略规则吗？"
+          title="确定删除该策略奖品规则吗？"
           onConfirm={() => handleDelete(record.id as any)}
           okText="是"
           cancelText="否"
@@ -103,16 +145,44 @@ const Strategy: React.FC = () => {
 
   const descriptionColumns: ProDescriptionsItemProps<API.StrategyItem>[] = [
     {
-      title: '策略ID',
+      title: '策略奖品ID',
       dataIndex: 'id',
     },
     {
-      title: '策略描述',
-      dataIndex: 'strategyDesc',
+      title: '策略ID',
+      dataIndex: 'strategyId',
     },
     {
-      title: '策略规则模型',
+      title: '奖品ID',
+      dataIndex: 'awardId',
+    },
+    {
+      title: '奖品标题',
+      dataIndex: 'awardTitle',
+    },
+    {
+      title: '奖品副标题',
+      dataIndex: 'awardSubtitle',
+    },
+    {
+      title: '总库存',
+      dataIndex: 'awardCount',
+    },
+    {
+      title: '剩余库存',
+      dataIndex: 'awardCountSurplus',
+    },
+    {
+      title: '中奖概率',
+      dataIndex: 'awardRate',
+    },
+    {
+      title: '奖品规则模型',
       dataIndex: 'ruleModels',
+    },
+    {
+      title: '排序',
+      dataIndex: 'sort',
     },
     {
       title: '创建时间',
@@ -128,11 +198,11 @@ const Strategy: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<API.StrategyItem, API.PageParams>
+      <ProTable<API.StrategyAwardItem, API.PageParams>
         headerTitle="策略列表"
         actionRef={actionRef}
         rowKey="id"
-        request={query_strategy}
+        request={query_strategy_award}
         columns={columns}
         toolBarRender={() => [
           <Button
@@ -142,7 +212,7 @@ const Strategy: React.FC = () => {
               setModalVisible(true);
             }}
           >
-            + 新建策略
+            + 新建策略奖品
           </Button>,
         ]}
       />
@@ -167,7 +237,7 @@ const Strategy: React.FC = () => {
         closable={false}
       >
         {currentRow && (
-          <ProDescriptions<API.StrategyItem>
+          <ProDescriptions<API.StrategyAwardItem>
             column={2}
             title={currentRow?.id}
             request={async () => ({
@@ -189,7 +259,7 @@ const Strategy: React.FC = () => {
               </a>,
               <Popconfirm
                 key="delete"
-                title="确定删除该策略吗？"
+                title="确定删除该策略奖品吗？"
                 onConfirm={() => {
                   handleDelete(currentRow?.id as any);
                   setShowDetail(false); // 关闭详情抽屉
@@ -207,4 +277,4 @@ const Strategy: React.FC = () => {
   );
 };
 
-export default Strategy;
+export default StrategyAward;
