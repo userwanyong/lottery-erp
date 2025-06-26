@@ -1,6 +1,6 @@
 import { update_rule_tree } from '@/services/api';
 import { ProFormTextArea } from '@ant-design/pro-components'; // 引入 useRef 和 useEffect
-import { ModalForm, ProFormInstance, ProFormText } from '@ant-design/pro-form';
+import {ModalForm, ProFormInstance, ProFormSelect, ProFormText} from '@ant-design/pro-form';
 import { App } from 'antd';
 import React, { useRef } from 'react';
 
@@ -55,12 +55,17 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
       <ProFormText
         name="treeDesc"
         label="奖品规则树描述"
-        rules={[{ required: true, message: '请输入规则值' }]}
+        rules={[{ required: true, message: '请输入奖品规则树描述' }]}
       />
-      <ProFormTextArea
+      <ProFormSelect
         name="treeNodeRuleKey"
         label="入口规则"
-        rules={[{ required: true, message: '请输入规则描述' }]}
+        rules={[{ required: true, message: '请选择入口规则' }]}
+        options={[
+          { label: 'rule_lock', value: 'rule_lock' },
+          { label: 'rule_stock', value: 'rule_stock' },
+        ]}
+        showSearch
       />
     </ModalForm>
   );

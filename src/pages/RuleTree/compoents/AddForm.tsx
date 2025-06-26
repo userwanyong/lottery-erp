@@ -1,8 +1,9 @@
 import { add_rule_tree } from '@/services/api';
 import { ProFormTextArea } from '@ant-design/pro-components'; // 引入 useRef
-import { ModalForm, ProFormInstance, ProFormText } from '@ant-design/pro-form';
+import {ModalForm, ProFormInstance, ProFormSelect, ProFormText} from '@ant-design/pro-form';
 import { App } from 'antd'; // 引入 App 组件
 import React, { useRef } from 'react';
+import {history} from "@@/core/history";
 
 interface AddFormProps {
   visible: boolean;
@@ -47,12 +48,17 @@ const AddForm: React.FC<AddFormProps> = (props) => {
       <ProFormText
         name="treeDesc"
         label="奖品规则树描述"
-        rules={[{ required: true, message: '请输入规则值' }]}
+        rules={[{ required: true, message: '请输入奖品规则树描述' }]}
       />
-      <ProFormTextArea
+      <ProFormSelect
         name="treeNodeRuleKey"
         label="入口规则"
-        rules={[{ required: true, message: '请输入规则描述' }]}
+        rules={[{ required: true, message: '请选择入口规则' }]}
+        options={[
+          { label: 'rule_lock', value: 'rule_lock' },
+          { label: 'rule_stock', value: 'rule_stock' },
+        ]}
+        showSearch
       />
     </ModalForm>
   );
