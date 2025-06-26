@@ -285,7 +285,7 @@ declare namespace API {
     awardCount?: string;
     awardCountSurplus?: string;
     awardRate?: string;
-    ruleModels?: string;
+    ruleTreeId?: string;
     sort?: string;
     createTime?: string;
     updateTime?: string;
@@ -293,7 +293,6 @@ declare namespace API {
 
   type RuleTreeItem = {
     id?: string;
-    treeId?: string;
     treeName?: string;
     treeDesc?: string;
     treeNodeRuleKey?: string;

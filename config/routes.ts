@@ -161,6 +161,12 @@ export default [
         path: '/strategy/award',
         component: './StrategyAward',
       },
+      {
+        name: '奖品规则树配置',
+        icon: 'table',
+        path: '/strategy/tree',
+        component: './RuleTree',
+      },
     ],
   },
 

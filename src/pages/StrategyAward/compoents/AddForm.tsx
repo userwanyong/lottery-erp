@@ -127,13 +127,13 @@ const AddForm: React.FC<AddFormProps> = (props) => {
         }}
       />
       <ProFormSelect
-        name="ruleModels"
-        label="奖品规则模型"
-        rules={[{ required: true, message: '请选择奖品规则模型' }]}
+        name="ruleTreeId"
+        label="奖品规则ID"
+        rules={[{ required: true, message: '请选择奖品规则' }]}
         options={[
           ...ruleTreeList.map((item) => ({
-            label: `${item.treeId} (${item.treeName})`,
-            value: item.treeId,
+            label: `${item.id} (${item.treeName})`,
+            value: item.id,
           })),
           { label: '去新建+', value: '__NEW_RULE_TREE__' }, // 添加新建选项
         ]}

@@ -1,16 +1,19 @@
 import {
   query_award,
-  query_rule,
   query_rule_tree,
   query_strategy,
-  update_strategy,
-  update_strategy_award
+  update_strategy_award,
 } from '@/services/api';
 import { history } from '@@/core/history';
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import { ProFormTextArea } from '@ant-design/pro-components';
-import {ModalForm, ProFormGroup, ProFormInstance, ProFormSelect, ProFormText} from '@ant-design/pro-form';
-import {App, Form, InputNumber, Tooltip} from 'antd';
+import {
+  ModalForm,
+  ProFormGroup,
+  ProFormInstance,
+  ProFormSelect,
+  ProFormText,
+} from '@ant-design/pro-form';
+import { App, Form, InputNumber } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 
 interface UpdateFormProps {
@@ -137,12 +140,12 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
       />
       <ProFormSelect
         name="ruleModels"
-        label="奖品规则模型"
-        rules={[{ required: true, message: '请选择奖品规则模型' }]}
+        label="奖品规则ID"
+        rules={[{ required: true, message: '请选择奖品规则' }]}
         options={[
           ...ruleTreeList.map((item) => ({
-            label: `${item.treeId} (${item.treeName})`,
-            value: item.treeId,
+            label: `${item.id} (${item.treeName})`,
+            value: item.id,
           })),
           { label: '去新建+', value: '__NEW_RULE_TREE__' }, // 添加新建选项
         ]}

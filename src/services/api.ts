@@ -398,3 +398,32 @@ export async function query_rule_tree() {
     },
   });
 }
+
+export async function add_rule_tree(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/tree/add_rule_tree`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function update_rule_tree(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/tree/update_rule_tree`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function delete_rule_tree(ruleTreeId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/tree/delete_rule_tree/${ruleTreeId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}

@@ -1,5 +1,5 @@
-import UpdateForm from '@/pages/StrategyAward/compoents/UpdateForm';
-import { delete_strategy_award, query_strategy_award } from '@/services/api';
+import UpdateForm from './compoents/UpdateForm';
+import { delete_rule_tree, query_rule_tree } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -9,17 +9,17 @@ import { App, Button, Drawer, Popconfirm } from 'antd';
 import { useRef, useState } from 'react';
 import AddForm from './compoents/AddForm';
 
-const StrategyAward: React.FC = () => {
+const RuleTree: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false); // 控制修改表单可见性
-  const [currentRow, setCurrentRow] = useState<API.StrategyAwardItem>(); // 存储当前编辑行的数据
+  const [currentRow, setCurrentRow] = useState<API.RuleTreeItem>(); // 存储当前编辑行的数据
   const [showDetail, setShowDetail] = useState<boolean>(false); // 控制详情抽屉可见性
   const actionRef = useRef<ActionType>();
   const { message: msg } = App.useApp(); // 获取 Ant Design 的 message 实例
 
   const handleDelete = async (record: { id: any }) => {
     try {
-      const res = await delete_strategy_award(record);
+      const res = await delete_rule_tree(record);
       if (res.code === 1000) {
         msg.success('删除成功');
         actionRef.current?.reload();
@@ -31,9 +31,9 @@ const StrategyAward: React.FC = () => {
     }
   };
 
-  const columns: ProColumns<API.StrategyAwardItem>[] = [
+  const columns: ProColumns<API.RuleTreeItem>[] = [
     {
-      title: '策略奖品ID',
+      title: '奖品规则ID',
       dataIndex: 'id',
       valueType: 'textarea',
       render: (dom, entity) => {
@@ -51,71 +51,35 @@ const StrategyAward: React.FC = () => {
       },
     },
     {
-      title: '策略ID',
-      dataIndex: 'strategyId',
+      title: '规则树名称',
+      dataIndex: 'treeName',
       valueType: 'textarea',
       ellipsis: true,
     },
     {
-      title: '奖品ID',
-      dataIndex: 'awardId',
+      title: '规则树描述',
+      dataIndex: 'treeDesc',
       valueType: 'textarea',
       ellipsis: true,
     },
     {
-      title: '奖品标题',
-      dataIndex: 'awardTitle',
-      valueType: 'textarea',
-      ellipsis: true,
-    },
-    // {
-    //   title: '奖品副标题',
-    //   dataIndex: 'awardSubtitle',
-    //   valueType: 'textarea',
-    //   ellipsis: true,
-    // },
-    // {
-    //   title: '总库存',
-    //   dataIndex: 'awardCount',
-    //   valueType: 'textarea',
-    //   ellipsis: true,
-    // },
-    {
-      title: '剩余库存',
-      dataIndex: 'awardCountSurplus',
+      title: '入口规则',
+      dataIndex: 'treeNodeRuleKey',
       valueType: 'textarea',
       ellipsis: true,
     },
     {
-      title: '中奖概率',
-      dataIndex: 'awardRate',
-      valueType: 'textarea',
+      title: '创建时间',
+      dataIndex: 'createTime',
+      valueType: 'dateTime',
       ellipsis: true,
     },
     {
-      title: '奖品规则ID',
-      dataIndex: 'ruleTreeId',
-      valueType: 'textarea',
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      valueType: 'dateTime',
       ellipsis: true,
     },
-    // {
-    //   title: '排序',
-    //   dataIndex: 'sort',
-    //   valueType: 'textarea',
-    //   ellipsis: true,
-    // },
-    // {
-    //   title: '创建时间',
-    //   dataIndex: 'createTime',
-    //   valueType: 'dateTime',
-    //   ellipsis: true,
-    // },
-    // {
-    //   title: '更新时间',
-    //   dataIndex: 'updateTime',
-    //   valueType: 'dateTime',
-    //   ellipsis: true,
-    // },
     {
       title: '操作',
       dataIndex: 'option',
@@ -132,7 +96,7 @@ const StrategyAward: React.FC = () => {
         </a>,
         <Popconfirm
           key="delete"
-          title="确定删除该策略奖品规则吗？"
+          title="确定删除该策略规则吗？"
           onConfirm={() => handleDelete(record.id as any)}
           okText="是"
           cancelText="否"
@@ -143,46 +107,22 @@ const StrategyAward: React.FC = () => {
     },
   ];
 
-  const descriptionColumns: ProDescriptionsItemProps<API.StrategyItem>[] = [
+  const descriptionColumns: ProDescriptionsItemProps<API.RuleTreeItem>[] = [
     {
-      title: '策略奖品ID',
+      title: '奖品规则ID',
       dataIndex: 'id',
     },
     {
-      title: '策略ID',
-      dataIndex: 'strategyId',
+      title: '规则树名称',
+      dataIndex: 'treeName',
     },
     {
-      title: '奖品ID',
-      dataIndex: 'awardId',
+      title: '规则树描述',
+      dataIndex: 'treeDesc',
     },
     {
-      title: '奖品标题',
-      dataIndex: 'awardTitle',
-    },
-    {
-      title: '奖品副标题',
-      dataIndex: 'awardSubtitle',
-    },
-    {
-      title: '总库存',
-      dataIndex: 'awardCount',
-    },
-    {
-      title: '剩余库存',
-      dataIndex: 'awardCountSurplus',
-    },
-    {
-      title: '中奖概率',
-      dataIndex: 'awardRate',
-    },
-    {
-      title: '奖品规则ID',
-      dataIndex: 'ruleTreeId',
-    },
-    {
-      title: '排序',
-      dataIndex: 'sort',
+      title: '入口规则',
+      dataIndex: 'treeNodeRuleKey',
     },
     {
       title: '创建时间',
@@ -198,11 +138,11 @@ const StrategyAward: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<API.StrategyAwardItem, API.PageParams>
-        headerTitle="策略列表"
+      <ProTable<API.RuleItem, API.PageParams>
+        headerTitle="奖品规则配置列表"
         actionRef={actionRef}
         rowKey="id"
-        request={query_strategy_award}
+        request={query_rule_tree}
         columns={columns}
         toolBarRender={() => [
           <Button
@@ -212,7 +152,7 @@ const StrategyAward: React.FC = () => {
               setModalVisible(true);
             }}
           >
-            + 新建策略奖品
+            + 新建规则
           </Button>,
         ]}
       />
@@ -237,7 +177,7 @@ const StrategyAward: React.FC = () => {
         closable={false}
       >
         {currentRow && (
-          <ProDescriptions<API.StrategyAwardItem>
+          <ProDescriptions<API.RuleItem>
             column={2}
             title={currentRow?.id}
             request={async () => ({
@@ -259,7 +199,7 @@ const StrategyAward: React.FC = () => {
               </a>,
               <Popconfirm
                 key="delete"
-                title="确定删除该策略奖品吗？"
+                title="确定删除该奖品规则吗？"
                 onConfirm={() => {
                   handleDelete(currentRow?.id as any);
                   setShowDetail(false); // 关闭详情抽屉
@@ -277,4 +217,4 @@ const StrategyAward: React.FC = () => {
   );
 };
 
-export default StrategyAward;
+export default RuleTree;
