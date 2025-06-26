@@ -1,5 +1,4 @@
-import UpdateForm from './compoents/UpdateForm';
-import { delete_rule_tree, query_rule_tree } from '@/services/api';
+import { delete_rule_tree_node, query_rule_tree_node } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -8,18 +7,19 @@ import ProTable from '@ant-design/pro-table';
 import { App, Button, Drawer, Popconfirm } from 'antd';
 import { useRef, useState } from 'react';
 import AddForm from './compoents/AddForm';
+import UpdateForm from './compoents/UpdateForm';
 
-const RuleTree: React.FC = () => {
+const RuleTreeNode: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false); // 控制修改表单可见性
-  const [currentRow, setCurrentRow] = useState<API.RuleTreeItem>(); // 存储当前编辑行的数据
+  const [currentRow, setCurrentRow] = useState<API.RuleTreeNodeItem>(); // 存储当前编辑行的数据
   const [showDetail, setShowDetail] = useState<boolean>(false); // 控制详情抽屉可见性
   const actionRef = useRef<ActionType>();
   const { message: msg } = App.useApp(); // 获取 Ant Design 的 message 实例
 
   const handleDelete = async (record: { id: any }) => {
     try {
-      const res = await delete_rule_tree(record);
+      const res = await delete_rule_tree_node(record);
       if (res.code === 1000) {
         msg.success('删除成功');
         actionRef.current?.reload();
@@ -31,9 +31,9 @@ const RuleTree: React.FC = () => {
     }
   };
 
-  const columns: ProColumns<API.RuleTreeItem>[] = [
+  const columns: ProColumns<API.RuleTreeNodeItem>[] = [
     {
-      title: '奖品规则树ID',
+      title: '奖品规则节点ID',
       dataIndex: 'id',
       valueType: 'textarea',
       render: (dom, entity) => {
@@ -51,20 +51,26 @@ const RuleTree: React.FC = () => {
       },
     },
     {
-      title: '规则树名称',
-      dataIndex: 'treeName',
+      title: '奖品规则树ID',
+      dataIndex: 'ruleTreeId',
       valueType: 'textarea',
       ellipsis: true,
     },
     {
-      title: '规则树描述',
-      dataIndex: 'treeDesc',
+      title: '奖品规则节点标识',
+      dataIndex: 'ruleName',
       valueType: 'textarea',
       ellipsis: true,
     },
     {
-      title: '入口规则',
-      dataIndex: 'treeNodeRuleKey',
+      title: '规则描述',
+      dataIndex: 'ruleDesc',
+      valueType: 'textarea',
+      ellipsis: true,
+    },
+    {
+      title: '规则值',
+      dataIndex: 'ruleValue',
       valueType: 'textarea',
       ellipsis: true,
     },
@@ -96,7 +102,7 @@ const RuleTree: React.FC = () => {
         </a>,
         <Popconfirm
           key="delete"
-          title="确定删除该策略规则吗？"
+          title="确定删除该奖品规则节点吗？"
           onConfirm={() => handleDelete(record.id as any)}
           okText="是"
           cancelText="否"
@@ -109,20 +115,20 @@ const RuleTree: React.FC = () => {
 
   const descriptionColumns: ProDescriptionsItemProps<API.RuleTreeItem>[] = [
     {
-      title: '奖品规则树ID',
+      title: '奖品规则节点ID',
       dataIndex: 'id',
     },
     {
-      title: '规则树名称',
-      dataIndex: 'treeName',
+      title: '奖品规则节点标识',
+      dataIndex: 'ruleName',
     },
     {
-      title: '规则树描述',
-      dataIndex: 'treeDesc',
+      title: '规则描述',
+      dataIndex: 'ruleDesc',
     },
     {
-      title: '入口规则',
-      dataIndex: 'treeNodeRuleKey',
+      title: '规则值',
+      dataIndex: 'ruleValue',
     },
     {
       title: '创建时间',
@@ -139,10 +145,10 @@ const RuleTree: React.FC = () => {
   return (
     <PageContainer>
       <ProTable<API.RuleItem, API.PageParams>
-        headerTitle="奖品规则配置列表"
+        headerTitle="奖品规则节点配置列表"
         actionRef={actionRef}
         rowKey="id"
-        request={query_rule_tree}
+        request={query_rule_tree_node}
         columns={columns}
         toolBarRender={() => [
           <Button
@@ -152,7 +158,7 @@ const RuleTree: React.FC = () => {
               setModalVisible(true);
             }}
           >
-            + 新建规则
+            + 新建规则节点
           </Button>,
         ]}
       />
@@ -177,7 +183,7 @@ const RuleTree: React.FC = () => {
         closable={false}
       >
         {currentRow && (
-          <ProDescriptions<API.RuleItem>
+          <ProDescriptions<API.RuleTreeNodeItem>
             column={2}
             title={currentRow?.id}
             request={async () => ({
@@ -199,7 +205,7 @@ const RuleTree: React.FC = () => {
               </a>,
               <Popconfirm
                 key="delete"
-                title="确定删除该奖品规则吗？"
+                title="确定删除该奖品规则节点吗？"
                 onConfirm={() => {
                   handleDelete(currentRow?.id as any);
                   setShowDetail(false); // 关闭详情抽屉
@@ -217,4 +223,4 @@ const RuleTree: React.FC = () => {
   );
 };
 
-export default RuleTree;
+export default RuleTreeNode;

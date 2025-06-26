@@ -300,4 +300,15 @@ declare namespace API {
     updateTime?: string;
     data?: RuleTreeItem[];
   }
+
+  type RuleTreeNodeItem = {
+    id?: string;
+    ruleTreeId?: string;
+    ruleName?: string;
+    ruleDesc?: string;
+    ruleValue?: string;
+    createTime?: string;
+    updateTime?: string;
+    data?: RuleTreeNodeItem[];
+  }
 }

@@ -427,3 +427,43 @@ export async function delete_rule_tree(ruleTreeId: any) {
     },
   });
 }
+
+export async function query_rule_tree_node() {
+  return request<API.RuleTreeNodeItem>(`${apiHostUrl}/api/v1/erp/rule/tree/node/query_rule_tree_node`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function add_rule_tree_node(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/tree/node/add_rule_tree_node`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function update_rule_tree_node(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/tree/node/update_rule_tree_node`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function delete_rule_tree_node(ruleTreeNodeId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/tree/node/delete_rule_tree_node/${ruleTreeNodeId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+
