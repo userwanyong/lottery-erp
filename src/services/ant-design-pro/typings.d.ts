@@ -311,4 +311,15 @@ declare namespace API {
     updateTime?: string;
     data?: RuleTreeNodeItem[];
   }
+
+  type RuleTreeNodeLineItem = {
+    id?: string;
+    ruleTreeId?: string;
+    ruleNodeFrom?: string;
+    ruleNodeTo?: string;
+    ruleLimitType?: string;
+    ruleLimitValue?: string;
+    createTime?: string;
+    updateTime?: string;
+  }
 }

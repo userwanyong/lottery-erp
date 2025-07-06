@@ -173,6 +173,12 @@ export default [
         path: '/strategy/node',
         component: './RuleTreeNode',
       },
+      {
+        name: '奖品规则节点连线配置',
+        icon: 'table',
+        path: '/strategy/line',
+        component: './RuleTreeNodeLine',
+      },
     ],
   },
 

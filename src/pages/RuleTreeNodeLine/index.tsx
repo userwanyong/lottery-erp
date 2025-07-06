@@ -1,4 +1,4 @@
-import { delete_rule_tree_node, query_rule_tree_node } from '@/services/api';
+import { delete_rule_tree_node_line, query_rule_tree_node_line } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -9,17 +9,17 @@ import { useRef, useState } from 'react';
 import AddForm from './compoents/AddForm';
 import UpdateForm from './compoents/UpdateForm';
 
-const RuleTreeNode: React.FC = () => {
+const RuleTreeNodeLine: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false); // 控制修改表单可见性
-  const [currentRow, setCurrentRow] = useState<API.RuleTreeNodeItem>(); // 存储当前编辑行的数据
+  const [currentRow, setCurrentRow] = useState<API.RuleTreeNodeLineItem>(); // 存储当前编辑行的数据
   const [showDetail, setShowDetail] = useState<boolean>(false); // 控制详情抽屉可见性
   const actionRef = useRef<ActionType>();
   const { message: msg } = App.useApp(); // 获取 Ant Design 的 message 实例
 
   const handleDelete = async (record: { id: any }) => {
     try {
-      const res = await delete_rule_tree_node(record);
+      const res = await delete_rule_tree_node_line(record);
       if (res.code === 1000) {
         msg.success('删除成功');
         actionRef.current?.reload();
@@ -31,9 +31,9 @@ const RuleTreeNode: React.FC = () => {
     }
   };
 
-  const columns: ProColumns<API.RuleTreeNodeItem>[] = [
+  const columns: ProColumns<API.RuleTreeNodeLineItem>[] = [
     {
-      title: '奖品规则节点ID',
+      title: '节点连线ID',
       dataIndex: 'id',
       valueType: 'textarea',
       render: (dom, entity) => {
@@ -57,20 +57,26 @@ const RuleTreeNode: React.FC = () => {
       ellipsis: true,
     },
     {
-      title: '奖品规则节点标识',
-      dataIndex: 'ruleName',
+      title: '从',
+      dataIndex: 'ruleNodeFrom',
       valueType: 'textarea',
       ellipsis: true,
     },
     {
-      title: '规则描述',
-      dataIndex: 'ruleDesc',
+      title: '到',
+      dataIndex: 'ruleNodeTo',
       valueType: 'textarea',
       ellipsis: true,
     },
     {
-      title: '规则值',
-      dataIndex: 'ruleValue',
+      title: '限定类型',
+      dataIndex: 'ruleLimitType',
+      valueType: 'textarea',
+      ellipsis: true,
+    },
+    {
+      title: '限定值',
+      dataIndex: 'ruleLimitValue',
       valueType: 'textarea',
       ellipsis: true,
     },
@@ -80,12 +86,12 @@ const RuleTreeNode: React.FC = () => {
       valueType: 'dateTime',
       ellipsis: true,
     },
-    {
-      title: '更新时间',
-      dataIndex: 'updateTime',
-      valueType: 'dateTime',
-      ellipsis: true,
-    },
+    // {
+    //   title: '更新时间',
+    //   dataIndex: 'updateTime',
+    //   valueType: 'dateTime',
+    //   ellipsis: true,
+    // },
     {
       title: '操作',
       dataIndex: 'option',
@@ -102,7 +108,7 @@ const RuleTreeNode: React.FC = () => {
         </a>,
         <Popconfirm
           key="delete"
-          title="确定删除该奖品规则节点吗？"
+          title="确定删除该奖品规则节点连线吗？"
           onConfirm={() => handleDelete(record.id as any)}
           okText="是"
           cancelText="否"
@@ -113,22 +119,30 @@ const RuleTreeNode: React.FC = () => {
     },
   ];
 
-  const descriptionColumns: ProDescriptionsItemProps<API.RuleTreeNodeItem>[] = [
+  const descriptionColumns: ProDescriptionsItemProps<API.RuleTreeNodeLineItem>[] = [
     {
       title: '奖品规则节点ID',
       dataIndex: 'id',
     },
     {
-      title: '奖品规则节点标识',
-      dataIndex: 'ruleName',
+      title: '奖品规则树ID',
+      dataIndex: 'ruleTreeId',
     },
     {
-      title: '规则描述',
-      dataIndex: 'ruleDesc',
+      title: '从',
+      dataIndex: 'ruleNodeFrom',
     },
     {
-      title: '规则值',
-      dataIndex: 'ruleValue',
+      title: '到',
+      dataIndex: 'ruleNodeTo',
+    },
+    {
+      title: '限定类型',
+      dataIndex: 'ruleLimitType',
+    },
+    {
+      title: '限定值',
+      dataIndex: 'ruleLimitValue',
     },
     {
       title: '创建时间',
@@ -145,10 +159,10 @@ const RuleTreeNode: React.FC = () => {
   return (
     <PageContainer>
       <ProTable<API.RuleItem, API.PageParams>
-        headerTitle="奖品规则节点配置列表"
+        headerTitle="奖品规则节点连线配置列表"
         actionRef={actionRef}
         rowKey="id"
-        request={query_rule_tree_node}
+        request={query_rule_tree_node_line}
         columns={columns}
         toolBarRender={() => [
           <Button
@@ -158,7 +172,7 @@ const RuleTreeNode: React.FC = () => {
               setModalVisible(true);
             }}
           >
-            + 新建规则节点
+            + 新建节点连线
           </Button>,
         ]}
       />
@@ -183,7 +197,7 @@ const RuleTreeNode: React.FC = () => {
         closable={false}
       >
         {currentRow && (
-          <ProDescriptions<API.RuleTreeNodeItem>
+          <ProDescriptions<API.RuleTreeNodeLineItem>
             column={2}
             title={currentRow?.id}
             request={async () => ({
@@ -205,7 +219,7 @@ const RuleTreeNode: React.FC = () => {
               </a>,
               <Popconfirm
                 key="delete"
-                title="确定删除该奖品规则节点吗？"
+                title="确定删除该奖品规则节点连线吗？"
                 onConfirm={() => {
                   handleDelete(currentRow?.id as any);
                   setShowDetail(false); // 关闭详情抽屉
@@ -223,4 +237,4 @@ const RuleTreeNode: React.FC = () => {
   );
 };
 
-export default RuleTreeNode;
+export default RuleTreeNodeLine;

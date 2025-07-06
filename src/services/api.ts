@@ -437,6 +437,15 @@ export async function query_rule_tree_node() {
   });
 }
 
+export async function query_rule_tree_node_one(ruleTreeId:string) {
+  return request<API.RuleTreeNodeItem>(`${apiHostUrl}/api/v1/erp/rule/tree/node/query_rule_tree_node_one?ruleTreeId=${ruleTreeId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
 export async function add_rule_tree_node(options?: { [key: string]: any }) {
   return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/tree/node/add_rule_tree_node`, {
     method: 'POST',
@@ -459,6 +468,44 @@ export async function update_rule_tree_node(options?: { [key: string]: any }) {
 
 export async function delete_rule_tree_node(ruleTreeNodeId: any) {
   return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/tree/node/delete_rule_tree_node/${ruleTreeNodeId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function query_rule_tree_node_line() {
+  return request<API.RuleTreeNodeLineItem>(`${apiHostUrl}/api/v1/erp/rule/tree/node/line/query_rule_tree_node_line`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function add_rule_tree_node_line(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/tree/node/line/add_rule_tree_node_line`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function update_rule_tree_node_line(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/tree/node/line/update_rule_tree_node_line`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+export async function delete_rule_tree_node_line(ruleTreeNodeLineId: any) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/erp/rule/tree/node/line/delete_rule_tree_node_line/${ruleTreeNodeLineId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -143,7 +143,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
             (option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
           onChange: (value) => {
             if (value === '__NEW_RULE_TREE__') {
-              history.push('/strategy/rule/tree');
+              history.push('/strategy/tree');
             }
           },
         }}

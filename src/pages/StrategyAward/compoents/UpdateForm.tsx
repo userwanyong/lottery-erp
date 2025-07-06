@@ -139,7 +139,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
         }}
       />
       <ProFormSelect
-        name="ruleModels"
+        name="ruleTreeId"
         label="奖品规则ID"
         rules={[{ required: true, message: '请选择奖品规则' }]}
         options={[
@@ -155,7 +155,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
             (option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
           onChange: (value) => {
             if (value === '__NEW_RULE_TREE__') {
-              history.push('/strategy/rule/tree');
+              history.push('/strategy/tree');
             }
           },
         }}
