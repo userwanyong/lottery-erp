@@ -58,6 +58,7 @@ const BehaviorRebate: React.FC = () => {
     },
     {
       title: '行为类型',
+      width: 80,
       dataIndex: 'behaviorType',
       valueType: 'textarea',
       ellipsis: true,
@@ -70,6 +71,7 @@ const BehaviorRebate: React.FC = () => {
     },
     {
       title: '返利类型',
+      width: 90,
       dataIndex: 'rebateType',
       valueType: 'textarea',
       ellipsis: true,
@@ -82,6 +84,7 @@ const BehaviorRebate: React.FC = () => {
     },
     {
       title: '状态',
+      width: 80,
       dataIndex: 'state',
       valueEnum: {
         open: {
@@ -95,12 +98,12 @@ const BehaviorRebate: React.FC = () => {
       },
       ellipsis: true,
     },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      valueType: 'dateTime',
-      ellipsis: true,
-    },
+    // {
+    //   title: '创建时间',
+    //   dataIndex: 'createTime',
+    //   valueType: 'dateTime',
+    //   ellipsis: true,
+    // },
     {
       title: '更新时间',
       dataIndex: 'updateTime',

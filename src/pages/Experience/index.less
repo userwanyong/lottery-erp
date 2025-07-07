@@ -1,0 +1,159 @@
+.container {
+  padding: 0;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.selectWrapper {
+  margin-right: 24px;
+}
+
+.infoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+
+  .label {
+    color: #666;
+    margin-right: 8px;
+  }
+
+  .value {
+    color: #1890ff;
+    font-weight: 500;
+  }
+}
+
+.lotteryBox {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  gap: 10px;
+  width: 334px; // 10*2+100*3+7*2
+  height: 334px; // 10*2+100*3+7*2
+  padding: 7px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  user-select: none; // 禁止选中文本
+  -webkit-user-select: none; // Safari 浏览器兼容
+  -moz-user-select: none; // Firefox 浏览器兼容
+  -ms-user-select: none; // IE 浏览器兼容
+}
+
+.prizeItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100px; // 固定宽度
+  height: 100px; // 固定高度
+  padding: 0;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  transition: all 0.3s;
+
+  img {
+    width: 80px; // 调整图片大小
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 1px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    text-align: center;
+    color: #666666;
+    width: 100%; // 确保文字不会溢出
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &.active {
+    // transform: scale(0.95);
+    background-color: #d30d0d;
+    // box-shadow: 0 0 8px rgba(255, 77, 79, 0.5);
+    // border: 10px solid #ff4d4f;
+  }
+}
+
+.startBtn {
+  width: 100%;
+  height: 100%;
+  font-size: 16px;
+  color: #fff;
+  background-color: #ff4d4f;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    background-color: #ff7875;
+  }
+
+  &:disabled {
+    background-color: #d9d9d9;
+    cursor: not-allowed;
+  }
+}
+
+.activitySelect {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.prizeContent {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.lockOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(99, 75, 75, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.lockIcon {
+  font-size: 24px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.lockText {
+  color: #fff;
+  font-size: 10px;
+  text-align: center;
+}

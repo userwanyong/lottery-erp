@@ -4,6 +4,28 @@ import {request} from '@umijs/max';
 
 const apiHostUrl = "http://127.0.0.1:8091";
 
+// 效果展示
+export async function queryLotteryAwardList(options?: { [key: string]: any }) {
+  return request<API.LotteryAwardList>(`${apiHostUrl}/api/v1/lottery/query_lottery_award_list`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    data: options,
+  });
+}
+
+export async function draw(options?: { [key: string]: any }) {
+  return request<API.LotteryAward>(`${apiHostUrl}/api/v1/activity/draw`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    data: options,
+  });
+}
+
+// 运营后台
 export async function query_user_order() {
   return request<API.UserOrderItem>(`${apiHostUrl}/api/v1/erp/query_user_order`, {
     method: 'GET',

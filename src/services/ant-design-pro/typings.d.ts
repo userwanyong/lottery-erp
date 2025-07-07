@@ -5,7 +5,7 @@ declare namespace API {
   type CurrentUser = {
     name?: string;
     avatar?: string;
-    userid?: string;
+    userId?: string;
     email?: string;
     signature?: string;
     title?: string;
@@ -321,5 +321,27 @@ declare namespace API {
     ruleLimitValue?: string;
     createTime?: string;
     updateTime?: string;
+  }
+
+
+  type LotteryAwardList = {
+    awardId?: string; // 奖品ID
+    awardTitle?: string; // 奖品标题
+    awardSubtitle?: string; // 奖品副标题（eg.抽奖一次后解锁）
+    image?: string; // 奖品图片url
+    sort?: string;  // 排序
+    awardRuleLockCount?: string; // 奖品次数规则 - 抽奖N次后解锁，未配置则为空
+    isAwardUnlock?: string; // 奖品是否解锁 - true 已解锁、false 未解锁
+    waitUnLockCount?: string; // 还需要多少次解锁
+    data?: LotteryAwardList[];
+  }
+
+  type LotteryAward = {
+    awardId?: string; // 奖品ID
+    awardTitle?: string; // 奖品标题
+    awardIndex?: string;  // 排序编号
+    message?: string;
+    code?: number;
+    data?: LotteryAward;
   }
 }

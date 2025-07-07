@@ -183,10 +183,10 @@ export default [
   },
 
   {
-    name: 'list.table-list',
-    icon: 'table',
-    path: '/list',
-    component: './TableList',
+    name: '效果体验',
+    icon: 'aimOutlined',
+    path: '/experience',
+    component: './Experience',
   },
   {
     path: '/',
