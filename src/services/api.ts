@@ -36,6 +36,25 @@ export async function draw(options?: { [key: string]: any }) {
 }
 
 // 运营后台
+export async function dcc_value(key:string) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/dcc/query_config?key=${key}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function dcc_config(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/dcc/update_config`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
 export async function query_user_order() {
   return request<API.UserOrderItem>(`${apiHostUrl}/api/v1/erp/query_user_order`, {
     method: 'GET',

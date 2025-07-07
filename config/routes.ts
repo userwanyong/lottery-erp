@@ -92,6 +92,12 @@ export default [
         path: '/lottery/award',
         component: './Award',
       },
+      {
+        name: '动态配置中心(DCC)',
+        icon: 'table',
+        path: '/lottery/dcc',
+        component: './DCC',
+      },
     ],
   },
   {
