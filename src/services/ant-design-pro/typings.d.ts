@@ -344,4 +344,16 @@ declare namespace API {
     code?: number;
     data?: LotteryAward;
   }
+
+  type StrategyAward = {
+    awardId?: string; // 奖品ID
+    awardTitle?: string; // 奖品标题
+  }
+
+  type StrategyRuleWeight = {
+    ruleWeightCount?: number; // 权重规则配置的抽奖次数
+    userActivityAccountTotalUseCount?: number; // 用户已经抽奖总次数
+    strategyAwards?: StrategyAward[]; // 当前权重中奖抽奖范围
+    data?: StrategyRuleWeight;
+  }
 }

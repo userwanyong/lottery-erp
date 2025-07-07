@@ -1,6 +1,6 @@
-import { draw, query_activity, queryLotteryAwardList } from '@/services/api';
+import { draw, query_activity, queryLotteryAwardList,queryStrategyRuleWeight } from '@/services/api';
 import { useModel } from '@umijs/max';
-import { message, Select } from 'antd';
+import { message, Select, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
 
@@ -14,6 +14,146 @@ const Experience: React.FC = () => {
   const [isRotating, setIsRotating] = useState(false); // 是否正在抽奖
   const [currentIndex, setCurrentIndex] = useState(0); // 当前选中的格子索引
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null); // 定时器
+  
+  // 获取抽奖进度数据
+  const [progressData, setProgressData] = useState<any[]>([]); // 存储进度数据
+
+  // 修改获取抽奖进度数据的函数
+  const progressPercent = async (activityId: string) => {
+    if (!activityId || !currentUser?.userId) {
+      return;
+    }
+
+    try {
+      const response = await queryStrategyRuleWeight({
+        activityId,
+        userId: currentUser.userId,
+      });
+      setProgressData(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      message.error('获取抽奖进度数据异常');
+    }
+  };
+
+  // 添加进度条组件
+  const renderProgressBar = () => {
+    if (!progressData.length) return null;
+
+    const maxCount = Math.max(...progressData.map(item => item.ruleWeightCount));
+    const currentProgress = progressData[0]?.userActivityAccountTotalUseCount || 0;
+    // 移除0节点，只保留权重节点
+    const segments = progressData.map(item => item.ruleWeightCount);
+
+    return (
+      <div style={{ marginTop: 24, padding: '0 10%', maxWidth: '650px', margin: '24px auto' }}>
+        <div style={{ position: 'relative', marginBottom: 60 }}>
+          {/* 进度条背景 */}
+          <div
+            style={{
+              height: '15px',
+              backgroundColor: '#f0f0f0',
+              borderRadius: '6px',
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
+            {/* 进度条前景 */}
+            <div
+              style={{
+                height: '100%',
+                width: `${(currentProgress%maxCount / maxCount) * 100}%`,
+                background: 'linear-gradient(90deg, #1890ff 0%, #52c41a 100%)',
+                borderRadius: '6px',
+                transition: 'width 0.3s ease',
+              }}
+            />
+          </div>
+
+          {/* 节点标记 */}
+          {segments.map((segment, index) => {
+            const position = (segment / maxCount) * 100;
+            const currentSegmentData = progressData[index];
+            
+            return (
+              <Tooltip
+                key={segment}
+                title={
+                  <div>
+                    <div>区间：{index === 0 ? '0' : segments[index - 1]}-{segment}</div>
+                    <div>必中奖品：</div>
+                    {currentSegmentData?.strategyAwards?.map((award: {awardId: string; awardTitle: string}) => (
+                      <div key={award.awardId}>- {award.awardTitle}</div>
+                    ))}
+                  </div>
+                }
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: `${position}%`,
+                    top: '0px',
+                    transform: 'translateX(-50%)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '15px',
+                      height: '15px',
+                      borderRadius: '50%',
+                      background: currentProgress%maxCount >= segment ? '#52c41a' : '#1890ff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontSize: '16px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    }}
+                  >
+                    ?
+                  </div>
+                  <div style={{ marginTop: 1, fontSize: 9, color: '#666' }}>{segment}</div>
+                </div>
+              </Tooltip>
+            );
+          })}
+
+          {/* 当前抽奖次数标识 */}
+          <Tooltip title={`当前抽奖次数：${currentProgress%maxCount}`}>
+            <div
+              style={{
+                position: 'absolute',
+                left: `${(currentProgress%maxCount / maxCount) * 100}%`,
+                top: '0px',
+                cursor: 'pointer',
+                transform: 'translateX(-50%)',
+              }}
+            >
+              <div
+                style={{
+                  width: '15px',
+                  height: '15px',
+                  borderRadius: '50%',
+                  background: '#f5222d',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  fontSize: '16px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                }}
+              >
+                ⭐
+              </div>
+              <div style={{ marginTop: 2, fontSize: 0, color: '#666', whiteSpace: 'nowrap' }}>
+                {currentProgress}
+              </div>
+            </div>
+          </Tooltip>
+        </div>
+      </div>
+    );
+  };
 
   // 获取活动列表
   const fetchActivities = async () => {
@@ -72,6 +212,7 @@ const Experience: React.FC = () => {
   useEffect(() => {
     if (selectedActivityId) {
       fetchAwards(selectedActivityId);
+      progressPercent(selectedActivityId);
     } else {
       setAwards([]);
     }
@@ -139,6 +280,7 @@ const Experience: React.FC = () => {
      
       do {
         currentIdx = (currentIdx + 1) % 9;
+        
         // 检查当前位置是否对应未解锁奖品
         const currentAwardId = generatePrizeOrder(awards)[currentIdx];
         if (currentAwardId === null) {
@@ -173,14 +315,18 @@ const Experience: React.FC = () => {
         const targetIndex = prizeOrder.indexOf(String(result.data?.awardId));
         // 停在中奖位置
         setCurrentIndex(targetIndex);
-        // 2.5秒后显示中奖信息
+        // 2秒后显示中奖信息
         setTimeout(() => {
           setIsRotating(false);
           tmp=1;
           message.success(`恭喜获得：${result.data?.awardTitle}`);
           // 重新获取奖品列表，更新解锁次数
-          fetchAwards(selectedActivityId);
-        }, 2500);
+          // 更新进度数据
+          if (selectedActivityId) {
+            fetchAwards(selectedActivityId);
+            progressPercent(selectedActivityId);
+          }
+        }, 2000);
       } else {
         message.error(result.message);
         setIsRotating(false);
@@ -275,6 +421,8 @@ const Experience: React.FC = () => {
           );
         })}
       </div>
+      {/* 添加进度条 */}
+      {renderProgressBar()}
     </div>
   );
 };

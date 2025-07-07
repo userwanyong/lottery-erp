@@ -15,6 +15,16 @@ export async function queryLotteryAwardList(options?: { [key: string]: any }) {
   });
 }
 
+export async function queryStrategyRuleWeight(options?: { [key: string]: any }) {
+  return request<API.StrategyRuleWeight>(`${apiHostUrl}/api/v1/lottery/query_strategy_rule_weight`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    data: options,
+  });
+}
+
 export async function draw(options?: { [key: string]: any }) {
   return request<API.LotteryAward>(`${apiHostUrl}/api/v1/activity/draw`, {
     method: 'POST',
