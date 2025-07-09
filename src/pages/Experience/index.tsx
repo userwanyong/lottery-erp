@@ -1,20 +1,25 @@
 import {
-  calendarSignRebate, creditPayExchangeSku,
+  calendarSignRebate,
+  creditPayExchangeSku,
   draw,
   isCalendarSignRebate,
   query_activity,
-  queryLotteryAwardList, querySkuProductListByActivityId,
+  query_my_award_record,
+  queryLotteryAwardList,
+  querySkuProductListByActivityId,
   queryStrategyRuleWeight,
-  queryUserActivityAccount, queryUserCreditAccount,
+  queryUserActivityAccount,
+  queryUserCreditAccount,
 } from '@/services/api';
 import { useModel } from '@umijs/max';
-import { Button, Card, message, Select, Tooltip } from 'antd';
+import {Button, Card, message, Pagination, Select, Tooltip} from 'antd';
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
 
 const Experience: React.FC = () => {
   const { initialState } = useModel('@@initialState');
   const currentUser = initialState?.currentUser;
+  const [messageApi, contextHolder] = message.useMessage(); // 添加 useMessage 钩子
 
   const [activities, setActivities] = useState<API.ActivityItem[]>([]); // 活动列表
   const [selectedActivityId, setSelectedActivityId] = useState<string>(''); // 选中的活动ID
@@ -29,16 +34,40 @@ const Experience: React.FC = () => {
   const [isSignedToday, setIsSignedToday] = useState(false); // 今日是否已经签到
   const [progressData, setProgressData] = useState<any[]>([]); // 存储进度数据
   const [refreshKey, setRefreshKey] = useState(0);
+  const [awardRecords, setAwardRecords] = useState<API.UserAwardRecordItem[]>([]); // 历史抽奖记录
+  const [currentPage, setCurrentPage] = useState<number>(1); // 当前页码
+  const [pageSize, setPageSize] = useState<number>(5); // 每页记录数
+  const [totalRecords, setTotalRecords] = useState<number>(0); // 总记录数
+
+  // 查询历史抽奖记录
+  const queryMyAwardRecord = async (page: number, size: number) => {
+    if (!selectedActivityId || !currentUser?.userId) return;
+    try {
+      const response = await query_my_award_record(
+        String(page),
+        String(size),
+        selectedActivityId,
+        currentUser.userId,
+      );
+      if (response?.data?.items) {
+        setAwardRecords(response.data.items);
+        setTotalRecords(response.data.total || 0);
+      }
+    } catch (error) {
+      messageApi.error('查询历史记录失败'); // 使用 messageApi.error
+    }
+  };
+
   // 查询今日是否已签到
   const checkSignStatus = async () => {
     try {
       const response = await isCalendarSignRebate({
         userId: currentUser?.userId,
-        activityId: selectedActivityId
+        activityId: selectedActivityId,
       });
       setIsSignedToday(response.data);
     } catch (error) {
-      message.error('查询签到状态失败');
+      messageApi.error('查询签到状态失败'); // 使用 messageApi.error
     }
   };
 
@@ -47,11 +76,11 @@ const Experience: React.FC = () => {
     try {
       const response = await queryUserActivityAccount({
         userId: currentUser?.userId,
-        activityId: selectedActivityId
+        activityId: selectedActivityId,
       });
       setActivityAccount(response.data);
     } catch (error) {
-      message.error('查询用户抽奖账户失败');
+      messageApi.error('查询用户抽奖账户失败'); // 使用 messageApi.error
     }
   };
 
@@ -61,7 +90,7 @@ const Experience: React.FC = () => {
       const response = await querySkuProductListByActivityId(activityId);
       setSkus(response.data);
     } catch (error) {
-      message.error('查询查询sku列表失败');
+      messageApi.error('查询查询sku列表失败'); // 使用 messageApi.error
     }
   };
 
@@ -70,32 +99,32 @@ const Experience: React.FC = () => {
     try {
       const response = await queryUserCreditAccount({
         userId: currentUser?.userId,
-        activityId: selectedActivityId
+        activityId: selectedActivityId,
       });
       setCreditAccount(response.data);
     } catch (error) {
-      message.error('查询用户积分账户失败');
+      messageApi.error('查询用户积分账户失败'); // 使用 messageApi.error
     }
   };
   // 兑换sku商品
-  const paySku = async (id:string,skuCount:number) => {
+  const paySku = async (id: string, skuCount: number) => {
     try {
       const response = await creditPayExchangeSku({
         userId: currentUser?.userId,
         activityId: selectedActivityId,
-        sku: id
+        sku: id,
       });
-      if (response.code===1000){
-        message.success(`成功兑换${skuCount}次抽奖次数`);
+      if (response.code === 1000) {
+        messageApi.success(`成功兑换${skuCount}次抽奖次数`); // 使用 messageApi.success
         // 等待0.5s在执行
         setTimeout(() => {
-          setRefreshKey(prev => prev + 1);
-        },500)
-      }else {
-        message.error(response.message);
+          setRefreshKey((prev) => prev + 1);
+        }, 500);
+      } else {
+        messageApi.error(response.message); // 使用 messageApi.error
       }
     } catch (error) {
-      message.error('兑换失败');
+      messageApi.error('兑换失败'); // 使用 messageApi.error
     }
   };
 
@@ -112,23 +141,21 @@ const Experience: React.FC = () => {
       });
       setProgressData(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
-      message.error('获取抽奖进度数据异常');
+      messageApi.error('获取抽奖进度数据异常'); // 使用 messageApi.error
     }
   };
-
-
 
   // 添加进度条组件
   const renderProgressBar = () => {
     if (!progressData.length) return null;
 
-    const maxCount = Math.max(...progressData.map(item => item.ruleWeightCount));
+    const maxCount = Math.max(...progressData.map((item) => item.ruleWeightCount));
     const currentProgress = progressData[0]?.userActivityAccountTotalUseCount || 0;
     // 移除0节点，只保留权重节点
-    const segments = progressData.map(item => item.ruleWeightCount);
+    const segments = progressData.map((item) => item.ruleWeightCount);
 
     return (
-      <div style={{ marginTop: 24, maxWidth: '335px', margin: '24px auto' }}>
+      <div style={{ marginTop: 24, maxHeight:'0px',maxWidth: '335px', margin: '24px auto' }}>
         <div style={{ position: 'relative', marginBottom: 60 }}>
           {/* 进度条背景 */}
           <div
@@ -144,7 +171,7 @@ const Experience: React.FC = () => {
             <div
               style={{
                 height: '100%',
-                width: `${(currentProgress%maxCount / maxCount) * 100}%`,
+                width: `${((currentProgress % maxCount) / maxCount) * 100}%`,
                 background: 'linear-gradient(90deg, #1890ff 0%, #52c41a 100%)',
                 borderRadius: '6px',
                 transition: 'width 0.3s ease',
@@ -162,11 +189,15 @@ const Experience: React.FC = () => {
                 key={segment}
                 title={
                   <div>
-                    <div>区间：{index === 0 ? '0' : segments[index - 1]}-{segment}</div>
+                    <div>
+                      区间：{index === 0 ? '0' : segments[index - 1]}-{segment}
+                    </div>
                     <div>必中奖品：</div>
-                    {currentSegmentData?.strategyAwards?.map((award: {awardId: string; awardTitle: string}) => (
-                      <div key={award.awardId}>- {award.awardTitle}</div>
-                    ))}
+                    {currentSegmentData?.strategyAwards?.map(
+                      (award: { awardId: string; awardTitle: string }) => (
+                        <div key={award.awardId}>- {award.awardTitle}</div>
+                      ),
+                    )}
                   </div>
                 }
               >
@@ -184,7 +215,7 @@ const Experience: React.FC = () => {
                       width: '15px',
                       height: '15px',
                       borderRadius: '50%',
-                      background: currentProgress%maxCount >= segment ? '#52c41a' : '#1890ff',
+                      background: currentProgress % maxCount >= segment ? '#52c41a' : '#1890ff',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -202,11 +233,11 @@ const Experience: React.FC = () => {
           })}
 
           {/* 当前抽奖次数标识 */}
-          <Tooltip title={`当前抽奖次数：${currentProgress%maxCount}`}>
+          <Tooltip title={`当前抽奖次数：${currentProgress % maxCount}`}>
             <div
               style={{
                 position: 'absolute',
-                left: `${(currentProgress%maxCount / maxCount) * 100}%`,
+                left: `${((currentProgress % maxCount) / maxCount) * 100}%`,
                 top: '0px',
                 cursor: 'pointer',
                 transform: 'translateX(-50%)',
@@ -246,7 +277,7 @@ const Experience: React.FC = () => {
         setActivities(response.data);
       }
     } catch (error) {
-      message.error('获取活动列表失败');
+      messageApi.error('获取活动列表失败'); // 使用 messageApi.error
     }
   };
 
@@ -256,7 +287,6 @@ const Experience: React.FC = () => {
     const sortedAwards = [...awards].sort(
       (a, b) => ((a.sort as any) || 0) - ((b.sort as any) || 0),
     );
-
 
     // 九宫格位置顺序：0,1,2,3,null,4,5,6,7
     const positions = [0, 1, 2, 3, null, 4, 5, 6, 7];
@@ -284,7 +314,7 @@ const Experience: React.FC = () => {
         setAwards(fullAwards);
       }
     } catch (error) {
-      message.error('获取奖品列表失败');
+      messageApi.error('获取奖品列表失败'); // 使用 messageApi.error
     }
   };
 
@@ -296,10 +326,11 @@ const Experience: React.FC = () => {
     if (selectedActivityId) {
       fetchAwards(selectedActivityId);
       progressPercent(selectedActivityId);
-      querySkuProductList(selectedActivityId)
+      querySkuProductList(selectedActivityId);
       checkSignStatus();
       queryActivityAccount();
       queryCreditAccount();
+      queryMyAwardRecord(currentPage, pageSize); // 初始加载时调用，带上分页参数
     } else {
       setAwards([]);
     }
@@ -307,8 +338,13 @@ const Experience: React.FC = () => {
 
   useEffect(() => {
     queryCreditAccount();
-    queryActivityAccount()
+    queryActivityAccount();
   }, [refreshKey]);
+
+  // 当页码或每页大小改变时重新查询
+  useEffect(() => {
+    queryMyAwardRecord(currentPage, pageSize);
+  }, [currentPage, pageSize]);
 
   // 活动选择变化
   const handleActivityChange = async (value: string) => {
@@ -332,38 +368,38 @@ const Experience: React.FC = () => {
           setAwards(fullAwards);
         }
       } catch (error) {
-        message.error('获取奖品列表失败');
+        messageApi.error('获取奖品列表失败'); // 使用 messageApi.error
       }
     } else {
       setAwards([]);
     }
   };
 
-  let tmp=0;
+  let tmp = 0;
   // 开始抽奖
   const startLottery = async () => {
     if (!selectedActivityId) {
-      message.error('请选择活动');
+      messageApi.error('请选择活动'); // 使用 messageApi.error
       return;
     }
 
     // 检查是否有未解锁的奖品
-    const unlockedAwards = awards.filter(award => Number(award.waitUnLockCount)<=0);
+    const unlockedAwards = awards.filter((award) => Number(award.waitUnLockCount) <= 0);
     if (unlockedAwards.length === 0) {
-      message.error('暂无可用奖品，请先解锁奖品');
+      messageApi.error('暂无可用奖品，请先解锁奖品'); // 使用 messageApi.error
       return;
     }
 
     setIsRotating(true);
-    tmp=0;
+    tmp = 0;
 
     // 重置起始位置为0
     setCurrentIndex(0);
     let currentIdx = 0;
 
     const rotate = () => {
-       // 如果已经停止旋转，直接返回
-       if (tmp) {
+      // 如果已经停止旋转，直接返回
+      if (tmp) {
         if (timer) {
           clearTimeout(timer);
         }
@@ -378,11 +414,15 @@ const Experience: React.FC = () => {
         if (currentAwardId === null) {
           continue; // 跳过中间格子
         }
-        const currentAward = awards.find(award => award.awardId === currentAwardId);
-        if (currentAward?.waitUnLockCount as any >0) {
+        const currentAward = awards.find((award) => award.awardId === currentAwardId);
+        if ((currentAward?.waitUnLockCount as any) > 0) {
           continue; // 跳过未解锁的奖品
         }
-      } while (currentIdx === 4 || awards.find(award => award.awardId === generatePrizeOrder(awards)[currentIdx])?.waitUnLockCount as any>0);
+      } while (
+        currentIdx === 4 ||
+        (awards.find((award) => award.awardId === generatePrizeOrder(awards)[currentIdx])
+          ?.waitUnLockCount as any) > 0
+      );
 
       setCurrentIndex(currentIdx);
       // 控制动画速度
@@ -410,26 +450,26 @@ const Experience: React.FC = () => {
         // 2秒后显示中奖信息
         setTimeout(() => {
           setIsRotating(false);
-          tmp=1;
-          message.success(`恭喜获得：${result.data?.awardTitle}`);
+          tmp = 1;
+          messageApi.success(`恭喜获得：${result.data?.awardTitle}`); // 使用 messageApi.success
           // 重新获取奖品列表，更新解锁次数
-          // 更新进度数据
+          // 更新数据
           if (selectedActivityId) {
             fetchAwards(selectedActivityId);
             progressPercent(selectedActivityId);
-            queryActivityAccount();
-            queryCreditAccount();
+            setRefreshKey((prev) => prev + 1);
+            queryMyAwardRecord(currentPage, pageSize);
           }
         }, 2000);
       } else {
-        message.error(result.message);
+        messageApi.error(result.message); // 使用 messageApi.error
         setIsRotating(false);
-        tmp=1;
+        tmp = 1;
       }
     } catch (error) {
-      message.error('抽奖失败');
+      messageApi.error('抽奖失败'); // 使用 messageApi.error
       setIsRotating(false);
-      tmp=1;
+      tmp = 1;
     }
   };
 
@@ -444,11 +484,12 @@ const Experience: React.FC = () => {
 
   return (
     <div className={styles.container}>
+      {contextHolder} {/* 在组件的 return 语句中添加 contextHolder */}
       <div className={styles.header}>
         <div className={styles.selectWrapper}>
           <Select
             placeholder="请选择活动"
-            style={{ width: 200}}
+            style={{ width: 200 }}
             onChange={handleActivityChange}
             value={selectedActivityId || undefined}
             options={activities.map((activity) => ({
@@ -470,60 +511,184 @@ const Experience: React.FC = () => {
           </div>
         )}
       </div>
-      <div className={styles.lotteryBox}>
-        {generatePrizeOrder(awards).map((awardId, index) => {
-          // 中间格子显示按钮
-          if (awardId === null) {
-            return (
-              <div key={index} className={styles.prizeItem}>
-                <button
-                  type="button"
-                  className={styles.startBtn}
-                  onClick={startLottery}
-                  disabled={isRotating || !selectedActivityId}
+      <div style={{ display: 'flex', justifyContent: 'center',maxHeight:'400px'}}>
+        {/* 历史记录卡片 */}
+        <div style={{display:'flex',marginRight:'20px',minWidth:'292px'}}>
+          <Card
+            title="中奖记录"
+            className={styles.historyCard}
+            styles={{
+              title: {
+                fontSize: 16,
+              },
+              header: {
+                padding: '0 24px',
+              },
+              body: {
+                padding: '0 24px',
+              },
+            }}
+            style={{
+              width: 300,
+              height: 380,
+              overflow: 'auto',
+              cursor: 'pointer',
+              userSelect: 'none',
+            }}
+          >
+            <div className={styles.recordList}>
+              {awardRecords.map((record, index) => (
+                <div
+                  key={index}
+                  className={styles.recordItem}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '8px 0',
+                    borderBottom: '1px solid #f0f0f0',
+                  }}
                 >
-                    {isRotating
-                      ? '抽奖中...'
-                      : `开始抽奖 (剩:${activityAccount?.dayCountSurplus || 0}次)`}
-                </button>
-              </div>
-            );
-          }
-
-          // 其他格子显示奖品
-          const award = awards.find((a) => a.awardId === awardId);
-          return (
-            <div
-              key={index}
-              className={`${styles.prizeItem} ${
-                currentIndex === index && isRotating ? styles.active : ''
-              }`}
-            >
-              {award && (
-                <>
-                  <div className={styles.prizeContent}>
-                    <img src={award.image} alt={award.awardTitle} />
-                    <p>{award.awardTitle}</p>
-                    {(award.waitUnLockCount as any) > 0 && (
-                      <div className={styles.lockOverlay}>
-                        <span className={styles.lockIcon}>🔒</span>
-                        <p className={styles.lockText}>抽奖{award.waitUnLockCount}次后解锁</p>
-                      </div>
-                    )}
+                  <img
+                    src={record.image}
+                    alt={record.awardTitle}
+                    style={{ width: 35, height: 35, marginRight: 12 }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div>{record.awardTitle}</div>
+                    <div style={{ fontSize: 12, color: '#999' }}>
+                      {new Date(record.createTime as any).toLocaleString()}
+                    </div>
                   </div>
-                </>
-              )}
+                </div>
+              ))}
             </div>
-          );
-        })}
+            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+              <Pagination
+              style={{
+                justifyContent: 'center',
+                marginTop: '-5px',
+              }}
+                simple={{
+                  readOnly: true,
+                }}
+                size='small'
+                hideOnSinglePage={true}
+                showSizeChanger={false}
+                showQuickJumper={true}
+                current={currentPage}
+                pageSize={5}
+                total={totalRecords}
+                onChange={(page, size) => {
+                  setCurrentPage(page);
+                }}
+              />
+            </div>
+          </Card>
+        </div>
+        {/* 九宫格and进度条 */}
+        <div>
+          {/* 九宫格 */}
+          <div className={styles.lotteryBox}>
+            {generatePrizeOrder(awards).map((awardId, index) => {
+              // 中间格子显示按钮
+              if (awardId === null) {
+                return (
+                  <div key={index} className={styles.prizeItem}>
+                    <button
+                      type="button"
+                      className={styles.startBtn}
+                      onClick={startLottery}
+                      disabled={isRotating || !selectedActivityId}
+                    >
+                      {isRotating
+                        ? '抽奖中...'
+                        : `开始抽奖 (剩:${activityAccount?.dayCountSurplus || 0}次)`}
+                    </button>
+                  </div>
+                );
+              }
+
+              // 其他格子显示奖品
+              const award = awards.find((a) => a.awardId === awardId);
+              return (
+                <div
+                  key={index}
+                  className={`${styles.prizeItem} ${
+                    currentIndex === index && isRotating ? styles.active : ''
+                  }`}
+                >
+                  {award && (
+                    <>
+                      <div className={styles.prizeContent}>
+                        <img src={award.image} alt={award.awardTitle} />
+                        <p>{award.awardTitle}</p>
+                        {(award.waitUnLockCount as any) > 0 && (
+                          <div className={styles.lockOverlay}>
+                            <span className={styles.lockIcon}>🔒</span>
+                            <p className={styles.lockText}>抽奖{award.waitUnLockCount}次后解锁</p>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {/* 进度条 */}
+          {renderProgressBar()}
+        </div>
+        {/* 积分卡片 */}
+        <div style={{marginLeft:'20px',display:'flex',minWidth:'292px'}}>
+          <Card
+            title={`积分兑换（可用积分: ${creditAccount === null ? 0.0 : creditAccount}）`}
+            variant="outlined"
+            className={styles.historyCard}
+            styles={{
+              title: {
+                fontSize: 16,
+              },
+            }}
+            style={{ width: 300,
+              height: 380,
+              overflow: 'auto',
+              cursor: 'pointer',
+              userSelect: 'none',}}
+          >
+            <div className={styles.skuList}>
+              {skus?.map((sku, index) => (
+                <div key={index} className={styles.skuItem}>
+                  <span className={styles.skuInfo}>{sku.activityCount?.totalCount}次抽奖</span>
+                  <span className={styles.skuInfo}>{sku.productAmount}积分</span>
+                  <Button
+                    type="primary"
+                    size="small"
+                    onClick={() => {
+                      setExchangingSkus((prev) => new Set([...prev, sku.id as string]));
+                      paySku(sku.id as string, sku.activityCount?.totalCount || 0).finally(() => {
+                        setExchangingSkus((prev) => {
+                          const next = new Set(prev);
+                          next.delete(sku.id as string);
+                          return next;
+                        });
+                      });
+                    }}
+                    disabled={exchangingSkus.has(sku.id as string)}
+                  >
+                    {exchangingSkus.has(sku.id as string) ? '兑换中' : '兑换'}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
       </div>
-      {/* 进度条 */}
-      {renderProgressBar()}
+
       {/* 签到卡片 */}
       <Card
         title={`每日签到（${isSignedToday ? '已签到' : '未签到'}）`}
         variant="outlined"
-        style={{ marginTop: 16 ,width: '335px',margin: '24px auto'}}
+        style={{ marginTop: 0, maxWidth: '335px',minWidth:'290px', margin: '20px auto'}}
       >
         <div style={{ textAlign: 'center' }}>
           <Button
@@ -532,62 +697,31 @@ const Experience: React.FC = () => {
               try {
                 const response = await calendarSignRebate({
                   userId: currentUser?.userId,
-                  activityId: selectedActivityId
+                  activityId: selectedActivityId,
                 });
                 if (response.code === 1000) {
-                  message.success('签到成功');
+                  messageApi.success('签到成功'); // 使用 messageApi.success
                   checkSignStatus();
                   // 等待0.5s在执行
                   setTimeout(() => {
-                    setRefreshKey(prev => prev + 1);
-                  },500)
-                } else if(response.code === 1005){
-                  message.success('今日已签到');
-                }else{
-                  message.error(response.message);
+                    setRefreshKey((prev) => prev + 1);
+                  }, 500);
+                } else if (response.code === 1005) {
+                  messageApi.success('今日已签到'); // 使用 messageApi.success
+                } else {
+                  messageApi.error(response.message); // 使用 messageApi.error
                 }
               } catch (error) {
-                message.error('签到失败');
+                messageApi.error('签到失败'); // 使用 messageApi.error
               }
             }}
             disabled={isSignedToday}
           >
-            {isSignedToday?'今日已签到':'立即签到'}
+            {isSignedToday ? '今日已签到' : '立即签到'}
           </Button>
         </div>
       </Card>
-      {/* 积分卡片 */}
-      <Card
-        title={`积分兑换（可用积分: ${creditAccount===undefined?0.00:creditAccount}）`}
-        variant="outlined"
-        style={{ marginTop: 16 ,width: '335px',margin: '24px auto'}}
-      >
-        <div className={styles.skuList}>
-          {skus?.map((sku, index) => (
-            <div key={index} className={styles.skuItem}>
-              <span className={styles.skuInfo}>{sku.activityCount?.totalCount}次抽奖</span>
-              <span className={styles.skuInfo}>{sku.productAmount}积分</span>
-              <Button
-                type="primary"
-                size="small"
-                onClick={() => {
-                  setExchangingSkus(prev => new Set([...prev, sku.id as string]));
-                  paySku(sku.id as string, sku.activityCount?.totalCount || 0).finally(() => {
-                    setExchangingSkus(prev => {
-                      const next = new Set(prev);
-                      next.delete(sku.id as string);
-                      return next;
-                    });
-                  });
-                }}
-                disabled={exchangingSkus.has(sku.id as string)}
-              >
-                {exchangingSkus.has(sku.id as string) ? '兑换中' : '兑换'}
-              </Button>
-            </div>
-          ))}
-        </div>
-      </Card>
+      
     </div>
   );
 };

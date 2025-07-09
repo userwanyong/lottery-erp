@@ -133,11 +133,13 @@ declare namespace API {
     strategyId?: string;
     userOrderId?: string;
     awardId?: string;
+    image?: string;
     awardTitle?: string;
     awardTime?: string;
     awardState?: string;
     createTime?: string;
     updateTime?: string;
+    data?: UserAwardRecordItem[];
   };
 
   type CreditAccountItem = {
@@ -382,5 +384,11 @@ declare namespace API {
     productAmount?: string;
     activityCount?: ActivityCount;
     data?: SkuProduct[];
+  }
+
+  type MyPage<T> = {
+    data: any;
+    total?: number;
+    items?: any[];
   }
 }

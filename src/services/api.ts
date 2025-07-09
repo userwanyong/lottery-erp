@@ -141,6 +141,24 @@ export async function query_user_award_record() {
   });
 }
 
+export async function query_user_award_record_by_activity_id(activityId:string) {
+  return request<API.UserAwardRecordItem>(`${apiHostUrl}/api/v1/activity/query_user_award_record_by_activity_id?activityId=${activityId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function query_my_award_record(pageNum:string,pageSize:string,activityId:string,userId:string) {
+  return request<API.MyPage<API.UserAwardRecordItem>>(`${apiHostUrl}/api/v1/activity/query_my_award_record?pageNum=${pageNum}&&pageSize=${pageSize}&&activityId=${activityId}&&userId=${userId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
 export async function query_credit_account() {
   return request<API.CreditAccountItem>(`${apiHostUrl}/api/v1/erp/query_credit_account`, {
     method: 'GET',

@@ -159,7 +159,7 @@ const ActivitySku: React.FC = () => {
   return (
     <PageContainer>
       <ProTable<API.ActivitySkuItem, API.PageParams>
-        headerTitle="活动次数配置列表"
+        headerTitle="活动sku配置"
         actionRef={actionRef}
         rowKey="id"
         request={query_activity_sku}
