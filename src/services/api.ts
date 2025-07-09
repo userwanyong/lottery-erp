@@ -35,6 +35,65 @@ export async function draw(options?: { [key: string]: any }) {
   });
 }
 
+export async function calendarSignRebate(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/activity/calendar_sign_rebate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    data: options,
+  });
+}
+
+export async function isCalendarSignRebate(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/activity/is_calendar_sign_rebate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    data: options,
+  });
+}
+
+export async function queryUserActivityAccount(options?: { [key: string]: any }) {
+  return request<API.UserActivityAccount>(`${apiHostUrl}/api/v1/activity/query_user_activity_account`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    data: options,
+  });
+}
+
+export async function queryUserCreditAccount(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/activity/query_user_credit_account`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    data: options,
+  });
+}
+
+export async function querySkuProductListByActivityId(activityId:string) {
+  return request<API.SkuProduct>(`${apiHostUrl}/api/v1/activity/query_sku_product_list_by_activity_id?activityId=${activityId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function creditPayExchangeSku(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/activity/credit_pay_exchange_sku`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    data: options,
+  });
+}
+
 // 运营后台
 export async function dcc_value(key:string) {
   return request<API.CommonResponse>(`${apiHostUrl}/api/v1/dcc/query_config?key=${key}`, {

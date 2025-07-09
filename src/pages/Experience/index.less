@@ -6,7 +6,9 @@
 
 .header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
   margin-bottom: 24px;
   background-color: #fff;
   padding: 16px;
@@ -15,19 +17,35 @@
 }
 
 .selectWrapper {
-  margin-right: 24px;
+  margin-right: 0;
+  flex: 0 0 auto;
+  min-width: 200px;
 }
 
 .infoWrapper {
   display: flex;
   align-items: center;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .infoItem {
   display: flex;
   align-items: center;
   font-size: 14px;
+  white-space: nowrap;
+  min-width: fit-content;
+
+  &:first-child {
+    flex: 1 1 auto;
+  }
+
+  &:last-child {
+    flex: 1 0 100%;
+    @media screen and (min-width: 768px) {
+      flex: 0 1 auto;
+    }
+  }
 
   .label {
     color: #666;
@@ -156,4 +174,25 @@
   color: #fff;
   font-size: 10px;
   text-align: center;
+}
+
+.skuList {
+  .skuItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .skuInfo {
+      flex: 1;
+      margin-right: 16px;
+    }
+  }
 }

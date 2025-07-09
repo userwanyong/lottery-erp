@@ -1,6 +1,14 @@
-import { draw, query_activity, queryLotteryAwardList,queryStrategyRuleWeight } from '@/services/api';
+import {
+  calendarSignRebate, creditPayExchangeSku,
+  draw,
+  isCalendarSignRebate,
+  query_activity,
+  queryLotteryAwardList, querySkuProductListByActivityId,
+  queryStrategyRuleWeight,
+  queryUserActivityAccount, queryUserCreditAccount,
+} from '@/services/api';
 import { useModel } from '@umijs/max';
-import { message, Select, Tooltip } from 'antd';
+import { Button, Card, message, Select, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
 
@@ -12,11 +20,84 @@ const Experience: React.FC = () => {
   const [selectedActivityId, setSelectedActivityId] = useState<string>(''); // 选中的活动ID
   const [awards, setAwards] = useState<API.LotteryAwardList[]>([]); // 奖品列表
   const [isRotating, setIsRotating] = useState(false); // 是否正在抽奖
+  const [exchangingSkus, setExchangingSkus] = useState<Set<string>>(new Set()); // 正在兑换的SKU ID集合
   const [currentIndex, setCurrentIndex] = useState(0); // 当前选中的格子索引
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null); // 定时器
-  
-  // 获取抽奖进度数据
+  const [skus, setSkus] = useState<API.SkuProduct[]>(); // 用户抽奖次数账户信息
+  const [activityAccount, setActivityAccount] = useState<API.UserActivityAccount>(); // 用户抽奖次数账户信息
+  const [creditAccount, setCreditAccount] = useState<string>(); // 用户积分账户信息
+  const [isSignedToday, setIsSignedToday] = useState(false); // 今日是否已经签到
   const [progressData, setProgressData] = useState<any[]>([]); // 存储进度数据
+  const [refreshKey, setRefreshKey] = useState(0);
+  // 查询今日是否已签到
+  const checkSignStatus = async () => {
+    try {
+      const response = await isCalendarSignRebate({
+        userId: currentUser?.userId,
+        activityId: selectedActivityId
+      });
+      setIsSignedToday(response.data);
+    } catch (error) {
+      message.error('查询签到状态失败');
+    }
+  };
+
+  // 查询用户抽奖次数账户
+  const queryActivityAccount = async () => {
+    try {
+      const response = await queryUserActivityAccount({
+        userId: currentUser?.userId,
+        activityId: selectedActivityId
+      });
+      setActivityAccount(response.data);
+    } catch (error) {
+      message.error('查询用户抽奖账户失败');
+    }
+  };
+
+  // 查询sku列表
+  const querySkuProductList = async (activityId: string) => {
+    try {
+      const response = await querySkuProductListByActivityId(activityId);
+      setSkus(response.data);
+    } catch (error) {
+      message.error('查询查询sku列表失败');
+    }
+  };
+
+  // 查询用户积分账户
+  const queryCreditAccount = async () => {
+    try {
+      const response = await queryUserCreditAccount({
+        userId: currentUser?.userId,
+        activityId: selectedActivityId
+      });
+      setCreditAccount(response.data);
+    } catch (error) {
+      message.error('查询用户积分账户失败');
+    }
+  };
+  // 兑换sku商品
+  const paySku = async (id:string,skuCount:number) => {
+    try {
+      const response = await creditPayExchangeSku({
+        userId: currentUser?.userId,
+        activityId: selectedActivityId,
+        sku: id
+      });
+      if (response.code===1000){
+        message.success(`成功兑换${skuCount}次抽奖次数`);
+        // 等待0.5s在执行
+        setTimeout(() => {
+          setRefreshKey(prev => prev + 1);
+        },500)
+      }else {
+        message.error(response.message);
+      }
+    } catch (error) {
+      message.error('兑换失败');
+    }
+  };
 
   // 修改获取抽奖进度数据的函数
   const progressPercent = async (activityId: string) => {
@@ -35,6 +116,8 @@ const Experience: React.FC = () => {
     }
   };
 
+
+
   // 添加进度条组件
   const renderProgressBar = () => {
     if (!progressData.length) return null;
@@ -45,7 +128,7 @@ const Experience: React.FC = () => {
     const segments = progressData.map(item => item.ruleWeightCount);
 
     return (
-      <div style={{ marginTop: 24, padding: '0 10%', maxWidth: '650px', margin: '24px auto' }}>
+      <div style={{ marginTop: 24, maxWidth: '335px', margin: '24px auto' }}>
         <div style={{ position: 'relative', marginBottom: 60 }}>
           {/* 进度条背景 */}
           <div
@@ -73,7 +156,7 @@ const Experience: React.FC = () => {
           {segments.map((segment, index) => {
             const position = (segment / maxCount) * 100;
             const currentSegmentData = progressData[index];
-            
+
             return (
               <Tooltip
                 key={segment}
@@ -213,10 +296,19 @@ const Experience: React.FC = () => {
     if (selectedActivityId) {
       fetchAwards(selectedActivityId);
       progressPercent(selectedActivityId);
+      querySkuProductList(selectedActivityId)
+      checkSignStatus();
+      queryActivityAccount();
+      queryCreditAccount();
     } else {
       setAwards([]);
     }
   }, [selectedActivityId]);
+
+  useEffect(() => {
+    queryCreditAccount();
+    queryActivityAccount()
+  }, [refreshKey]);
 
   // 活动选择变化
   const handleActivityChange = async (value: string) => {
@@ -264,7 +356,7 @@ const Experience: React.FC = () => {
 
     setIsRotating(true);
     tmp=0;
-    
+
     // 重置起始位置为0
     setCurrentIndex(0);
     let currentIdx = 0;
@@ -277,10 +369,10 @@ const Experience: React.FC = () => {
         }
         return;
       }
-     
+
       do {
         currentIdx = (currentIdx + 1) % 9;
-        
+
         // 检查当前位置是否对应未解锁奖品
         const currentAwardId = generatePrizeOrder(awards)[currentIdx];
         if (currentAwardId === null) {
@@ -291,7 +383,7 @@ const Experience: React.FC = () => {
           continue; // 跳过未解锁的奖品
         }
       } while (currentIdx === 4 || awards.find(award => award.awardId === generatePrizeOrder(awards)[currentIdx])?.waitUnLockCount as any>0);
-      
+
       setCurrentIndex(currentIdx);
       // 控制动画速度
       const speed = 50;
@@ -325,6 +417,8 @@ const Experience: React.FC = () => {
           if (selectedActivityId) {
             fetchAwards(selectedActivityId);
             progressPercent(selectedActivityId);
+            queryActivityAccount();
+            queryCreditAccount();
           }
         }, 2000);
       } else {
@@ -354,7 +448,7 @@ const Experience: React.FC = () => {
         <div className={styles.selectWrapper}>
           <Select
             placeholder="请选择活动"
-            style={{ width: 200 }}
+            style={{ width: 200}}
             onChange={handleActivityChange}
             value={selectedActivityId || undefined}
             options={activities.map((activity) => ({
@@ -388,7 +482,9 @@ const Experience: React.FC = () => {
                   onClick={startLottery}
                   disabled={isRotating || !selectedActivityId}
                 >
-                  {isRotating ? '抽奖中...' : '开始抽奖'}
+                    {isRotating
+                      ? '抽奖中...'
+                      : `开始抽奖 (剩:${activityAccount?.dayCountSurplus || 0}次)`}
                 </button>
               </div>
             );
@@ -421,8 +517,77 @@ const Experience: React.FC = () => {
           );
         })}
       </div>
-      {/* 添加进度条 */}
+      {/* 进度条 */}
       {renderProgressBar()}
+      {/* 签到卡片 */}
+      <Card
+        title={`每日签到（${isSignedToday ? '已签到' : '未签到'}）`}
+        variant="outlined"
+        style={{ marginTop: 16 ,width: '335px',margin: '24px auto'}}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <Button
+            type="primary"
+            onClick={async () => {
+              try {
+                const response = await calendarSignRebate({
+                  userId: currentUser?.userId,
+                  activityId: selectedActivityId
+                });
+                if (response.code === 1000) {
+                  message.success('签到成功');
+                  checkSignStatus();
+                  // 等待0.5s在执行
+                  setTimeout(() => {
+                    setRefreshKey(prev => prev + 1);
+                  },500)
+                } else if(response.code === 1005){
+                  message.success('今日已签到');
+                }else{
+                  message.error(response.message);
+                }
+              } catch (error) {
+                message.error('签到失败');
+              }
+            }}
+            disabled={isSignedToday}
+          >
+            {isSignedToday?'今日已签到':'立即签到'}
+          </Button>
+        </div>
+      </Card>
+      {/* 积分卡片 */}
+      <Card
+        title={`积分兑换（可用积分: ${creditAccount===undefined?0.00:creditAccount}）`}
+        variant="outlined"
+        style={{ marginTop: 16 ,width: '335px',margin: '24px auto'}}
+      >
+        <div className={styles.skuList}>
+          {skus?.map((sku, index) => (
+            <div key={index} className={styles.skuItem}>
+              <span className={styles.skuInfo}>{sku.activityCount?.totalCount}次抽奖</span>
+              <span className={styles.skuInfo}>{sku.productAmount}积分</span>
+              <Button
+                type="primary"
+                size="small"
+                onClick={() => {
+                  setExchangingSkus(prev => new Set([...prev, sku.id as string]));
+                  paySku(sku.id as string, sku.activityCount?.totalCount || 0).finally(() => {
+                    setExchangingSkus(prev => {
+                      const next = new Set(prev);
+                      next.delete(sku.id as string);
+                      return next;
+                    });
+                  });
+                }}
+                disabled={exchangingSkus.has(sku.id as string)}
+              >
+                {exchangingSkus.has(sku.id as string) ? '兑换中' : '兑换'}
+              </Button>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 };

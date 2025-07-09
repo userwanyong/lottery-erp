@@ -356,4 +356,31 @@ declare namespace API {
     strategyAwards?: StrategyAward[]; // 当前权重中奖抽奖范围
     data?: StrategyRuleWeight;
   }
+
+  type UserActivityAccount = {
+    totalCount?: number;
+    totalCountSurplus?: number;
+    dayCount?: number;
+    dayCountSurplus?: number;
+    monthCount?: number;
+    monthCountSurplus?: number;
+    data?:UserActivityAccount;
+  }
+
+  type ActivityCount = {
+    totalCount?: number;
+    dayCount?: number;
+    monthCount?: number;
+  }
+
+  type SkuProduct = {
+    id?: string;
+    activityId?: string;
+    activityCountId?: string;
+    stockCount?: string;
+    stockCountSurplus?: string;
+    productAmount?: string;
+    activityCount?: ActivityCount;
+    data?: SkuProduct[];
+  }
 }
