@@ -12,15 +12,16 @@ import {
   queryUserCreditAccount,
 } from '@/services/api';
 import { useModel } from '@umijs/max';
-import {Button, Card, message, Pagination, Select, Tooltip} from 'antd';
+import { Button, Card, message, Pagination, Select, Tooltip } from 'antd';
+import QueueAnim from 'rc-queue-anim'; // 引入 QueueAnim
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
 
 const Experience: React.FC = () => {
+  const apiHostUrl = 'ws://127.0.0.1:8091';
   const { initialState } = useModel('@@initialState');
   const currentUser = initialState?.currentUser;
   const [messageApi, contextHolder] = message.useMessage(); // 添加 useMessage 钩子
-
   const [activities, setActivities] = useState<API.ActivityItem[]>([]); // 活动列表
   const [selectedActivityId, setSelectedActivityId] = useState<string>(''); // 选中的活动ID
   const [awards, setAwards] = useState<API.LotteryAwardList[]>([]); // 奖品列表
@@ -38,6 +39,7 @@ const Experience: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1); // 当前页码
   const [pageSize, setPageSize] = useState<number>(5); // 每页记录数
   const [totalRecords, setTotalRecords] = useState<number>(0); // 总记录数
+  const [broadcastMessages, setBroadcastMessages] = useState<{ id: number; message: string }[]>([]);
 
   // 查询历史抽奖记录
   const queryMyAwardRecord = async (page: number, size: number) => {
@@ -116,10 +118,10 @@ const Experience: React.FC = () => {
       });
       if (response.code === 1000) {
         messageApi.success(`成功兑换${skuCount}次抽奖次数`); // 使用 messageApi.success
-        // 等待0.5s在执行
+        // 等待0.7s在执行
         setTimeout(() => {
           setRefreshKey((prev) => prev + 1);
-        }, 500);
+        }, 700);
       } else {
         messageApi.error(response.message); // 使用 messageApi.error
       }
@@ -155,7 +157,7 @@ const Experience: React.FC = () => {
     const segments = progressData.map((item) => item.ruleWeightCount);
 
     return (
-      <div style={{ marginTop: 24, maxHeight:'0px',maxWidth: '335px', margin: '24px auto' }}>
+      <div style={{ marginTop: 24, maxHeight: '0px', maxWidth: '335px', margin: '24px auto' }}>
         <div style={{ position: 'relative', marginBottom: 60 }}>
           {/* 进度条背景 */}
           <div
@@ -331,6 +333,57 @@ const Experience: React.FC = () => {
       queryActivityAccount();
       queryCreditAccount();
       queryMyAwardRecord(currentPage, pageSize); // 初始加载时调用，带上分页参数
+      // WebSocket 连接逻辑
+      if (!currentUser?.userId) {
+        return;
+      }
+      const ws = new WebSocket(
+        `${apiHostUrl}/api/v1/ws/${currentUser?.userId + '-' + selectedActivityId}`,
+      );
+
+      ws.onopen = () => {};
+
+      ws.onmessage = (event) => {
+        const displayMessage = event.data;
+        // 延迟2秒再加入队列
+        setTimeout(() => {
+          setBroadcastMessages((prevMessages) => {
+            const newId =
+              prevMessages.length > 0 ? Math.max(...prevMessages.map((msg) => msg.id)) + 1 : 1;
+            const updatedMessages = [
+              ...prevMessages,
+              { id: newId, message: displayMessage }, // 新消息添加到数组末尾
+            ].slice(-4); // 限制显示消息数量，例如最多显示4条
+
+            // // 为每条消息设置一个定时器，60秒后移除
+            // updatedMessages.forEach((msg) => {
+            //   if (!(msg as any).timerId) {
+            //     // 确保只设置一次定时器
+            //     (msg as any).timerId = setTimeout(() => {
+            //       setBroadcastMessages((currentMessages) =>
+            //         currentMessages.filter((m) => m.id !== msg.id)
+            //       );
+            //     }, 60000); // 60秒后移除
+            //   }
+            // });
+
+            return updatedMessages;
+          });
+        }, 2000); // 延迟2秒加入队列
+      };
+
+      ws.onclose = () => {
+        // 可以添加重连逻辑
+      };
+
+      ws.onerror = (error) => {
+        messageApi.error('WebSocket 连接错误');
+      };
+
+      // 组件卸载时关闭 WebSocket 连接
+      return () => {
+        ws.close();
+      };
     } else {
       setAwards([]);
     }
@@ -483,6 +536,7 @@ const Experience: React.FC = () => {
   }, [timer]);
 
   return (
+    // <div style={{margin:'auto',justifyContent:'center',color:"red"}}>
     <div className={styles.container}>
       {contextHolder} {/* 在组件的 return 语句中添加 contextHolder */}
       <div className={styles.header}>
@@ -511,217 +565,304 @@ const Experience: React.FC = () => {
           </div>
         )}
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center',maxHeight:'400px'}}>
-        {/* 历史记录卡片 */}
-        <div style={{display:'flex',marginRight:'20px',minWidth:'292px'}}>
-          <Card
-            title="中奖记录"
-            className={styles.historyCard}
-            styles={{
-              title: {
-                fontSize: 16,
-              },
-              header: {
-                padding: '0 24px',
-              },
-              body: {
-                padding: '0 24px',
-              },
-            }}
-            style={{
-              width: 300,
-              height: 380,
-              overflow: 'auto',
-              cursor: 'pointer',
-              userSelect: 'none',
-            }}
-          >
-            <div className={styles.recordList}>
-              {awardRecords.map((record, index) => (
-                <div
-                  key={index}
-                  className={styles.recordItem}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '8px 0',
-                    borderBottom: '1px solid #f0f0f0',
-                  }}
-                >
-                  <img
-                    src={record.image}
-                    alt={record.awardTitle}
-                    style={{ width: 35, height: 35, marginRight: 12 }}
-                  />
-                  <div style={{ flex: 1 }}>
-                    <div>{record.awardTitle}</div>
-                    <div style={{ fontSize: 12, color: '#999' }}>
-                      {new Date(record.createTime as any).toLocaleString()}
+      <div style={{ margin: 'auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', maxHeight: '400px' }}>
+          {/* 历史记录卡片 */}
+          <div style={{ display: 'flex', marginRight: '20px', minWidth: '292px' }}>
+            <Card
+              title="中奖记录"
+              // className={styles.historyCard}
+              styles={{
+                title: {
+                  fontSize: 16,
+                },
+                header: {
+                  padding: '0 24px',
+                },
+                body: {
+                  padding: '0 24px',
+                },
+              }}
+              style={{
+                width: 300,
+                height: 380,
+                overflow: 'auto',
+                cursor: 'pointer',
+                userSelect: 'none',
+              }}
+            >
+              <div className={styles.recordList}>
+                {awardRecords.map((record, index) => (
+                  <div
+                    key={index}
+                    className={styles.recordItem}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '8px 0',
+                      borderBottom: '1px solid #f0f0f0',
+                    }}
+                  >
+                    <img
+                      src={record.image}
+                      alt={record.awardTitle}
+                      style={{ width: 35, height: 35, marginRight: 12 }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div>{record.awardTitle}</div>
+                      <div style={{ fontSize: 12, color: '#999' }}>
+                        {new Date(record.createTime as any).toLocaleString()}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            <div style={{ textAlign: 'center', marginTop: '10px' }}>
-              <Pagination
-              style={{
-                justifyContent: 'center',
-                marginTop: '-5px',
-              }}
-                simple={{
-                  readOnly: true,
-                }}
-                size='small'
-                hideOnSinglePage={true}
-                showSizeChanger={false}
-                showQuickJumper={true}
-                current={currentPage}
-                pageSize={5}
-                total={totalRecords}
-                onChange={(page, size) => {
-                  setCurrentPage(page);
-                }}
-              />
-            </div>
-          </Card>
-        </div>
-        {/* 九宫格and进度条 */}
-        <div>
-          {/* 九宫格 */}
-          <div className={styles.lotteryBox}>
-            {generatePrizeOrder(awards).map((awardId, index) => {
-              // 中间格子显示按钮
-              if (awardId === null) {
+                ))}
+              </div>
+              <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                <Pagination
+                  style={{
+                    justifyContent: 'center',
+                    marginTop: '-5px',
+                  }}
+                  simple={{
+                    readOnly: true,
+                  }}
+                  size="small"
+                  hideOnSinglePage={true}
+                  showSizeChanger={false}
+                  showQuickJumper={true}
+                  current={currentPage}
+                  pageSize={5}
+                  total={totalRecords}
+                  onChange={(page, size) => {
+                    setCurrentPage(page);
+                  }}
+                />
+              </div>
+            </Card>
+          </div>
+          {/* 九宫格and进度条 */}
+          <div>
+            {/* 九宫格 */}
+            <div className={styles.lotteryBox}>
+              {generatePrizeOrder(awards).map((awardId, index) => {
+                // 中间格子显示按钮
+                if (awardId === null) {
+                  return (
+                    <div key={index} className={styles.prizeItem}>
+                      <button
+                        type="button"
+                        className={styles.startBtn}
+                        onClick={startLottery}
+                        disabled={isRotating || !selectedActivityId}
+                      >
+                        {isRotating
+                          ? '抽奖中...'
+                          : `开始抽奖 (剩:${activityAccount?.dayCountSurplus || 0}次)`}
+                      </button>
+                    </div>
+                  );
+                }
+
+                // 其他格子显示奖品
+                const award = awards.find((a) => a.awardId === awardId);
                 return (
-                  <div key={index} className={styles.prizeItem}>
-                    <button
-                      type="button"
-                      className={styles.startBtn}
-                      onClick={startLottery}
-                      disabled={isRotating || !selectedActivityId}
-                    >
-                      {isRotating
-                        ? '抽奖中...'
-                        : `开始抽奖 (剩:${activityAccount?.dayCountSurplus || 0}次)`}
-                    </button>
+                  <div
+                    key={index}
+                    className={`${styles.prizeItem} ${
+                      currentIndex === index && isRotating ? styles.active : ''
+                    }`}
+                  >
+                    {award && (
+                      <>
+                        <div className={styles.prizeContent}>
+                          <img src={award.image} alt={award.awardTitle} />
+                          <p>{award.awardTitle}</p>
+                          {(award.waitUnLockCount as any) > 0 && (
+                            <div className={styles.lockOverlay}>
+                              <span className={styles.lockIcon}>🔒</span>
+                              <p className={styles.lockText}>抽奖{award.waitUnLockCount}次后解锁</p>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 );
-              }
-
-              // 其他格子显示奖品
-              const award = awards.find((a) => a.awardId === awardId);
-              return (
-                <div
-                  key={index}
-                  className={`${styles.prizeItem} ${
-                    currentIndex === index && isRotating ? styles.active : ''
-                  }`}
-                >
-                  {award && (
-                    <>
-                      <div className={styles.prizeContent}>
-                        <img src={award.image} alt={award.awardTitle} />
-                        <p>{award.awardTitle}</p>
-                        {(award.waitUnLockCount as any) > 0 && (
-                          <div className={styles.lockOverlay}>
-                            <span className={styles.lockIcon}>🔒</span>
-                            <p className={styles.lockText}>抽奖{award.waitUnLockCount}次后解锁</p>
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          {/* 进度条 */}
-          {renderProgressBar()}
-        </div>
-        {/* 积分卡片 */}
-        <div style={{marginLeft:'20px',display:'flex',minWidth:'292px'}}>
-          <Card
-            title={`积分兑换（可用积分: ${creditAccount === null ? 0.0 : creditAccount}）`}
-            variant="outlined"
-            className={styles.historyCard}
-            styles={{
-              title: {
-                fontSize: 16,
-              },
-            }}
-            style={{ width: 300,
-              height: 380,
-              overflow: 'auto',
-              cursor: 'pointer',
-              userSelect: 'none',}}
-          >
-            <div className={styles.skuList}>
-              {skus?.map((sku, index) => (
-                <div key={index} className={styles.skuItem}>
-                  <span className={styles.skuInfo}>{sku.activityCount?.totalCount}次抽奖</span>
-                  <span className={styles.skuInfo}>{sku.productAmount}积分</span>
-                  <Button
-                    type="primary"
-                    size="small"
-                    onClick={() => {
-                      setExchangingSkus((prev) => new Set([...prev, sku.id as string]));
-                      paySku(sku.id as string, sku.activityCount?.totalCount || 0).finally(() => {
-                        setExchangingSkus((prev) => {
-                          const next = new Set(prev);
-                          next.delete(sku.id as string);
-                          return next;
-                        });
-                      });
-                    }}
-                    disabled={exchangingSkus.has(sku.id as string)}
-                  >
-                    {exchangingSkus.has(sku.id as string) ? '兑换中' : '兑换'}
-                  </Button>
-                </div>
-              ))}
+              })}
             </div>
-          </Card>
+            {/* 进度条 */}
+            {renderProgressBar()}
+          </div>
+          {/* 积分卡片 */}
+          <div style={{ marginLeft: '20px', display: 'flex', minWidth: '292px' }}>
+            <Card
+              title={`积分兑换（可用积分: ${creditAccount === null ? 0.0 : creditAccount}）`}
+              variant="outlined"
+              // className={styles.historyCard}
+              styles={{
+                title: {
+                  fontSize: 16,
+                },
+              }}
+              style={{
+                width: 300,
+                height: 380,
+                overflow: 'auto',
+                cursor: 'pointer',
+                userSelect: 'none',
+              }}
+            >
+              <div className={styles.skuList}>
+                {skus?.map((sku, index) => (
+                  <div key={index} className={styles.skuItem}>
+                    <span className={styles.skuInfo}>{sku.activityCount?.totalCount}次抽奖</span>
+                    <span className={styles.skuInfo}>{sku.productAmount}积分</span>
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={() => {
+                        setExchangingSkus((prev) => new Set([...prev, sku.id as string]));
+                        paySku(sku.id as string, sku.activityCount?.totalCount || 0).finally(() => {
+                          setExchangingSkus((prev) => {
+                            const next = new Set(prev);
+                            next.delete(sku.id as string);
+                            return next;
+                          });
+                        });
+                      }}
+                      disabled={exchangingSkus.has(sku.id as string)}
+                    >
+                      {exchangingSkus.has(sku.id as string) ? '兑换中' : '兑换'}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', maxHeight: '400px' }}>
+          {/* 签到卡片 */}
+          <div style={{ marginRight: '20px', minWidth: '292px', display: 'flex' }}>
+            <Card
+              // className={styles.historyCard}
+              title={`每日签到（${isSignedToday ? '已签到' : '未签到'}）`}
+              variant="outlined"
+              style={{
+                marginTop: 0,
+                maxWidth: '335px',
+                minWidth: '292px',
+                margin: '20px auto',
+                cursor: 'pointer',
+                userSelect: 'none',
+              }}
+            >
+              <div style={{ textAlign: 'center' }}>
+                <Button
+                  type="primary"
+                  onClick={async () => {
+                    try {
+                      const response = await calendarSignRebate({
+                        userId: currentUser?.userId,
+                        activityId: selectedActivityId,
+                      });
+                      if (response.code === 1000) {
+                        messageApi.success('签到成功'); // 使用 messageApi.success
+                        checkSignStatus();
+                        // 等待0.7s在执行
+                        setTimeout(() => {
+                          setRefreshKey((prev) => prev + 1);
+                        }, 700);
+                      } else if (response.code === 1005) {
+                        messageApi.success('今日已签到'); // 使用 messageApi.success
+                      } else {
+                        messageApi.error(response.message); // 使用 messageApi.error
+                      }
+                    } catch (error) {
+                      messageApi.error('签到失败'); // 使用 messageApi.error
+                    }
+                  }}
+                  disabled={isSignedToday}
+                >
+                  {isSignedToday ? '今日已签到' : '立即签到'}
+                </Button>
+              </div>
+            </Card>
+          </div>
+          {/* 中奖广播卡片 */}
+          <div>
+            <Card
+              title="实时中奖广播"
+              // className={styles.historyCard}
+              styles={{
+                title: {
+                  fontSize: 16,
+                },
+                header: {
+                  padding: '0 118px',
+                },
+                body: {
+                  padding: '0 24px',
+                  fontSize: 13,
+                },
+              }}
+              style={{
+                width: 334,
+                height: 240,
+                overflow: 'hidden', // 隐藏溢出内容，配合动画
+                cursor: 'pointer',
+                userSelect: 'none',
+                margin: '20px auto',
+              }}
+            >
+              <div className={styles.recordList}>
+                <QueueAnim
+                  duration={700} // 动画持续时间
+                  interval={10} // 元素之间动画间隔
+                  animConfig={[
+                    { opacity: [1, 0], translateY: [0, 50] }, // 进入动画
+                    { opacity: [1, 0], translateX: [0, 100] }, // 离开动画
+                  ]}
+                >
+                  {broadcastMessages.map((msg) => (
+                    <div
+                      key={msg.id} // 使用消息的唯一 key
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '8px 0',
+                      }}
+                      className="broadcast-item"
+                      dangerouslySetInnerHTML={{ __html: `🎉${msg.message}` }} // 使用 dangerouslySetInnerHTML 渲染 HTML
+                    >
+                      {/* <span role="img" aria-label="confetti" style={{ marginRight: 8 }}>🎉</span>
+                    <div style={{ flex: 1 }}>{msg.message}</div> */}
+                    </div>
+                  ))}
+                </QueueAnim>
+              </div>
+            </Card>
+          </div>
+          {/* 占位卡片 */}
+          <div style={{ marginLeft: '20px', minWidth: '292px', display: 'flex' }}>
+            <Card
+              // className={styles.historyCard}
+              title={`占位`}
+              variant="outlined"
+              style={{
+                marginTop: 0,
+                maxWidth: '335px',
+                minWidth: '292px',
+                margin: '20px auto',
+                cursor: 'pointer',
+                userSelect: 'none',
+              }}
+            >
+              <div style={{ textAlign: 'center' }}></div>
+            </Card>
+          </div>
         </div>
       </div>
-
-      {/* 签到卡片 */}
-      <Card
-        title={`每日签到（${isSignedToday ? '已签到' : '未签到'}）`}
-        variant="outlined"
-        style={{ marginTop: 0, maxWidth: '335px',minWidth:'290px', margin: '20px auto'}}
-      >
-        <div style={{ textAlign: 'center' }}>
-          <Button
-            type="primary"
-            onClick={async () => {
-              try {
-                const response = await calendarSignRebate({
-                  userId: currentUser?.userId,
-                  activityId: selectedActivityId,
-                });
-                if (response.code === 1000) {
-                  messageApi.success('签到成功'); // 使用 messageApi.success
-                  checkSignStatus();
-                  // 等待0.5s在执行
-                  setTimeout(() => {
-                    setRefreshKey((prev) => prev + 1);
-                  }, 500);
-                } else if (response.code === 1005) {
-                  messageApi.success('今日已签到'); // 使用 messageApi.success
-                } else {
-                  messageApi.error(response.message); // 使用 messageApi.error
-                }
-              } catch (error) {
-                messageApi.error('签到失败'); // 使用 messageApi.error
-              }
-            }}
-            disabled={isSignedToday}
-          >
-            {isSignedToday ? '今日已签到' : '立即签到'}
-          </Button>
-        </div>
-      </Card>
-      
+      {/*</div>*/}
     </div>
   );
 };
