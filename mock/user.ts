@@ -44,7 +44,7 @@ export default {
     res.send({
       success: true,
       data: {
-        name: 'Serati Ma',
+        name: 'wanyj',
         avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
         userId: 'yong',
         email: 'antdesign@alipay.com',

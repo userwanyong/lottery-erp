@@ -78,7 +78,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
             </Tooltip>
           </span>
         }
-        rules={[{ required: true, message: '请选择规则模型' }]}
+        // rules={[{ required: true, message: '请选择规则模型' }]}
         mode="multiple" // 添加 mode="multiple" 属性
         options={[
           ...ruleList.map((item) => ({

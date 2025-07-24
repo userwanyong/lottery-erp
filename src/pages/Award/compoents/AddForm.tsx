@@ -111,6 +111,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
       <ProFormText
         name="awardKey"
         label="唯一标识"
+        tooltip={'要与服务端已有发奖服务唯一标识对应'}
         rules={[{ required: true, message: '请输入总库存' }]}
       />
       <ProFormTextArea
@@ -125,7 +126,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
       />
       {/* 将 ImageUploader 包裹在 ProFormItem 中 */}
       <ProFormItem
-        name="awardImg"
+        name="image"
         label="奖品图片"
         rules={[{ required: true, message: '请上传奖品图片' }]}
       >

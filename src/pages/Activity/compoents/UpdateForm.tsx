@@ -147,7 +147,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
         rules={[{ required: true, message: '请选择活动状态' }]}
         options={[
           { label: '开启', value: 'open' },
-          { label: '关闭', value: 'close' },
+          { label: '结束', value: 'close' },
         ]}
       />
     </ModalForm>

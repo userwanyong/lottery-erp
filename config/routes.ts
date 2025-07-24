@@ -24,7 +24,7 @@ export default [
   },
   {
     path: '/welcome',
-    name: 'welcome',
+    name: '系统介绍',
     icon: 'smile',
     component: './Welcome',
   },
@@ -40,18 +40,6 @@ export default [
         name: '活动配置',
         icon: 'table',
         component: './Activity',
-      },
-      {
-        path: '/admin/activity_count',
-        name: '活动次数配置',
-        icon: 'table',
-        component: './ActivityCount',
-      },
-      {
-        path: '/admin/activity_sku',
-        name: '活动sku配置',
-        icon: 'table',
-        component: './ActivitySku',
       },
     ],
   },
@@ -133,6 +121,18 @@ export default [
         icon: 'table',
         path: '/rebate/behavior_rebate',
         component: './BehaviorRebate',
+      },
+      {
+        path: '/rebate/activity_count',
+        name: '返利抽奖次数配置',
+        icon: 'table',
+        component: './ActivityCount',
+      },
+      {
+        path: '/rebate/activity_sku',
+        name: '返利sku配置',
+        icon: 'table',
+        component: './ActivitySku',
       },
       {
         name: '用户日常行为返利订单',

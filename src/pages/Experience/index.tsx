@@ -1,10 +1,11 @@
 import {
+  addLotteryQuota,
   calendarSignRebate,
   creditPayExchangeSku,
-  draw,
+  draw, isAddLotteryQuota,
   isCalendarSignRebate,
   query_activity,
-  query_my_award_record,
+  query_my_award_record, query_user_behavior_gift, query_user_behavior_rebate_order_of_gift,
   queryLotteryAwardList,
   querySkuProductListByActivityId,
   queryStrategyRuleWeight,
@@ -26,13 +27,16 @@ const Experience: React.FC = () => {
   const [selectedActivityId, setSelectedActivityId] = useState<string>(''); // 选中的活动ID
   const [awards, setAwards] = useState<API.LotteryAwardList[]>([]); // 奖品列表
   const [isRotating, setIsRotating] = useState(false); // 是否正在抽奖
-  const [exchangingSkus, setExchangingSkus] = useState<Set<string>>(new Set()); // 正在兑换的SKU ID集合
+  const [isReceiveGift, setIsReceiveGift] = useState<Set<string>>(new Set()); // 是否已领取赠送的抽奖次数
+  const [exchangingSkus, setExchangingSkus] = useState<Set<string>>(new Set()); // 正在领取的抽奖额度 ID集合
+  const [gifts, setGifts] = useState<API.BehaviorRebateItem[]>(); // 可领取的抽奖额度信息列表
   const [currentIndex, setCurrentIndex] = useState(0); // 当前选中的格子索引
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null); // 定时器
   const [skus, setSkus] = useState<API.SkuProduct[]>(); // 用户抽奖次数账户信息
   const [activityAccount, setActivityAccount] = useState<API.UserActivityAccount>(); // 用户抽奖次数账户信息
   const [creditAccount, setCreditAccount] = useState<string>(); // 用户积分账户信息
   const [isSignedToday, setIsSignedToday] = useState(false); // 今日是否已经签到
+  // const [isReceiveGift, setIsReceiveGift] = useState(false); // 是否已领取赠送的抽奖次数
   const [progressData, setProgressData] = useState<any[]>([]); // 存储进度数据
   const [refreshKey, setRefreshKey] = useState(0);
   const [awardRecords, setAwardRecords] = useState<API.UserAwardRecordItem[]>([]); // 历史抽奖记录
@@ -73,6 +77,22 @@ const Experience: React.FC = () => {
     }
   };
 
+  // 查询是否已领取免费抽奖次数
+  const checkGift = async (behaviorRebateId: string) => {
+    try {
+      const response = await isAddLotteryQuota({
+        userId: currentUser?.userId,
+        activityId: selectedActivityId,
+        behaviorRebateId:behaviorRebateId,
+      });
+      if (response.data){
+        setIsReceiveGift((prev) => new Set([...prev, selectedActivityId+behaviorRebateId]));
+      }
+    } catch (error) {
+      messageApi.error('查询gift状态失败'); // 使用 messageApi.error
+    }
+  };
+
   // 查询用户抽奖次数账户
   const queryActivityAccount = async () => {
     try {
@@ -90,9 +110,29 @@ const Experience: React.FC = () => {
   const querySkuProductList = async (activityId: string) => {
     try {
       const response = await querySkuProductListByActivityId(activityId);
+      // 根据productAmount由小到大排序
+      // @ts-ignore
+      response.data.sort((a, b) => a.productAmount - b.productAmount);
       setSkus(response.data);
     } catch (error) {
       messageApi.error('查询查询sku列表失败'); // 使用 messageApi.error
+    }
+  };
+
+  // 查询gift列表
+  const queryGiftList = async (activityId: string) => {
+    try {
+      const response = await query_user_behavior_gift(activityId);
+      // 根据rebateConfig由大到小排序
+      // @ts-ignore
+      response.data.sort((a, b) => b.rebateConfig - a.rebateConfig);
+      setGifts(response.data);
+      //遍历每一个，查询是否已领取过
+      response.data?.forEach((item) => {
+        checkGift(item.id as string);
+      })
+    } catch (error) {
+      messageApi.error('查询查询gift列表失败'); // 使用 messageApi.error
     }
   };
 
@@ -127,6 +167,27 @@ const Experience: React.FC = () => {
       }
     } catch (error) {
       messageApi.error('兑换失败'); // 使用 messageApi.error
+    }
+  };
+  // 领取抽奖额度
+  const payGift = async (id:string,rebateConfig:string) => {
+    try {
+      const response = await addLotteryQuota({
+        userId: currentUser?.userId,
+        activityId: selectedActivityId,
+        behaviorRebateId:id,
+      });
+      if (response.code === 1000) {
+        messageApi.success(`成功领取${rebateConfig}次抽奖次数`); // 使用 messageApi.success
+        // 等待0.7s在执行
+        setTimeout(() => {
+          setRefreshKey((prev) => prev + 1);
+        }, 700);
+      } else {
+        messageApi.error(response.message); // 使用 messageApi.error
+      }
+    } catch (error) {
+      messageApi.error('领取失败'); // 使用 messageApi.error
     }
   };
 
@@ -191,9 +252,9 @@ const Experience: React.FC = () => {
                 key={segment}
                 title={
                   <div>
-                    <div>
-                      区间：{index === 0 ? '0' : segments[index - 1]}-{segment}
-                    </div>
+                    {/*<div>*/}
+                    {/*  区间：{index === 0 ? '0' : segments[index - 1]}-{segment}*/}
+                    {/*</div>*/}
                     <div>必中奖品：</div>
                     {currentSegmentData?.strategyAwards?.map(
                       (award: { awardId: string; awardTitle: string }) => (
@@ -329,6 +390,7 @@ const Experience: React.FC = () => {
       fetchAwards(selectedActivityId);
       progressPercent(selectedActivityId);
       querySkuProductList(selectedActivityId);
+      queryGiftList(selectedActivityId);
       checkSignStatus();
       queryActivityAccount();
       queryCreditAccount();
@@ -473,6 +535,7 @@ const Experience: React.FC = () => {
         }
       } while (
         currentIdx === 4 ||
+        // eslint-disable-next-line @typescript-eslint/no-loop-func
         (awards.find((award) => award.awardId === generatePrizeOrder(awards)[currentIdx])
           ?.waitUnLockCount as any) > 0
       );
@@ -842,11 +905,11 @@ const Experience: React.FC = () => {
               </div>
             </Card>
           </div>
-          {/* 占位卡片 */}
+          {/* 领取次数卡片 */}
           <div style={{ marginLeft: '20px', minWidth: '292px', display: 'flex' }}>
             <Card
               // className={styles.historyCard}
-              title={`占位`}
+              title={`领取抽奖额度`}
               variant="outlined"
               style={{
                 marginTop: 0,
@@ -857,7 +920,25 @@ const Experience: React.FC = () => {
                 userSelect: 'none',
               }}
             >
-              <div style={{ textAlign: 'center' }}></div>
+              <div className={styles.giftList}>
+                {gifts?.map((gift, index) => (
+                  <div key={index} className={styles.giftItem}>
+                    <span className={styles.giftInfo}>免费领{gift.rebateConfig}次抽奖额度</span>
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={() => {
+                        setIsReceiveGift((prev) => new Set([...prev, selectedActivityId+gift.id]));
+                        payGift(gift.id as string,gift.rebateConfig as string)
+                      }}
+                      disabled={isReceiveGift.has(selectedActivityId+gift.id as string)}
+                    >
+                      {isReceiveGift.has(selectedActivityId+gift.id as string) ? '已领取' : '领取'}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <div style={{textAlign: 'center'}}></div>
             </Card>
           </div>
         </div>

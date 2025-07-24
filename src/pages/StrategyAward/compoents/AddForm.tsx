@@ -173,7 +173,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
           name="awardRate"
           label="中奖概率"
           tooltip="同一策略下的奖品概率之和应为1"
-          rules={[{ required: true, type: 'number', min: 0.0001, max: 1 }]}
+          rules={[{ required: true, type: 'number', min: 0.0000, max: 1 }]}
         >
           <InputNumber step={0.0001} />
         </Form.Item>

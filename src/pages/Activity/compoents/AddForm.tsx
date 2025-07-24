@@ -1,7 +1,17 @@
-import { ModalForm, ProFormText, ProFormTextArea, ProFormDateTimePicker, ProFormSelect, ProFormGroup, ProFormInstance } from '@ant-design/pro-form';
-import { App } from 'antd'; // 引入 App 组件
-import React, { useRef } from 'react'; // 引入 useRef
-import { add_activity } from '@/services/api';
+import { add_activity, query_strategy } from '@/services/api';
+import {
+  ModalForm,
+  ProFormDateTimePicker,
+  ProFormGroup,
+  ProFormInstance,
+  ProFormSelect,
+  ProFormText,
+  ProFormTextArea,
+} from '@ant-design/pro-form';
+import {App, Tooltip} from 'antd'; // 引入 App 组件
+import React, {useEffect, useRef, useState} from 'react';
+import {QuestionCircleOutlined} from "@ant-design/icons";
+import {history} from "@@/core/history"; // 引入 useRef
 
 interface AddFormProps {
   visible: boolean;
@@ -13,6 +23,24 @@ const AddForm: React.FC<AddFormProps> = (props) => {
   const { visible, onVisibleChange, onFinish } = props;
   const { message } = App.useApp(); // 获取 message 实例
   const formRef = useRef<ProFormInstance>(); // 创建 formRef
+  const [strategyList, setStrategyList] = useState<API.StrategyItem[]>([]);
+
+  useEffect(() => {
+    const fetchStrategyData = async () => {
+      try {
+        const strategyRes = await query_strategy();
+        if (strategyRes && strategyRes.data) {
+          setStrategyList(strategyRes.data);
+        }
+      } catch (error) {
+        message.error('获取策略列表失败');
+      }
+    };
+
+    if (visible) {
+      fetchStrategyData();
+    }
+  }, [visible]);
 
   return (
     <ModalForm
@@ -38,10 +66,31 @@ const AddForm: React.FC<AddFormProps> = (props) => {
         return false;
       }}
     >
-      <ProFormText
+      <ProFormSelect
         name="strategyId"
-        label="抽奖策略ID"
-        rules={[{ required: true, message: '请输入抽奖策略ID' }]}
+        label={
+          <span>
+            抽奖策略ID
+          </span>
+        }
+        rules={[{ required: true, message: '请选择抽奖策略' }]}
+        options={[
+          ...strategyList.map((item) => ({
+            label: `${item.strategyDesc}(${item.id})`,
+            value: item.id,
+          })),
+          { label: '去新建+', value: '__NEW_STRATEGY__' },
+        ]}
+        showSearch
+        fieldProps={{
+          filterOption: (input, option) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
+          onChange: (value) => {
+            if (value === '__NEW_STRATEGY__') {
+              history.push('/strategy/strategy');
+            }
+          },
+        }}
       />
       <ProFormText
         name="activityName"
@@ -59,21 +108,20 @@ const AddForm: React.FC<AddFormProps> = (props) => {
           label="开始时间"
           rules={[
             { required: true, message: '请选择开始时间' },
-            ({
-              getFieldValue
-            }) => ({
+            ({ getFieldValue }) => ({
               validator(_, value) {
                 const endDateTime = getFieldValue('endDateTime');
                 // 确保 value 和 endDateTime 都是有效的日期对象，并转换为时间戳进行比较
-                if (
-                  !value ||
-                  !endDateTime
-                ) {
+                if (!value || !endDateTime) {
                   return Promise.resolve(); // 如果日期为空，则不进行比较，允许通过
                 }
 
-                const beginTimestamp = value instanceof Date ? value.valueOf() : new Date(value).valueOf();
-                const endTimestamp = endDateTime instanceof Date ? endDateTime.valueOf() : new Date(endDateTime).valueOf();
+                const beginTimestamp =
+                  value instanceof Date ? value.valueOf() : new Date(value).valueOf();
+                const endTimestamp =
+                  endDateTime instanceof Date
+                    ? endDateTime.valueOf()
+                    : new Date(endDateTime).valueOf();
 
                 if (isNaN(beginTimestamp) || isNaN(endTimestamp)) {
                   return Promise.resolve(); // 如果日期无效，则不进行“开始时间必须小于结束时间”的检查
@@ -91,21 +139,20 @@ const AddForm: React.FC<AddFormProps> = (props) => {
           label="结束时间"
           rules={[
             { required: true, message: '请选择结束时间' },
-            ({
-              getFieldValue
-            }) => ({
+            ({ getFieldValue }) => ({
               validator(_, value) {
                 const beginDateTime = getFieldValue('beginDateTime');
                 // 确保 value 和 beginDateTime 都是有效的日期对象，并转换为时间戳进行比较
-                if (
-                  !value ||
-                  !beginDateTime
-                ) {
+                if (!value || !beginDateTime) {
                   return Promise.resolve(); // 如果日期为空，则不进行比较，允许通过
                 }
 
-                const beginTimestamp = beginDateTime instanceof Date ? beginDateTime.valueOf() : new Date(beginDateTime).valueOf();
-                const endTimestamp = value instanceof Date ? value.valueOf() : new Date(value).valueOf();
+                const beginTimestamp =
+                  beginDateTime instanceof Date
+                    ? beginDateTime.valueOf()
+                    : new Date(beginDateTime).valueOf();
+                const endTimestamp =
+                  value instanceof Date ? value.valueOf() : new Date(value).valueOf();
 
                 if (isNaN(beginTimestamp) || isNaN(endTimestamp)) {
                   return Promise.resolve(); // 如果日期无效，则不进行“结束时间必须大于开始时间”的检查
@@ -125,7 +172,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
         rules={[{ required: true, message: '请选择活动状态' }]}
         options={[
           { label: '开启', value: 'open' },
-          { label: '关闭', value: 'close' },
+          { label: '结束', value: 'close' },
         ]}
       />
     </ModalForm>

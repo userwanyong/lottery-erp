@@ -11,7 +11,7 @@ import React from 'react';
 const InfoCard: React.FC<{
   title: string;
   index: number;
-  desc: string;
+  desc: React.ReactNode;
   href: string;
 }> = ({ title, href, index, desc }) => {
   const { useToken } = theme;
@@ -137,21 +137,162 @@ const Welcome: React.FC = () => {
           >
             <InfoCard
               index={1}
-              href="https://umijs.org/docs/introduce/introduce"
-              title="了解 umi"
-              desc="umi 是一个可扩展的企业级前端应用框架,umi 以路由为基础的，同时支持配置式路由和约定式路由，保证路由的功能完备，并以此进行功能扩展。"
+              href=""
+              title="快速使用（帮你快速创建一个抽奖活动，简单）"
+              desc={
+                <>
+                  <div style={{ marginLeft: 8, fontWeight: 'bold', fontSize: '16px',marginBottom: 5 }}>
+                    快捷配置
+                  </div>
+                  <a
+                    href="/lottery/award"
+                    // target="_blank" //打开新页面
+                    style={{ marginLeft: 8 }}
+                  >
+                    1.添加全局奖品
+                  </a>
+                  <br />
+                  <a
+                    href="/strategy/award"
+                    // target="_blank" //打开新页面
+                    style={{ marginLeft: 8 }}
+                  >
+                    2.配置抽奖奖品
+                  </a>
+                  (策略ID请选择默认策略、奖品规则ID请选择默认规则)
+                  <br />
+                  <a
+                    href="/admin/activity"
+                    // target="_blank" //打开新页面
+                    style={{ marginLeft: 8 }}
+                  >
+                    3.创建活动
+                  </a>
+                  (抽奖策略ID请选择默认策略)
+                  <br />
+                  <a
+                    href="/rebate/behavior_rebate"
+                    // target="_blank" //打开新页面
+                    style={{ marginLeft: 8 }}
+                  >
+                    4.配置初始抽奖次数
+                  </a>
+                  (行为类型请选择活动赠送、返利类型请选择抽奖次数-活动赠送、返利配置即为单次赠送的次数)
+                  <br />
+                </>
+              }
             />
             <InfoCard
               index={2}
-              title="了解 ant design"
-              href="https://ant.design"
-              desc="antd 是基于 Ant Design 设计体系的 React UI 组件库，主要用于研发企业级中后台产品。"
-            />
-            <InfoCard
-              index={3}
-              title="了解 Pro Components"
-              href="https://procomponents.ant.design"
-              desc="ProComponents 是一个基于 Ant Design 做了更高抽象的模板组件，以 一个组件就是一个页面为开发理念，为中后台开发带来更好的体验。"
+              href=""
+              title="高级使用（新创建或基于已有的资源进行创建配置，复杂）"
+              desc={
+                <>
+                  <div style={{marginLeft: 8, fontWeight: 'bold', fontSize: '16px',marginBottom: 5}}>
+                    抽奖配置
+                  </div>
+                  <a
+                    href="/lottery/award"
+                    // target="_blank" //打开新页面
+                    style={{marginLeft: 8}}
+                  >
+                    1.添加全局奖品
+                  </a>
+                  <br/>
+                  <a
+                    href="/strategy/rule"
+                    // target="_blank" //打开新页面
+                    style={{marginLeft: 8}}
+                  >
+                    2.创建抽奖策略规则
+                  </a>
+                  <br/>
+                  <a
+                    href="/strategy/strategy"
+                    // target="_blank" //打开新页面
+                    style={{marginLeft: 8}}
+                  >
+                    3.创建抽奖策略
+                  </a>
+                  <br/>
+                  <a
+                    href="/strategy/tree"
+                    // target="_blank" //打开新页面
+                    style={{marginLeft: 8}}
+                  >
+                    4.创建奖品规则树
+                  </a>
+                  <br/>
+                  <a
+                    href="/strategy/node"
+                    // target="_blank" //打开新页面
+                    style={{marginLeft: 8}}
+                  >
+                    5.创建奖品规则节点
+                  </a>
+                  <br/>
+                  <a
+                    href="/strategy/line"
+                    // target="_blank" //打开新页面
+                    style={{marginLeft: 8}}
+                  >
+                    6.串联奖品规则节点
+                  </a>
+                  <br/>
+                  <a
+                    href="/strategy/award"
+                    // target="_blank" //打开新页面
+                    style={{marginLeft: 8}}
+                  >
+                    7.配置抽奖奖品
+                  </a>
+                  <br/>
+                  <a
+                    href="/admin/activity"
+                    // target="_blank" //打开新页面
+                    style={{marginLeft: 8}}
+                  >
+                    8.创建活动
+                  </a>
+                  <br/>
+                  <a
+                    href="/rebate/behavior_rebate"
+                    // target="_blank" //打开新页面
+                    style={{marginLeft: 8}}
+                  >
+                    9.配置初始抽奖次数
+                  </a>
+                  <br/>
+                  <br/>
+                  <div style={{marginLeft: 8, fontWeight: 'bold', fontSize: '16px',marginBottom: 5}}>
+                    返利配置
+                  </div>
+                  <a
+                    href="/rebate/activity_count"
+                    // target="_blank" //打开新页面
+                    style={{marginLeft: 8}}
+                  >
+                    1.配置返利抽奖次数
+                  </a>
+                  <br/>
+                  <a
+                    href="/rebate/activity_sku"
+                    // target="_blank" //打开新页面
+                    style={{marginLeft: 8}}
+                  >
+                    2.配置积分兑换返利
+                  </a>
+                  <br/>
+                  <a
+                    href="/rebate/behavior_rebate"
+                    // target="_blank" //打开新页面
+                    style={{marginLeft: 8}}
+                  >
+                    3.配置每日签到返利
+                  </a>
+                  <br/>
+                </>
+              }
             />
           </div>
         </div>

@@ -118,7 +118,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
             (option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
           onChange: (value) => {
             if (value === '__NEW_ACTIVITY_COUNT__') {
-              history.push('/admin/activity_count');
+              history.push('/rebate/activity_count');
               formRef.current?.setFieldsValue({ activityCountId: undefined });
             }
           },
@@ -137,6 +137,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
       <ProFormText
         name="productAmount"
         label="兑换所需积分"
+        tooltip={'精确到小数点后两位，如0.99'}
         rules={[{ required: true, message: '请输入兑换所需积分' }]}
       />
     </ModalForm>

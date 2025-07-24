@@ -125,6 +125,16 @@ const AddForm: React.FC<AddFormProps> = (props) => {
         }}
       />
       <ProFormSelect
+        name="ruleLimitValue"
+        label="限定值"
+        rules={[{ required: true, message: '请选择限定值' }]}
+        options={[
+          { label: 'ALLOW', value: 'ALLOW' },
+          { label: 'TAKE_OVER', value: 'TAKE_OVER' },
+        ]}
+        showSearch
+      />
+      <ProFormSelect
         name="ruleNodeTo"
         label="到"
         rules={[{ required: true, message: '请选择结束节点' }]}
@@ -160,16 +170,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
         ]}
         showSearch
       />
-      <ProFormSelect
-        name="ruleLimitValue"
-        label="限定值"
-        rules={[{ required: true, message: '请选择限定值' }]}
-        options={[
-          { label: 'ALLOW', value: 'ALLOW' },
-          { label: 'TAKE_OVER', value: 'TAKE_OVER' },
-        ]}
-        showSearch
-      />
+
     </ModalForm>
   );
 };

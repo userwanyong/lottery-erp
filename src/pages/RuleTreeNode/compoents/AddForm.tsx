@@ -79,10 +79,16 @@ const AddForm: React.FC<AddFormProps> = (props) => {
           },
         }}
       />
-      <ProFormText
+      <ProFormSelect
         name="ruleName"
-        label="奖品规则节点标识"
-        rules={[{ required: true, message: '请输入奖品规则节点名称' }]}
+        label="奖品规则节点类型"
+        rules={[{ required: true, message: '请选择奖品规则树节点类型' }]}
+        options={[
+          { label: 'rule_lock(次数锁)', value: 'rule_lock' },
+          { label: 'rule_stock(库存)', value: 'rule_stock' },
+          { label: 'rule_luck_award(兜底)', value: 'rule_luck_award' },
+        ]}
+        showSearch
       />
       <ProFormText
         name="ruleDesc"

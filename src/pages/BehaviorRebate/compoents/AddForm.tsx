@@ -134,6 +134,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
         options={[
           { label: '签到', value: 'sign' },
           { label: '支付', value: 'openai_pay' },
+          { label: '活动赠送', value: 'activity_gift' },
         ]}
       />
       <ProFormTextArea
@@ -146,8 +147,9 @@ const AddForm: React.FC<AddFormProps> = (props) => {
         label="返利类型"
         rules={[{ required: true, message: '请选择返利类型' }]}
         options={[
-          { label: '抽奖次数', value: 'sku' },
-          { label: '积分', value: 'integral' },
+          { label: '抽奖次数-兑换/签到', value: 'sku' },
+          { label: '积分-签到', value: 'integral' },
+          { label: '抽奖次数-活动赠送', value: 'gift' },
         ]}
         fieldProps={{
           onChange: () => {
@@ -179,7 +181,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
                     (option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
                   onChange: (value) => {
                     if (value === '__NEW_ACTIVITY_SKU__') {
-                      history.push('/admin/activity_sku');
+                      history.push('/rebate/activity_sku');
                       // 清空当前选择，避免表单字段被设置为特殊值
                       formRef.current?.setFieldsValue({ rebateConfig: undefined });
                     }
@@ -188,6 +190,14 @@ const AddForm: React.FC<AddFormProps> = (props) => {
               />
             );
           } else if (rebateType === 'integral') {
+            return (
+              <ProFormText
+                name="rebateConfig"
+                label="返利配置"
+                rules={[{ required: true, message: '请输入返利配置' }]}
+              />
+            );
+          }else if (rebateType === 'gift'){
             return (
               <ProFormText
                 name="rebateConfig"
@@ -210,7 +220,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
 
       <ProFormSelect
         name="state"
-        label="活动状态"
+        label="状态"
         rules={[{ required: true, message: '请选择活动状态' }]}
         options={[
           { label: '开启', value: 'open' },

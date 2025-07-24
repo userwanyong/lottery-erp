@@ -63,6 +63,12 @@ const RuleTreeNodeLine: React.FC = () => {
       ellipsis: true,
     },
     {
+      title: '限定值',
+      dataIndex: 'ruleLimitValue',
+      valueType: 'textarea',
+      ellipsis: true,
+    },
+    {
       title: '到',
       dataIndex: 'ruleNodeTo',
       valueType: 'textarea',
@@ -71,12 +77,6 @@ const RuleTreeNodeLine: React.FC = () => {
     {
       title: '限定类型',
       dataIndex: 'ruleLimitType',
-      valueType: 'textarea',
-      ellipsis: true,
-    },
-    {
-      title: '限定值',
-      dataIndex: 'ruleLimitValue',
       valueType: 'textarea',
       ellipsis: true,
     },

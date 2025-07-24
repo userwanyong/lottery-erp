@@ -17,6 +17,8 @@ const Activity: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false); // 控制详情抽屉可见性
   const actionRef = useRef<ActionType>();
   const { message: msg } = App.useApp(); // 获取 Ant Design 的 message 实例
+  const [loadingArmory, setLoadingArmory] = useState<Record<number, boolean>>({});
+
 
   const handleDelete = async (record: { id: any }) => {
     try {
@@ -36,12 +38,12 @@ const Activity: React.FC = () => {
     try {
       const res = await armory_activity(activityId);
       if (res.code === 1000) {
-        msg.success('数据装配成功');
+        msg.success('预热成功');
       } else {
-        msg.error(res.message || '数据装配失败');
+        msg.error(res.message || '预热失败');
       }
     } catch (error) {
-      msg.error('数据装配请求失败');
+      msg.error('预热失败');
       console.error('Armory API call failed:', error);
     }
   };
@@ -99,7 +101,7 @@ const Activity: React.FC = () => {
           status: 'Success',
         },
         close: {
-          text: '关闭',
+          text: '结束',
           status: 'Default',
         },
       },
@@ -109,19 +111,32 @@ const Activity: React.FC = () => {
       dataIndex: 'createTime',
       valueType: 'dateTime',
     },
-    {
-      title: '更新时间',
-      dataIndex: 'updateTime',
-      valueType: 'dateTime',
-    },
+    // {
+    //   title: '更新时间',
+    //   dataIndex: 'updateTime',
+    //   valueType: 'dateTime',
+    // },
     {
       title: '操作',
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
-        <a key="armory" onClick={() => handleArmory(record.id as any)}>
-          应用
-        </a>,
+        <Button
+          key="armory"
+          // type="link"
+          size={'small'}
+          disabled={!!loadingArmory[record.id as any]}
+          onClick={() => {
+            if (!loadingArmory[record.id as any]) {
+              setLoadingArmory(prev => ({ ...prev, [record.id as any]: true }));
+              handleArmory(record.id as any).finally(() => {
+                setLoadingArmory(prev => ({ ...prev, [record.id as any]: false }));
+              });
+            }
+          }}
+        >
+          {loadingArmory[record.id as any] ? '预热中...' : '预热'}
+        </Button>,
         <a
           key="update"
           onClick={() => {
@@ -180,7 +195,7 @@ const Activity: React.FC = () => {
           status: 'Success',
         },
         close: {
-          text: '关闭',
+          text: '结束',
           status: 'Default',
         },
       },
@@ -252,15 +267,23 @@ const Activity: React.FC = () => {
             }}
             columns={descriptionColumns}
             extra={[
-              <a
+              <Button
                 key="armory"
+                // type="link"
+                size={'small'}
                 onClick={() => {
-                  handleArmory(currentRow?.id as any);
-                  setShowDetail(false); // 关闭详情抽屉
+                  if (!loadingArmory[currentRow?.id as any]) {
+                    setLoadingArmory(prev => ({ ...prev, [currentRow?.id as any]: true }));
+                    handleArmory(currentRow?.id as any).finally(() => {
+                      setLoadingArmory(prev => ({ ...prev, [currentRow?.id as any]: false }));
+                      setShowDetail(false);
+                    });
+                  }
                 }}
+                disabled={!!loadingArmory[currentRow?.id as any]}
               >
-                应用
-              </a>,
+                {loadingArmory[currentRow?.id as any] ? '预热中...' : '预热'}
+              </Button>,
               <a
                 key="update"
                 onClick={() => {

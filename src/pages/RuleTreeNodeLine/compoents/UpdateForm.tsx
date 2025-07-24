@@ -8,7 +8,7 @@ interface UpdateFormProps {
   visible: boolean;
   onVisibleChange: (visible: boolean) => void;
   onFinish?: () => void;
-  initialValues: API.RuleTreeItem; // 接收初始值
+  initialValues: API.RuleTreeNodeItem; // 接收初始值
 }
 
 const UpdateForm: React.FC<UpdateFormProps> = (props) => {
@@ -30,23 +30,27 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
       message.error('获取奖品规则树节点列表失败');
     }
   };
+  const fetchRuleTreeData = async () => {
+    try {
+      const ruleTreeRes = await query_rule_tree();
+      if (ruleTreeRes && ruleTreeRes.data) {
+        setRuleTreeList(ruleTreeRes.data);
+        setSelectedRuleTreeId(initialValues.ruleTreeId)
+      }
+    } catch (error) {
+      message.error('获取奖品规则树配置列表失败');
+    }
+  };
 
   useEffect(() => {
-    const fetchRuleTreeData = async () => {
-      try {
-        const ruleTreeRes = await query_rule_tree();
-        if (ruleTreeRes && ruleTreeRes.data) {
-          setRuleTreeList(ruleTreeRes.data);
-        }
-      } catch (error) {
-        message.error('获取奖品规则树配置列表失败');
-      }
-    };
-
     if (visible) {
       fetchRuleTreeData();
     }
   }, [visible]);
+  useEffect(() => {
+    fetchRuleTreeNodeData(selectedRuleTreeId as string)
+  }, [selectedRuleTreeId]);
+
   return (
     <ModalForm
       title="修改奖品规则节点连接"
@@ -97,7 +101,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
             if (value === '__NEW_RULE_TREE__') {
               history.push('/strategy/tree');
             }else {
-              setSelectedRuleTreeId(value as string);
+              // setSelectedRuleTreeId(value as string);
               // 清空 ruleNodeFrom 和 ruleNodeTo 的值
               formRef.current?.setFieldsValue({
                 ruleNodeFrom: undefined,
@@ -129,6 +133,16 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
             }
           },
         }}
+      />
+      <ProFormSelect
+        name="ruleLimitValue"
+        label="限定值"
+        rules={[{ required: true, message: '请选择限定值' }]}
+        options={[
+          { label: 'ALLOW', value: 'ALLOW' },
+          { label: 'TAKE_OVER', value: 'TAKE_OVER' },
+        ]}
+        showSearch
       />
       <ProFormSelect
         name="ruleNodeTo"
@@ -165,16 +179,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
         ]}
         showSearch
       />
-      <ProFormSelect
-        name="ruleLimitValue"
-        label="限定值"
-        rules={[{ required: true, message: '请选择限定值' }]}
-        options={[
-          { label: 'ALLOW', value: 'ALLOW' },
-          { label: 'TAKE_OVER', value: 'TAKE_OVER' },
-        ]}
-        showSearch
-      />
+
     </ModalForm>
   );
 };

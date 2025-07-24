@@ -119,6 +119,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
       <ProFormText
         name="awardKey"
         label="唯一标识"
+        tooltip={'要与服务端已有发奖服务唯一标识对应'}
         rules={[{ required: true, message: '请输入总库存' }]}
       />
       <ProFormTextArea

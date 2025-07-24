@@ -57,7 +57,7 @@ const RuleTreeNode: React.FC = () => {
       ellipsis: true,
     },
     {
-      title: '奖品规则节点标识',
+      title: '奖品规则节点类型',
       dataIndex: 'ruleName',
       valueType: 'textarea',
       ellipsis: true,
@@ -119,7 +119,7 @@ const RuleTreeNode: React.FC = () => {
       dataIndex: 'id',
     },
     {
-      title: '奖品规则节点标识',
+      title: '奖品规则节点类型',
       dataIndex: 'ruleName',
     },
     {

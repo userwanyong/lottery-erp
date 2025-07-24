@@ -101,7 +101,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
         rules={[{ required: true, message: '请选择count_id' }]}
         options={[
           ...activityCountList.map((item) => ({
-            label: `${item.id} (${item.totalCount}/总, ${item.dayCount}/日, ${item.monthCount}/月)`,
+            label: `${item.id} (${item.totalCount}次/总, ${item.dayCount}次/日, ${item.monthCount}次/月)`,
             value: item.id,
           })),
           { label: '去新建+', value: '__NEW_ACTIVITY_COUNT__' }, // 添加新建选项
@@ -112,7 +112,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
             (option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
           onChange: (value) => {
             if (value === '__NEW_ACTIVITY_COUNT__') {
-              history.push('/admin/activity_count');
+              history.push('/rebate/activity_count');
               formRef.current?.setFieldsValue({ activityCountId: undefined });
             }
           },
@@ -132,6 +132,7 @@ const AddForm: React.FC<AddFormProps> = (props) => {
       <ProFormText
         name="productAmount"
         label="兑换所需积分"
+        tooltip={'精确到小数点后两位，如0.99'}
         rules={[{ required: true, message: '请输入兑换所需积分' }]}
       />
     </ModalForm>

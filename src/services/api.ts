@@ -45,8 +45,28 @@ export async function calendarSignRebate(options?: { [key: string]: any }) {
   });
 }
 
+export async function addLotteryQuota(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/activity/add_lottery_quota`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    data: options,
+  });
+}
+
 export async function isCalendarSignRebate(options?: { [key: string]: any }) {
   return request<API.CommonResponse>(`${apiHostUrl}/api/v1/activity/is_calendar_sign_rebate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    data: options,
+  });
+}
+
+export async function isAddLotteryQuota(options?: { [key: string]: any }) {
+  return request<API.CommonResponse>(`${apiHostUrl}/api/v1/activity/is_add_lottery_quota`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8'
@@ -188,6 +208,15 @@ export async function query_activity_record() {
 
 export async function query_user_behavior_rebate_order() {
   return request<API.UserBehaviorRebateOrderItem>(`${apiHostUrl}/api/v1/erp/query_user_behavior_rebate_order`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function query_user_behavior_gift(activityId:string) {
+  return request<API.UserBehaviorRebateOrderItem>(`${apiHostUrl}/api/v1/erp/behavior/query_behavior_gift?activityId=${activityId}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

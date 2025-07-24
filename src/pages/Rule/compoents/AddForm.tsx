@@ -42,7 +42,18 @@ const AddForm: React.FC<AddFormProps> = (props) => {
       <ProFormText
         name="ruleModel"
         label="规则模型(唯一)"
-        rules={[{ required: true, message: '请输入规则模型' }]}
+        tooltip="必须包含rule_weight字段或rule_blacklist字段"
+        rules={[
+          { required: true, message: '请输入规则模型' },
+          {
+            validator: (_, value) => {
+              if (value && value.includes('rule_weight')|| value.includes('rule_blacklist')) {
+                return Promise.resolve();
+              }
+              return Promise.reject(new Error('输入内容必须包含 rule_weight 或 rule_blacklist'));
+            },
+          },
+        ]}
       />
       <ProFormText
         name="ruleValue"

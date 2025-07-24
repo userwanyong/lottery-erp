@@ -193,6 +193,7 @@ declare namespace API {
     bizId?: string;
     createTime?: string;
     updateTime?: string;
+    data?: UserBehaviorRebateOrderItem[];
   }
 
   type ActivityItem = {
