@@ -1,13 +1,13 @@
 import { delete_strategy, query_strategy } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import { PageContainer } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { App, Button, Drawer, Popconfirm } from 'antd';
 import { useRef, useState } from 'react';
 import AddForm from './compoents/AddForm';
-import UpdateForm from "@/pages/Strategy/compoents/UpdateForm";
+import UpdateForm from '@/pages/Strategy/compoents/UpdateForm';
 
 const Strategy: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -54,25 +54,25 @@ const Strategy: React.FC = () => {
       title: '策略描述',
       dataIndex: 'strategyDesc',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '策略规则模型',
       dataIndex: 'ruleModels',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '操作',
@@ -134,6 +134,7 @@ const Strategy: React.FC = () => {
         rowKey="id"
         request={query_strategy}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -164,7 +165,7 @@ const Strategy: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow && (
           <ProDescriptions<API.StrategyItem>

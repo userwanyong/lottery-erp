@@ -36,37 +36,37 @@ const UserBehaviorRebateOrder: React.FC = () => {
       title: '活动ID',
       dataIndex: 'activityId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '返利类型',
       dataIndex: 'behaviorType',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '返利描述',
       dataIndex: 'rebateDesc',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '返利配置',
       dataIndex: 'rebateConfig',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '业务编号',
       dataIndex: 'bizId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
   ];
 
@@ -107,6 +107,7 @@ const UserBehaviorRebateOrder: React.FC = () => {
         rowKey="bizId"
         request={query_user_behavior_rebate_order}
         columns={columns}
+        scroll={{ x: 'max-content' }}
       ></ProTable>
       <Drawer
         width={600}
@@ -115,7 +116,7 @@ const UserBehaviorRebateOrder: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow?.userId && (
           <ProDescriptions<API.UserBehaviorRebateOrderItem>

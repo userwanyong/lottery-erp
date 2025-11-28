@@ -2,7 +2,7 @@ import UpdateForm from '@/pages/StrategyAward/compoents/UpdateForm';
 import { delete_strategy_award, query_strategy_award } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import { PageContainer } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { App, Button, Drawer, Popconfirm } from 'antd';
@@ -35,6 +35,7 @@ const StrategyAward: React.FC = () => {
     {
       title: '策略奖品ID',
       dataIndex: 'id',
+      width: 160,
       valueType: 'textarea',
       render: (dom, entity) => {
         return (
@@ -54,19 +55,19 @@ const StrategyAward: React.FC = () => {
       title: '策略ID',
       dataIndex: 'strategyId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '奖品ID',
       dataIndex: 'awardId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '奖品标题',
       dataIndex: 'awardTitle',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     // {
     //   title: '奖品副标题',
@@ -84,19 +85,19 @@ const StrategyAward: React.FC = () => {
       title: '剩余库存',
       dataIndex: 'awardCountSurplus',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '中奖概率',
       dataIndex: 'awardRate',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '奖品规则ID',
       dataIndex: 'ruleTreeId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     // {
     //   title: '排序',
@@ -204,6 +205,7 @@ const StrategyAward: React.FC = () => {
         rowKey="id"
         request={query_strategy_award}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -234,7 +236,7 @@ const StrategyAward: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow && (
           <ProDescriptions<API.StrategyAwardItem>

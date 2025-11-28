@@ -1,7 +1,7 @@
 import { delete_rule_tree_node, query_rule_tree_node } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import { PageContainer } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { App, Button, Drawer, Popconfirm } from 'antd';
@@ -35,6 +35,7 @@ const RuleTreeNode: React.FC = () => {
     {
       title: '奖品规则节点ID',
       dataIndex: 'id',
+      width: 160,
       valueType: 'textarea',
       render: (dom, entity) => {
         return (
@@ -54,37 +55,37 @@ const RuleTreeNode: React.FC = () => {
       title: '奖品规则树ID',
       dataIndex: 'ruleTreeId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '奖品规则节点类型',
       dataIndex: 'ruleName',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '规则描述',
       dataIndex: 'ruleDesc',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '规则值',
       dataIndex: 'ruleValue',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '操作',
@@ -150,6 +151,7 @@ const RuleTreeNode: React.FC = () => {
         rowKey="id"
         request={query_rule_tree_node}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -180,7 +182,7 @@ const RuleTreeNode: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow && (
           <ProDescriptions<API.RuleTreeNodeItem>

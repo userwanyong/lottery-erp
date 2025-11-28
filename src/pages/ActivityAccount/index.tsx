@@ -17,6 +17,7 @@ const ActivityAccount: React.FC = () => {
     {
       title: '用户ID',
       dataIndex: 'userId',
+      width: 160,
       valueType: 'textarea',
       render: (dom, entity) => {
         return (
@@ -36,55 +37,55 @@ const ActivityAccount: React.FC = () => {
       title: '活动ID',
       dataIndex: 'activityId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '总次数',
       dataIndex: 'totalCount',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '剩余总次数',
       dataIndex: 'totalCountSurplus',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '月次数',
       dataIndex: 'monthCount',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '剩余月次数',
       dataIndex: 'monthCountSurplus',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '日次数',
       dataIndex: 'dayCount',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '剩余日次数',
       dataIndex: 'dayCountSurplus',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
   ];
 
@@ -137,6 +138,7 @@ const ActivityAccount: React.FC = () => {
         rowKey={(record) => `${record.userId}-${record.activityId}`}
         request={query_activity_account}
         columns={columns}
+        scroll={{ x: 'max-content' }}
       ></ProTable>
       <Drawer
         width={600}
@@ -145,7 +147,7 @@ const ActivityAccount: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow?.userId && (
           <ProDescriptions<API.ActivityAccountItem>

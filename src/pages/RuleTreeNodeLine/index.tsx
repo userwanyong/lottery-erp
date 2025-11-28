@@ -1,7 +1,7 @@
 import { delete_rule_tree_node_line, query_rule_tree_node_line } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import { PageContainer } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { App, Button, Drawer, Popconfirm } from 'antd';
@@ -35,6 +35,7 @@ const RuleTreeNodeLine: React.FC = () => {
     {
       title: '节点连线ID',
       dataIndex: 'id',
+      width: 160,
       valueType: 'textarea',
       render: (dom, entity) => {
         return (
@@ -54,37 +55,37 @@ const RuleTreeNodeLine: React.FC = () => {
       title: '奖品规则树ID',
       dataIndex: 'ruleTreeId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '从',
       dataIndex: 'ruleNodeFrom',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '限定值',
       dataIndex: 'ruleLimitValue',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '到',
       dataIndex: 'ruleNodeTo',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '限定类型',
       dataIndex: 'ruleLimitType',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     // {
     //   title: '更新时间',
@@ -164,6 +165,7 @@ const RuleTreeNodeLine: React.FC = () => {
         rowKey="id"
         request={query_rule_tree_node_line}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -194,7 +196,7 @@ const RuleTreeNodeLine: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow && (
           <ProDescriptions<API.RuleTreeNodeLineItem>

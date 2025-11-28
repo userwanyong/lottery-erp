@@ -1,13 +1,13 @@
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import { PageContainer } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { App, Button, Drawer, Popconfirm } from 'antd';
 import { useRef, useState } from 'react';
 import AddForm from './compoents/AddForm';
-import {delete_activity_sku, query_activity_sku} from "@/services/api";
-import UpdateForm from "./compoents/UpdateForm";
+import { delete_activity_sku, query_activity_sku } from '@/services/api';
+import UpdateForm from './compoents/UpdateForm';
 
 const ActivitySku: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -35,6 +35,7 @@ const ActivitySku: React.FC = () => {
     {
       title: 'sku_ID',
       dataIndex: 'id',
+      width: 160,
       valueType: 'textarea',
       render: (dom, entity) => {
         return (
@@ -54,31 +55,31 @@ const ActivitySku: React.FC = () => {
       title: '活动ID',
       dataIndex: 'activityId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: 'count_ID',
       dataIndex: 'activityCountId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '总库存',
       dataIndex: 'stockCount',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '剩余库存',
       dataIndex: 'stockCountSurplus',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '兑换所需积分',
       dataIndex: 'productAmount',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     // {
     //   title: '创建时间',
@@ -90,7 +91,7 @@ const ActivitySku: React.FC = () => {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '操作',
@@ -164,6 +165,7 @@ const ActivitySku: React.FC = () => {
         rowKey="id"
         request={query_activity_sku}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -194,7 +196,7 @@ const ActivitySku: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow && (
           <ProDescriptions<API.ActivitySkuItem>

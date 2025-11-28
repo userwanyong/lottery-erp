@@ -1,5 +1,5 @@
 import { armory_activity, delete_activity, query_activity } from '@/services/api';
-import { PageContainer } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { App, Button, Popconfirm } from 'antd';
@@ -18,7 +18,6 @@ const Activity: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const { message: msg } = App.useApp(); // 获取 Ant Design 的 message 实例
   const [loadingArmory, setLoadingArmory] = useState<Record<number, boolean>>({});
-
 
   const handleDelete = async (record: { id: any }) => {
     try {
@@ -128,9 +127,9 @@ const Activity: React.FC = () => {
           disabled={!!loadingArmory[record.id as any]}
           onClick={() => {
             if (!loadingArmory[record.id as any]) {
-              setLoadingArmory(prev => ({ ...prev, [record.id as any]: true }));
+              setLoadingArmory((prev) => ({ ...prev, [record.id as any]: true }));
               handleArmory(record.id as any).finally(() => {
-                setLoadingArmory(prev => ({ ...prev, [record.id as any]: false }));
+                setLoadingArmory((prev) => ({ ...prev, [record.id as any]: false }));
               });
             }
           }}
@@ -218,6 +217,7 @@ const Activity: React.FC = () => {
         rowKey="id"
         request={query_activity}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         toolbar={{}}
         actionRef={actionRef}
         toolBarRender={() => [
@@ -253,7 +253,7 @@ const Activity: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow && (
           <ProDescriptions<API.ActivityItem>
@@ -273,9 +273,9 @@ const Activity: React.FC = () => {
                 size={'small'}
                 onClick={() => {
                   if (!loadingArmory[currentRow?.id as any]) {
-                    setLoadingArmory(prev => ({ ...prev, [currentRow?.id as any]: true }));
+                    setLoadingArmory((prev) => ({ ...prev, [currentRow?.id as any]: true }));
                     handleArmory(currentRow?.id as any).finally(() => {
-                      setLoadingArmory(prev => ({ ...prev, [currentRow?.id as any]: false }));
+                      setLoadingArmory((prev) => ({ ...prev, [currentRow?.id as any]: false }));
                       setShowDetail(false);
                     });
                   }

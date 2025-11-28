@@ -2,7 +2,7 @@ import UpdateForm from '@/pages/ActivityCount/compoents/UpdateForm';
 import { delete_activity_count, query_activity_count } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import { PageContainer } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { App, Button, Drawer, Popconfirm } from 'antd';
@@ -54,31 +54,31 @@ const ActivityCount: React.FC = () => {
       title: '总次数',
       dataIndex: 'totalCount',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '月次数',
       dataIndex: 'monthCount',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '日次数',
       dataIndex: 'dayCount',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '操作',
@@ -144,6 +144,7 @@ const ActivityCount: React.FC = () => {
         rowKey="id"
         request={query_activity_count}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -174,7 +175,7 @@ const ActivityCount: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow && (
           <ProDescriptions<API.ActivityCountItem>

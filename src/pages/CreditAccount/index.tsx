@@ -36,24 +36,24 @@ const CreditAccount: React.FC = () => {
       title: '活动ID',
       dataIndex: 'activityId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '总积分',
       dataIndex: 'totalAmount',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '可用积分',
       dataIndex: 'availableAmount',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '账户状态',
       dataIndex: 'accountStatus',
-      ellipsis: true,
+      ellipsis: false,
       valueEnum: {
         open: {
           text: '正常',
@@ -69,13 +69,13 @@ const CreditAccount: React.FC = () => {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
   ];
 
@@ -126,6 +126,7 @@ const CreditAccount: React.FC = () => {
         rowKey="userId"
         request={query_credit_account}
         columns={columns}
+        scroll={{ x: 'max-content' }}
       ></ProTable>
       <Drawer
         width={600}
@@ -134,7 +135,7 @@ const CreditAccount: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow?.userId && (
           <ProDescriptions<API.CreditAccountItem>

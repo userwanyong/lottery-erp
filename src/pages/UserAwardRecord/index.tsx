@@ -17,6 +17,7 @@ const UserAwardRecord: React.FC = () => {
     {
       title: '用户ID',
       dataIndex: 'userId',
+      width: 160,
       valueType: 'textarea',
       render: (dom, entity) => {
         return (
@@ -36,42 +37,42 @@ const UserAwardRecord: React.FC = () => {
       title: '活动ID',
       dataIndex: 'activityId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '抽奖策略ID',
       dataIndex: 'strategyId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '抽奖单ID',
       dataIndex: 'userOrderId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '奖品ID',
       dataIndex: 'awardId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '奖品标题',
       dataIndex: 'awardTitle',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '中奖时间',
       dataIndex: 'awardTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '奖品状态',
       dataIndex: 'awardState',
-      ellipsis: true,
+      ellipsis: false,
       valueEnum: {
         create: {
           text: '待发放',
@@ -91,13 +92,13 @@ const UserAwardRecord: React.FC = () => {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
   ];
 
@@ -164,6 +165,7 @@ const UserAwardRecord: React.FC = () => {
         rowKey="userOrderId"
         request={query_user_award_record}
         columns={columns}
+        scroll={{ x: 'max-content' }}
       ></ProTable>
       <Drawer
         width={600}
@@ -172,7 +174,7 @@ const UserAwardRecord: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow?.userId && (
           <ProDescriptions<API.UserAwardRecordItem>

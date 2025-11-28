@@ -1,7 +1,7 @@
 import { delete_behavior_rebate, query_behavior_rebate } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import { PageContainer } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { App, Button, Drawer, Popconfirm } from 'antd';
@@ -54,33 +54,33 @@ const BehaviorRebate: React.FC = () => {
       title: '活动ID',
       dataIndex: 'activityId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '行为类型',
       width: 80,
       dataIndex: 'behaviorType',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '返利描述',
       dataIndex: 'rebateDesc',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '返利类型',
       width: 90,
       dataIndex: 'rebateType',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '返利配置',
       dataIndex: 'rebateConfig',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '状态',
@@ -96,7 +96,7 @@ const BehaviorRebate: React.FC = () => {
           status: 'Error',
         },
       },
-      ellipsis: true,
+      ellipsis: false,
     },
     // {
     //   title: '创建时间',
@@ -108,7 +108,7 @@ const BehaviorRebate: React.FC = () => {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '操作',
@@ -196,6 +196,7 @@ const BehaviorRebate: React.FC = () => {
         rowKey="id"
         request={query_behavior_rebate}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -226,7 +227,7 @@ const BehaviorRebate: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow && (
           <ProDescriptions<API.ActivitySkuItem>

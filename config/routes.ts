@@ -196,7 +196,7 @@ export default [
   },
   {
     path: '/',
-    redirect: '/welcome',
+    redirect: '/experience',
   },
   {
     path: '*',

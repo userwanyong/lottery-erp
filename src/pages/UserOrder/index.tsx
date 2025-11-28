@@ -1,5 +1,11 @@
 import { query_user_order } from '@/services/api';
-import { PageContainer, ProColumns, ProTable, ProDescriptions, ProDescriptionsItemProps } from '@ant-design/pro-components';
+import {
+  PageContainer,
+  ProColumns,
+  ProTable,
+  ProDescriptions,
+  ProDescriptionsItemProps,
+} from '@ant-design/pro-components';
 import React, { useState } from 'react';
 import { Drawer } from 'antd';
 
@@ -30,24 +36,24 @@ const UserOrder: React.FC = () => {
       title: '活动ID',
       dataIndex: 'activityId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '活动名称',
       dataIndex: 'activityName',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '抽奖策略ID',
       dataIndex: 'strategyId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '订单状态',
       dataIndex: 'orderState',
-      ellipsis: true,
+      ellipsis: false,
       valueEnum: {
         create: {
           text: '待使用',
@@ -67,7 +73,7 @@ const UserOrder: React.FC = () => {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
   ];
 
@@ -119,6 +125,7 @@ const UserOrder: React.FC = () => {
         rowKey="createTime"
         request={query_user_order}
         columns={columns}
+        scroll={{ x: 'max-content' }}
       />
       <Drawer
         width={600}
@@ -127,7 +134,7 @@ const UserOrder: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow && (
           <ProDescriptions<API.UserOrderItem>

@@ -43,11 +43,68 @@ ol {
     &-tbody > tr {
       > th,
       > td {
-        white-space: pre;
+        white-space: normal;
+        word-break: break-word;
         > span {
           display: block;
         }
       }
     }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .ant-pro-layout-bg-list {
+    display: none !important;
+  }
+  .ant-drawer-mask {
+    z-index: 1999 !important;
+    background: rgba(255, 255, 255, 0.35) !important;
+    backdrop-filter: blur(6px);
+  }
+  .ant-drawer,
+  .ant-drawer-content-wrapper,
+  .ant-pro-sider {
+    z-index: 2000 !important;
+  }
+  .ant-pro-layout,
+  .ant-layout,
+  .ant-layout-content,
+  .ant-pro-page-container,
+  .ant-pro-grid-content {
+    position: relative !important;
+    z-index: 0 !important;
+  }
+  .ant-drawer-content-wrapper {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18) !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .ant-drawer-content {
+    border-radius: 0 12px 12px 0 !important;
+    background: #fff !important;
+  }
+  .ant-pro-sider .ant-menu {
+    background: #fff !important;
+  }
+  .ant-pro-sider .ant-menu-item-selected {
+    background-color: rgba(0, 0, 0, 0.06) !important;
+    border-radius: 8px !important;
+  }
+  .ant-pro-sider,
+  .ant-pro-sider .ant-layout-sider,
+  .ant-drawer-content {
+    background: #fff !important;
+  }
+  .ant-layout-content,
+  .ant-pro-page-container-children-content {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .ant-pro-grid-content {
+    max-width: 100vw !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 }

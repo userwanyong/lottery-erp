@@ -36,18 +36,18 @@ const CreditRecord: React.FC = () => {
       title: '活动ID',
       dataIndex: 'activityId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '交易名称',
       dataIndex: 'tradeName',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '交易类型',
       dataIndex: 'tradeType',
-      ellipsis: true,
+      ellipsis: false,
       valueEnum: {
         reverse: {
           text: '扣减',
@@ -61,25 +61,25 @@ const CreditRecord: React.FC = () => {
       title: '交易积分',
       dataIndex: 'tradeAmount',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '业务编号',
       dataIndex: 'outBusinessNo',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
   ];
 
@@ -132,6 +132,7 @@ const CreditRecord: React.FC = () => {
         rowKey="outBusinessNo"
         request={query_credit_record}
         columns={columns}
+        scroll={{ x: 'max-content' }}
       ></ProTable>
       <Drawer
         width={600}
@@ -140,7 +141,7 @@ const CreditRecord: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow?.userId && (
           <ProDescriptions<API.CreditRecordItem>

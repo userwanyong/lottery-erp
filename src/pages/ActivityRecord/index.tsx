@@ -17,6 +17,7 @@ const ActivityRecord: React.FC = () => {
     {
       title: '用户ID',
       dataIndex: 'userId',
+      width: 160,
       valueType: 'textarea',
       render: (dom, entity) => {
         return (
@@ -36,19 +37,19 @@ const ActivityRecord: React.FC = () => {
       title: '活动ID',
       dataIndex: 'activityId',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: 'sku',
       dataIndex: 'sku',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '活动名称',
       dataIndex: 'activityName',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '总次数',
@@ -88,19 +89,19 @@ const ActivityRecord: React.FC = () => {
       title: '业务编号',
       dataIndex: 'outBusinessNo',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
   ];
 
@@ -172,6 +173,7 @@ const ActivityRecord: React.FC = () => {
         rowKey="outBusinessNo"
         request={query_activity_record}
         columns={columns}
+        scroll={{ x: 'max-content' }}
       ></ProTable>
       {/* 详情抽屉 */}
       <Drawer
@@ -181,7 +183,7 @@ const ActivityRecord: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow?.userId && (
           <ProDescriptions<API.ActivityRecordItem>

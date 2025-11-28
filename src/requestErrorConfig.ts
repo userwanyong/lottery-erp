@@ -1,4 +1,4 @@
-﻿import type { RequestConfig } from '@umijs/max';
+import type { RequestConfig } from '@umijs/max';
 import { message, notification } from 'antd';
 
 // 错误处理方案： 错误类型
@@ -88,10 +88,12 @@ export const errorConfig: RequestConfig = {
   // 请求拦截器
   requestInterceptors: [
     (url, options) => {
-      // 拦截请求配置，进行个性化处理。
-      // 移除或修改以下行，以停止自动添加 ?token=123
-      // return { url: `${url}?token=123`, options };
-      return { url, options }; // 修改为这行，只返回原始url和options
+      const token = localStorage.getItem('authToken');
+      const headers = { ...(options?.headers || {}) } as Record<string, string>;
+      if (token) {
+        headers.Authorization = token;
+      }
+      return { url, options: { ...options, headers } };
     },
   ],
 

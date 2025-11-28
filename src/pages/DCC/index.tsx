@@ -20,7 +20,7 @@ const DCC: React.FC = () => {
       const response = await dcc_value(key);
       // 确保我们只使用响应中的数据部分
       const value = response.data || 'close';
-      setConfigs(prev => ({
+      setConfigs((prev) => ({
         ...prev,
         [key]: value,
       }));
@@ -31,7 +31,7 @@ const DCC: React.FC = () => {
 
   // 更新配置
   const updateConfig = async (key: string, value: string) => {
-    setLoading(prev => ({ ...prev, [key]: true }));
+    setLoading((prev) => ({ ...prev, [key]: true }));
     try {
       const response = await dcc_config({
         key,
@@ -39,17 +39,17 @@ const DCC: React.FC = () => {
       });
       if (response.code === 1000) {
         message.success('配置更新成功');
-        setConfigs(prev => ({
+        setConfigs((prev) => ({
           ...prev,
           [key]: value,
         }));
       } else {
-        message.error('配置更新失败');
+        message.error(response.message || '配置更新失败');
       }
     } catch (error) {
       message.error('配置更新失败');
     } finally {
-      setLoading(prev => ({ ...prev, [key]: false }));
+      setLoading((prev) => ({ ...prev, [key]: false }));
     }
   };
 
@@ -74,7 +74,7 @@ const DCC: React.FC = () => {
   return (
     <PageContainer>
       <Row gutter={[16, 16]}>
-        {configItems.map(item => (
+        {configItems.map((item) => (
           <Col xs={24} sm={12} md={8} lg={6} key={item.key}>
             <Card
               title={item.title}

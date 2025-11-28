@@ -2,10 +2,12 @@ import {
   addLotteryQuota,
   calendarSignRebate,
   creditPayExchangeSku,
-  draw, isAddLotteryQuota,
+  draw,
+  isAddLotteryQuota,
   isCalendarSignRebate,
   query_activity,
-  query_my_award_record, query_user_behavior_gift, query_user_behavior_rebate_order_of_gift,
+  query_my_award_record,
+  query_user_behavior_gift,
   queryLotteryAwardList,
   querySkuProductListByActivityId,
   queryStrategyRuleWeight,
@@ -13,13 +15,14 @@ import {
   queryUserCreditAccount,
 } from '@/services/api';
 import { useModel } from '@umijs/max';
-import { Button, Card, message, Pagination, Select, Tooltip } from 'antd';
+import { Button, Card, message, Pagination, Select, Tooltip, Grid } from 'antd';
 import QueueAnim from 'rc-queue-anim'; // 引入 QueueAnim
 import React, { useEffect, useState } from 'react';
 import styles from './index.less';
 
 const Experience: React.FC = () => {
-  const apiHostUrl = 'ws://127.0.0.1:8091';
+  const apiHostUrl = (process.env.UMI_APP_WS_HOST ||
+    (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host) as string;
   const { initialState } = useModel('@@initialState');
   const currentUser = initialState?.currentUser;
   const [messageApi, contextHolder] = message.useMessage(); // 添加 useMessage 钩子
@@ -41,7 +44,7 @@ const Experience: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [awardRecords, setAwardRecords] = useState<API.UserAwardRecordItem[]>([]); // 历史抽奖记录
   const [currentPage, setCurrentPage] = useState<number>(1); // 当前页码
-  const [pageSize, setPageSize] = useState<number>(5); // 每页记录数
+  const [pageSize] = useState<number>(5); // 每页记录数
   const [totalRecords, setTotalRecords] = useState<number>(0); // 总记录数
   const [broadcastMessages, setBroadcastMessages] = useState<{ id: number; message: string }[]>([]);
 
@@ -83,10 +86,10 @@ const Experience: React.FC = () => {
       const response = await isAddLotteryQuota({
         userId: currentUser?.userId,
         activityId: selectedActivityId,
-        behaviorRebateId:behaviorRebateId,
+        behaviorRebateId: behaviorRebateId,
       });
-      if (response.data){
-        setIsReceiveGift((prev) => new Set([...prev, selectedActivityId+behaviorRebateId]));
+      if (response.data) {
+        setIsReceiveGift((prev) => new Set([...prev, selectedActivityId + behaviorRebateId]));
       }
     } catch (error) {
       messageApi.error('查询gift状态失败'); // 使用 messageApi.error
@@ -130,7 +133,7 @@ const Experience: React.FC = () => {
       //遍历每一个，查询是否已领取过
       response.data?.forEach((item) => {
         checkGift(item.id as string);
-      })
+      });
     } catch (error) {
       messageApi.error('查询查询gift列表失败'); // 使用 messageApi.error
     }
@@ -170,12 +173,12 @@ const Experience: React.FC = () => {
     }
   };
   // 领取抽奖额度
-  const payGift = async (id:string,rebateConfig:string) => {
+  const payGift = async (id: string, rebateConfig: string) => {
     try {
       const response = await addLotteryQuota({
         userId: currentUser?.userId,
         activityId: selectedActivityId,
-        behaviorRebateId:id,
+        behaviorRebateId: id,
       });
       if (response.code === 1000) {
         messageApi.success(`成功领取${rebateConfig}次抽奖次数`); // 使用 messageApi.success
@@ -338,6 +341,9 @@ const Experience: React.FC = () => {
       const response = await query_activity();
       if (response?.data) {
         setActivities(response.data);
+        if (!selectedActivityId && response.data.length > 0) {
+          setSelectedActivityId(String(response.data[0].id));
+        }
       }
     } catch (error) {
       messageApi.error('获取活动列表失败'); // 使用 messageApi.error
@@ -383,6 +389,13 @@ const Experience: React.FC = () => {
 
   useEffect(() => {
     fetchActivities();
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.add('experience-bg');
+    return () => {
+      document.body.classList.remove('experience-bg');
+    };
   }, []);
 
   useEffect(() => {
@@ -438,7 +451,7 @@ const Experience: React.FC = () => {
         // 可以添加重连逻辑
       };
 
-      ws.onerror = (error) => {
+      ws.onerror = () => {
         messageApi.error('WebSocket 连接错误');
       };
 
@@ -598,8 +611,262 @@ const Experience: React.FC = () => {
     };
   }, [timer]);
 
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
+
+  if (isMobile) {
+    return (
+      <div className={styles.containerMobile}>
+        {contextHolder}
+        <div className={styles.header}>
+          <div className={styles.selectWrapper}>
+            <Select
+              placeholder="请选择活动"
+              style={{ width: '100%' }}
+              onChange={handleActivityChange}
+              value={selectedActivityId || undefined}
+              options={activities.map((activity) => ({
+                label: `${activity.activityName}(${activity.id})`,
+                value: activity.id,
+              }))}
+            />
+          </div>
+          {selectedActivityId && currentUser?.userId && (
+            <div className={styles.infoWrapper}>
+              <span className={styles.infoItem}>
+                <span className={styles.label}>活动ID：</span>
+                <span className={styles.value}>{selectedActivityId}</span>
+              </span>
+              <span className={styles.infoItem}>
+                <span className={styles.label}>用户ID：</span>
+                <span className={styles.value}>{currentUser.userId}</span>
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <div>
+            <div className={styles.lotteryBox}>
+              {generatePrizeOrder(awards).map((awardId, index) => {
+                if (awardId === null) {
+                  return (
+                    <div key={index} className={styles.prizeItem}>
+                      <button
+                        type="button"
+                        className={styles.startBtn}
+                        onClick={startLottery}
+                        disabled={isRotating || !selectedActivityId}
+                      >
+                        {isRotating
+                          ? '抽奖中...'
+                          : `开始抽奖 (剩:${activityAccount?.dayCountSurplus || 0}次)`}
+                      </button>
+                    </div>
+                  );
+                }
+                const award = awards.find((a) => a.awardId === awardId);
+                const locked = (award?.waitUnLockCount as any) > 0;
+                return (
+                  <div
+                    key={index}
+                    className={`${styles.prizeItem} ${
+                      currentIndex === index && isRotating ? styles.active : ''
+                    } ${locked ? styles.locked : ''}`}
+                  >
+                    {award && (
+                      <div className={styles.prizeContent}>
+                        <img src={award.image} alt={award.awardTitle} />
+                        <p className={locked ? styles.lockTitle : undefined}>
+                          {locked ? `再抽${award.waitUnLockCount}次解锁` : award.awardTitle}
+                        </p>
+                        {locked && <div className={styles.lockMask} />}
+                        {locked && <span className={styles.lockBadge}>🔒</span>}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {renderProgressBar()}
+          </div>
+
+          <div style={{ marginTop: 36 }}>
+            <Card
+              title="实时中奖广播"
+              styles={{
+                title: { fontSize: 16 },
+                header: { padding: '0 24px' },
+                body: { padding: '0 24px', fontSize: 13, textAlign: 'left' },
+              }}
+              style={{ width: '100%', height: 240, margin: '16px 0', overflow: 'hidden' }}
+            >
+              <div className={styles.recordList}>
+                <QueueAnim
+                  duration={700}
+                  interval={10}
+                  animConfig={[
+                    { opacity: [1, 0], translateY: [0, 50] },
+                    { opacity: [1, 0], translateX: [0, 100] },
+                  ]}
+                >
+                  {broadcastMessages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      style={{ display: 'flex', alignItems: 'center', padding: '8px 0' }}
+                      className="broadcast-item"
+                      dangerouslySetInnerHTML={{ __html: `🎉${msg.message}` }}
+                    />
+                  ))}
+                </QueueAnim>
+              </div>
+            </Card>
+          </div>
+
+          <div>
+            <Card title="中奖记录" style={{ width: '100%' }}>
+              <div className={styles.recordList}>
+                {awardRecords.map((record, index) => (
+                  <div
+                    key={index}
+                    className={styles.recordItem}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '8px 0',
+                      borderBottom: '1px solid #f0f0f0',
+                    }}
+                  >
+                    <img
+                      src={record.image}
+                      alt={record.awardTitle}
+                      style={{ width: 35, height: 35, marginRight: 12 }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div>{record.awardTitle}</div>
+                      <div style={{ fontSize: 12, color: '#999' }}>
+                        {new Date(record.createTime as any).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 10 }}>
+                <Pagination
+                  simple={{ readOnly: true }}
+                  size="small"
+                  hideOnSinglePage
+                  showSizeChanger={false}
+                  showQuickJumper
+                  current={currentPage}
+                  pageSize={5}
+                  total={totalRecords}
+                  onChange={(page) => setCurrentPage(page)}
+                />
+              </div>
+            </Card>
+          </div>
+
+          <div>
+            <Card
+              title={`每日签到（${isSignedToday ? '已签到' : '未签到'}）`}
+              style={{ width: '100%', marginTop: 16 }}
+            >
+              <div style={{ textAlign: 'center' }}>
+                <Button
+                  type="primary"
+                  onClick={async () => {
+                    try {
+                      const response = await calendarSignRebate({
+                        userId: currentUser?.userId,
+                        activityId: selectedActivityId,
+                      });
+                      if (response.code === 1000) {
+                        messageApi.success('签到成功');
+                        checkSignStatus();
+                        setTimeout(() => setRefreshKey((prev) => prev + 1), 700);
+                      } else if (response.code === 1005) {
+                        messageApi.success('今日已签到');
+                      } else {
+                        messageApi.error(response.message);
+                      }
+                    } catch (error) {
+                      messageApi.error('签到失败');
+                    }
+                  }}
+                  disabled={isSignedToday}
+                >
+                  {isSignedToday ? '今日已签到' : '立即签到'}
+                </Button>
+              </div>
+            </Card>
+          </div>
+
+          <div>
+            <Card
+              title={`积分兑换（可用积分: ${creditAccount === null ? 0.0 : creditAccount}）`}
+              style={{ width: '100%', marginTop: 16 }}
+            >
+              <div className={styles.skuList}>
+                {skus?.map((sku, index) => (
+                  <div key={index} className={styles.skuItem}>
+                    <span className={styles.skuInfo}>{sku.activityCount?.totalCount}次抽奖</span>
+                    <span className={styles.skuInfo}>{sku.productAmount}积分</span>
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={() => {
+                        setExchangingSkus((prev) => new Set([...prev, sku.id as string]));
+                        paySku(sku.id as string, sku.activityCount?.totalCount || 0).finally(() => {
+                          setExchangingSkus((prev) => {
+                            const next = new Set(prev);
+                            next.delete(sku.id as string);
+                            return next;
+                          });
+                        });
+                      }}
+                      disabled={exchangingSkus.has(sku.id as string)}
+                    >
+                      {exchangingSkus.has(sku.id as string) ? '兑换中' : '兑换'}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+
+          <div>
+            <Card title={`领取抽奖额度`} style={{ width: '100%', marginTop: 16 }}>
+              <div className={styles.giftList}>
+                {gifts?.map((gift, index) => (
+                  <div key={index} className={styles.giftItem}>
+                    <span className={styles.giftInfo}>免费领{gift.rebateConfig}次抽奖额度</span>
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={() => {
+                        setIsReceiveGift(
+                          (prev) => new Set([...prev, selectedActivityId + gift.id]),
+                        );
+                        payGift(gift.id as string, gift.rebateConfig as string);
+                      }}
+                      disabled={isReceiveGift.has(selectedActivityId + (gift.id as string))}
+                    >
+                      {isReceiveGift.has(selectedActivityId + (gift.id as string))
+                        ? '已领取'
+                        : '领取'}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    // <div style={{margin:'auto',justifyContent:'center',color:"red"}}>
     <div className={styles.container}>
       {contextHolder} {/* 在组件的 return 语句中添加 contextHolder */}
       <div className={styles.header}>
@@ -696,7 +963,7 @@ const Experience: React.FC = () => {
                   current={currentPage}
                   pageSize={5}
                   total={totalRecords}
-                  onChange={(page, size) => {
+                  onChange={(page) => {
                     setCurrentPage(page);
                   }}
                 />
@@ -728,24 +995,23 @@ const Experience: React.FC = () => {
 
                 // 其他格子显示奖品
                 const award = awards.find((a) => a.awardId === awardId);
+                const locked = (award?.waitUnLockCount as any) > 0;
                 return (
                   <div
                     key={index}
                     className={`${styles.prizeItem} ${
                       currentIndex === index && isRotating ? styles.active : ''
-                    }`}
+                    } ${locked ? styles.locked : ''}`}
                   >
                     {award && (
                       <>
                         <div className={styles.prizeContent}>
                           <img src={award.image} alt={award.awardTitle} />
-                          <p>{award.awardTitle}</p>
-                          {(award.waitUnLockCount as any) > 0 && (
-                            <div className={styles.lockOverlay}>
-                              <span className={styles.lockIcon}>🔒</span>
-                              <p className={styles.lockText}>抽奖{award.waitUnLockCount}次后解锁</p>
-                            </div>
-                          )}
+                          <p className={locked ? styles.lockTitle : undefined}>
+                            {locked ? `再抽${award.waitUnLockCount}次解锁` : award.awardTitle}
+                          </p>
+                          {locked && <div className={styles.lockMask} />}
+                          {locked && <span className={styles.lockBadge}>🔒</span>}
                         </div>
                       </>
                     )}
@@ -928,17 +1194,21 @@ const Experience: React.FC = () => {
                       type="primary"
                       size="small"
                       onClick={() => {
-                        setIsReceiveGift((prev) => new Set([...prev, selectedActivityId+gift.id]));
-                        payGift(gift.id as string,gift.rebateConfig as string)
+                        setIsReceiveGift(
+                          (prev) => new Set([...prev, selectedActivityId + gift.id]),
+                        );
+                        payGift(gift.id as string, gift.rebateConfig as string);
                       }}
-                      disabled={isReceiveGift.has(selectedActivityId+gift.id as string)}
+                      disabled={isReceiveGift.has((selectedActivityId + gift.id) as string)}
                     >
-                      {isReceiveGift.has(selectedActivityId+gift.id as string) ? '已领取' : '领取'}
+                      {isReceiveGift.has((selectedActivityId + gift.id) as string)
+                        ? '已领取'
+                        : '领取'}
                     </Button>
                   </div>
                 ))}
               </div>
-              <div style={{textAlign: 'center'}}></div>
+              <div style={{ textAlign: 'center' }}></div>
             </Card>
           </div>
         </div>

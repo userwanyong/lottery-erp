@@ -1,8 +1,6 @@
 import { AvatarDropdown, AvatarName, Footer, Question } from '@/components';
-import { currentUser as queryCurrentUser } from '@/services/ant-design-pro/api';
 import { LinkOutlined } from '@ant-design/icons';
 import type { Settings as LayoutSettings } from '@ant-design/pro-components';
-import { SettingDrawer } from '@ant-design/pro-components';
 import type { RunTimeLayoutConfig } from '@umijs/max';
 import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
@@ -22,13 +20,11 @@ export async function getInitialState(): Promise<{
   fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
 }> {
   const fetchUserInfo = async () => {
-    try {
-      const msg = await queryCurrentUser({
-        skipErrorHandler: true,
-      });
-      return msg.data;
-    } catch (error) {
-      history.push(loginPath);
+    const stored = localStorage.getItem('currentUser');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {}
     }
     return undefined;
   };
@@ -48,8 +44,24 @@ export async function getInitialState(): Promise<{
   };
 }
 
+// 临时禁用 findDOMNode、ReactDOM.render is no longer supported 警告
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  if (typeof args[0] === 'string' && args[0].includes('findDOMNode')) {
+    return;
+  }
+  if (
+    args[0] &&
+    typeof args[0] === 'string' &&
+    args[0].includes('ReactDOM.render is no longer supported')
+  ) {
+    return;
+  }
+  originalConsoleError(...args);
+};
+
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
-export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+export const layout: RunTimeLayoutConfig = ({ initialState }) => {
   return {
     actionsRender: () => [<Question key="doc" />],
     avatarProps: {
@@ -92,9 +104,9 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     ],
     links: isDev
       ? [
-          <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
+          <Link key="xybjz" to="/experience" target="">
             <LinkOutlined />
-            <span>OpenAPI 文档</span>
+            <span>欢迎来到幸运补给站</span>
           </Link>,
         ]
       : [],
@@ -105,21 +117,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     childrenRender: (children) => {
       // if (initialState?.loading) return <PageLoading />;
       return (
-        <App> {/* 使用 App 组件包裹 children */}
+        <App>
+          {' '}
+          {/* 使用 App 组件包裹 children */}
           {children}
-          {isDev && (
-            <SettingDrawer
-              disableUrlParams
-              enableDarkTheme
-              settings={initialState?.settings}
-              onSettingChange={(settings) => {
-                setInitialState((preInitialState) => ({
-                  ...preInitialState,
-                  settings,
-                }));
-              }}
-            />
-          )}
         </App>
       );
     },

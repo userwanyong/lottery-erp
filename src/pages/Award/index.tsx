@@ -1,14 +1,13 @@
 import { delete_award, query_award } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import { PageContainer } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { App, Button, Drawer, Image, Popconfirm } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import AddForm from './compoents/AddForm';
-import UpdateForm from "@/pages/Award/compoents/UpdateForm";
-
+import UpdateForm from '@/pages/Award/compoents/UpdateForm';
 
 const Award: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -50,6 +49,7 @@ const Award: React.FC = () => {
     {
       title: '奖品ID',
       dataIndex: 'id',
+      width: 160,
       valueType: 'textarea',
       render: (dom, entity) => {
         return (
@@ -69,19 +69,19 @@ const Award: React.FC = () => {
       title: '唯一标识',
       dataIndex: 'awardKey',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '奖品配置',
       dataIndex: 'awardConfig',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '内容描述',
       dataIndex: 'awardDesc',
       valueType: 'textarea',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '奖品图片',
@@ -95,20 +95,20 @@ const Award: React.FC = () => {
           />
         </div>
       ),
-      ellipsis: true,
+      ellipsis: false,
       search: false,
     },
     {
       title: '创建时间',
       dataIndex: 'createTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
       valueType: 'dateTime',
-      ellipsis: true,
+      ellipsis: false,
     },
     {
       title: '操作',
@@ -187,6 +187,7 @@ const Award: React.FC = () => {
         rowKey="id"
         request={query_award}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -217,7 +218,7 @@ const Award: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow && (
           <ProDescriptions<API.AwardItem>

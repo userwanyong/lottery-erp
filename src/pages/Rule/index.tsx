@@ -1,13 +1,13 @@
 import { delete_rule, query_rule } from '@/services/api';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import { PageContainer } from '@ant-design/pro-layout';
+import { PageContainer } from '@ant-design/pro-components';
 import type { ActionType, ProColumns } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { App, Button, Drawer, Popconfirm } from 'antd';
 import { useRef, useState } from 'react';
 import AddForm from './compoents/AddForm';
-import UpdateForm from "@/pages/Rule/compoents/UpdateForm";
+import UpdateForm from '@/pages/Rule/compoents/UpdateForm';
 
 const Rule: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -144,6 +144,7 @@ const Rule: React.FC = () => {
         rowKey="id"
         request={query_rule}
         columns={columns}
+        scroll={{ x: 'max-content' }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -174,7 +175,7 @@ const Rule: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={false}
+        closable={true}
       >
         {currentRow && (
           <ProDescriptions<API.RuleItem>
