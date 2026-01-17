@@ -23,7 +23,7 @@ const useStyles = createStyles(() => ({
   leftPanel: {
     flex: 0.83, // 减小左侧面板占比，让图片宽度更合适
     backgroundColor: '#EFE7DB', // 添加背景色作为图片加载前的fallback
-    backgroundImage: 'url(/beijingtu.png)',
+    backgroundImage: 'url(https://wanyj-xybjz.oss-cn-beijing.aliyuncs.com/beijingtu.png)',
     backgroundSize: 'cover', // 改为cover让图片占满整个区域
     backgroundPosition: 'center center', // 精确居中定位
     backgroundRepeat: 'no-repeat',

@@ -12,7 +12,7 @@
   flex-wrap: wrap;
   width: 1000px;
   gap: 16px;
-  background-color: #fde6ce;
+  background-image: linear-gradient(to top, #9890e3 0%, #b1f4cf 100%);
   padding: 16px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -25,10 +25,30 @@
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   padding: 0 12px 12px;
-  background-color: #fde6ce;
+  background-image: linear-gradient(to top, #9890e3 0%, #b1f4cf 100%);
   overflow-x: hidden;
   box-sizing: border-box;
   min-height: 100vh;
+}
+
+.cardGradient {
+  background-image: linear-gradient(to top, #a8edea 0%, #fed6e3 100%);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+:global(.ant-card).cardGradient {
+  border: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.cardGradient :global(.ant-card-head) {
+  border-bottom: none;
+  background: transparent;
+}
+
+.cardGradient :global(.ant-card-body) {
+  background: transparent;
 }
 
 :global {
@@ -37,8 +57,8 @@
     body.experience-bg .ant-pro-layout,
     body.experience-bg .ant-layout,
     body.experience-bg .ant-layout-content {
-      background-color: #fde6ce !important;
-      background-image: none !important;
+      background-color: transparent !important;
+      background-image: linear-gradient(to top, #9890e3 0%, #b1f4cf 100%) !important;
     }
     body.experience-bg .ant-pro-layout-bg-list {
       display: none !important;
@@ -53,7 +73,7 @@
   width: 100%;
   gap: 16px;
   //margin-bottom: 24px;
-  background-color: #fff;
+  background-image: linear-gradient(to right, #a8edea 0%, #fed6e3 100%);
   padding: 16px;
   border-radius: 8px;
   //box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -63,6 +83,28 @@
   margin-right: 0;
   flex: 0 0 auto;
   min-width: 200px;
+}
+
+.headerSelect {
+  :global(.ant-select-selector) {
+    background-color: transparent !important;
+    background-image: none !important;
+    border-radius: 999px !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 12px !important;
+  }
+
+  :global(.ant-select-selection-placeholder),
+  :global(.ant-select-selection-item) {
+    color: #555;
+  }
+
+  :global(.ant-select-focused .ant-select-selector),
+  :global(.ant-select-selector:focus),
+  :global(.ant-select-open .ant-select-selector) {
+    box-shadow: none !important;
+  }
 }
 
 .infoWrapper {
@@ -109,7 +151,7 @@
   height: 334px; // 10*2+100*3+7*2
   padding: 7px;
   margin: 0 auto;
-  background-color: #fff;
+  background-image: linear-gradient(to top, #a8edea 0%, #fed6e3 100%);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
@@ -128,7 +170,7 @@
   width: 100px; // 固定宽度
   height: 100px; // 固定高度
   padding: 0;
-  background-color: #f8f8f8;
+  background-color: rgba(255, 255, 255, 0.16);
   border-radius: 8px;
   transition: all 0.3s;
 
@@ -228,19 +270,27 @@
   height: 100%;
   font-size: 16px;
   color: #fff;
-  background-color: #ff4d4f;
+  background-image: linear-gradient(90deg, #fbc2eb 0%, #a6c1ee 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease;
 
-  &:hover {
-    background-color: #ff7875;
+  &:hover:not(:disabled) {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
   }
 
   &:disabled {
-    background-color: #d9d9d9;
     cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: none;
   }
 }
 
@@ -290,9 +340,10 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
-    padding: 8px;
-    border-radius: 4px;
-    background-color: #f5f5f5;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.16);
+    box-shadow: none;
 
     &:last-child {
       margin-bottom: 0;
@@ -311,9 +362,10 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
-    padding: 8px;
-    border-radius: 4px;
-    background-color: #f5f5f5;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.16);
+    box-shadow: none;
 
     &:last-child {
       margin-bottom: 0;
@@ -323,6 +375,109 @@
       flex: 1;
       margin-right: 16px;
     }
+  }
+}
+
+.actionButton {
+  padding: 0 20px;
+  height: 30px;
+  line-height: 30px;
+  border-radius: 999px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #ffffff;
+  background-image: linear-gradient(90deg, #fbc2eb 0%, #a6c1ee 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: none;
+  }
+}
+
+.skuList .actionButton,
+.giftList .actionButton {
+  height: 26px;
+  line-height: 26px;
+  padding: 0 14px;
+  font-size: 12px;
+}
+
+.recordPagination {
+  :global(.ant-pagination-options-quick-jumper input) {
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 999px;
+    border: none;
+    outline: none;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85);
+    color: #333;
+    transition: box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+
+  :global(.ant-pagination-options-quick-jumper input:focus) {
+    box-shadow: 0 0 0 2px rgba(248, 125, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.broadcastList {
+  padding: 8px 4px;
+  height: 160px;
+  overflow: hidden;
+
+  .broadcastInner {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .broadcastItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    height: 30px;
+    border-radius: 12px;
+    background-image: linear-gradient(-225deg, #2CD8D5 0%, #C5C1FF 56%, #FFBAC3 100%);
+    color: #ffffff;
+    font-size: 11px;
+    box-sizing: border-box;
+  }
+
+  .broadcastIcon {
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  .broadcastText {
+    flex: 1;
+    margin-right: 6px;
+    white-space: nowrap;
+  }
+
+  .broadcastUser {
+    font-weight: 500;
+    display: inline;
+  }
+
+  .broadcastDate {
+    font-size: 10px;
+    opacity: 0.9;
+    white-space: nowrap;
   }
 }
 

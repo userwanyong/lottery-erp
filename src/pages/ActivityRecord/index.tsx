@@ -75,7 +75,7 @@ const ActivityRecord: React.FC = () => {
       title: '订单状态',
       dataIndex: 'state',
       valueEnum: {
-        completed: {
+        complete: {
           text: '已完成',
           status: 'Success',
         },
@@ -143,7 +143,7 @@ const ActivityRecord: React.FC = () => {
       title: '订单状态',
       dataIndex: 'state',
       valueEnum: {
-        completed: {
+        complete: {
           text: '已完成',
           status: 'Success',
         },

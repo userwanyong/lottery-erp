@@ -217,9 +217,21 @@ export async function query_user_award_record() {
   });
 }
 
-export async function query_user_award_record_by_activity_id(activityId: string) {
+// export async function query_user_award_record_by_activity_id(activityId: string) {
+//   return requestSafe<API.UserAwardRecordItem>(
+//     `${apiHostUrl}/api/v1/activity/query_user_award_record_by_activity_id?activityId=${activityId}`,
+//     {
+//       method: 'GET',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//     },
+//   );
+// }
+
+export async function erp_query_user_award_record_by_activity_id(activityId: string) {
   return requestSafe<API.UserAwardRecordItem>(
-    `${apiHostUrl}/api/v1/activity/query_user_award_record_by_activity_id?activityId=${activityId}`,
+    `${apiHostUrl}/api/v1/erp/query_user_award_record_by_activity_id?activityId=${activityId}`,
     {
       method: 'GET',
       headers: {
