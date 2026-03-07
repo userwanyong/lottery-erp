@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import { ProFormCheckbox } from '@ant-design/pro-components';
 import { Helmet, history, useModel } from '@umijs/max';
-import { Alert, message, Button, Input, Form, Tabs } from 'antd';
+import { message, Button, Input, Form, Tabs } from 'antd';
 import { createStyles } from 'antd-style';
 import React, { useState, useEffect } from 'react';
 import { user_login } from '@/services/api';
@@ -464,43 +464,7 @@ const useStyles = createStyles(() => ({
   },
 }));
 
-const LoginMessage: React.FC<{ content: string; duration?: number }> = ({
-  content,
-  duration = 3,
-}) => {
-  const [visible, setVisible] = useState(true);
-  const [seconds, setSeconds] = useState(duration);
-
-  useEffect(() => {
-    if (!visible) return;
-    const timer = setInterval(() => {
-      setSeconds((s) => {
-        if (s <= 1) {
-          setVisible(false);
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [visible]);
-
-  if (!visible) return null;
-
-  return (
-    <Alert
-      style={{ marginBottom: 24 }}
-      message={`${content} (${seconds}s)`}
-      type="error"
-      showIcon
-      closable
-      onClose={() => setVisible(false)}
-    />
-  );
-};
-
 const Login: React.FC = () => {
-  const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
   const [passwordVisible, setPasswordVisible] = useState(false);
   const { setInitialState } = useModel('@@initialState');
   const { styles } = useStyles();
@@ -519,13 +483,20 @@ const Login: React.FC = () => {
         username: values.username,
         password: values.password,
       });
-      const loginData = resp?.data;
-      if (loginData && loginData.token) {
-        localStorage.setItem('authToken', loginData.token);
+      console.log('Login response:', resp);
+      // 兼容两种情况：resp 可能是 BaseResponse 包裹结构，也可能是直接的 data
+      const loginData = (resp?.data ?? resp) as any;
+      if (loginData?.accessToken) {
+        localStorage.setItem('authToken', loginData.accessToken);
+        localStorage.setItem('refreshToken', loginData.refreshToken);
+        localStorage.setItem(
+          'tokenExpiresAt',
+          String(Date.now() + (loginData.expiresIn || 3600) * 1000),
+        );
         const currentUser = {
           name: loginData.username,
           userId: String(loginData.id || ''),
-          access: loginData.role === 0 ? 'admin' : 'user',
+          access: 'admin',
         } as API.CurrentUser;
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
         flushSync(() => {
@@ -538,16 +509,12 @@ const Login: React.FC = () => {
         history.push(urlParams.get('redirect') || '/');
         return;
       }
-      const errorResult = { status: 'error', type: 'account', currentAuthority: 'guest' };
-      setUserLoginState(errorResult);
-      message.error('登录失败，请检查用户名或密码');
+      message.error(resp?.message || '登录失败，请检查用户名或密码');
     } catch (error) {
       console.error('Login error:', error);
       message.error('登录失败，请重试！');
     }
   };
-
-  const { status, type: loginType } = userLoginState;
 
   return (
     <div className={styles.container}>
@@ -592,10 +559,6 @@ const Login: React.FC = () => {
                 },
               ]}
             />
-
-            {status === 'error' && loginType === 'account' && (
-              <LoginMessage content={'请使用(admin/123456)登录'} />
-            )}
 
             <Form.Item
               name="username"
