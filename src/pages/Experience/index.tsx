@@ -1006,7 +1006,7 @@ const Experience: React.FC = () => {
               <div className={styles.giftList}>
                 {gifts?.map((gift, index) => (
                   <div key={index} className={styles.giftItem}>
-                    <span className={styles.giftInfo}>免费领{gift.rebateConfig}次抽奖额度</span>
+                    <span className={styles.giftInfo}>{gift.rebateDesc}</span>
                     <button
                       type="button"
                       className={styles.actionButton}
@@ -1370,7 +1370,7 @@ const Experience: React.FC = () => {
               <div className={styles.giftList}>
                 {gifts?.map((gift, index) => (
                   <div key={index} className={styles.giftItem}>
-                    <span className={styles.giftInfo}>免费领{gift.rebateConfig}次抽奖额度</span>
+                    <span className={styles.giftInfo}>{gift.rebateDesc}</span>
                     <button
                       type="button"
                       className={styles.actionButton}

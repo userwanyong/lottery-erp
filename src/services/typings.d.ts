@@ -209,12 +209,26 @@ declare namespace API {
     data?: ActivityItem[];
   };
 
+  type UserLoginResponse = {
+    id: number;
+    username: string;
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  };
+
+  type BaseResponse<T = any> = {
+    code?: string;
+    message?: string;
+    data?: T;
+  };
+
   type CommonResponse = {
     id: string;
     role: number;
     token: string;
     username: string | undefined;
-    code?: number;
+    code?: number | string;
     message?: string;
     data?: any;
   };

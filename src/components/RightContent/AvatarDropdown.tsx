@@ -7,6 +7,7 @@ import type { MenuInfo } from 'rc-menu/lib/interface';
 import React, { useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import HeaderDropdown from '../HeaderDropdown';
+import { user_logout } from '@/services/api';
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
@@ -43,12 +44,12 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
    */
   const loginOut = async () => {
     try {
-      try {
-        localStorage.removeItem('currentUser');
-      } catch {}
-      try {
-        localStorage.removeItem('authToken');
-      } catch {}
+      // 调用后端退出登录接口
+      await user_logout().catch(() => {});
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('tokenExpiresAt');
 
       const { search, pathname } = window.location;
       const urlParams = new URL(window.location.href).searchParams;

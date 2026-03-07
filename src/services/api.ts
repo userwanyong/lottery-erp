@@ -36,12 +36,37 @@ function requestSafe<T>(url: string, options: any): Promise<T> {
 const apiHostUrl = process.env.UMI_APP_API_HOST || '';
 
 export async function user_login(options?: { [key: string]: any }) {
-  return requestSafe<API.CommonResponse>(`${apiHostUrl}/api/v1/user/login`, {
+  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(
+    `${apiHostUrl}/api/v1/user/login`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: options,
+    },
+  );
+}
+
+export async function user_refresh(refreshToken: string) {
+  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(
+    `${apiHostUrl}/api/v1/user/refresh`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: { refreshToken },
+    },
+  );
+}
+
+export async function user_logout() {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/logout`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    data: options,
   });
 }
 
