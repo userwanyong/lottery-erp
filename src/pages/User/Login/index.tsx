@@ -1,16 +1,17 @@
-import {
-  AlipayCircleOutlined,
+﻿import {
   LockOutlined,
-  TaobaoCircleOutlined,
-  UserOutlined,
-  WeiboCircleOutlined,
+  MailOutlined,
+  SafetyCertificateOutlined,
 } from '@ant-design/icons';
-import { ProFormCheckbox } from '@ant-design/pro-components';
 import { Helmet, history, useModel } from '@umijs/max';
 import { message, Button, Input, Form, Tabs } from 'antd';
 import { createStyles } from 'antd-style';
-import React, { useState, useEffect } from 'react';
-import { user_login } from '@/services/api';
+import React, { useEffect, useState } from 'react';
+import {
+  user_email_login,
+  user_email_register,
+  user_send_email_code,
+} from '@/services/api';
 import { flushSync } from 'react-dom';
 import Settings from '../../../../config/defaultSettings';
 
@@ -18,22 +19,22 @@ const useStyles = createStyles(() => ({
   container: {
     display: 'flex',
     minHeight: '100vh',
-    backgroundColor: '#F7F2E6', // 温暖的象牙白背景，替代纯白色
+    backgroundColor: '#F7F2E6',
   },
   leftPanel: {
-    flex: 0.83, // 减小左侧面板占比，让图片宽度更合适
-    backgroundColor: '#EFE7DB', // 添加背景色作为图片加载前的fallback
+    flex: 0.83,
+    backgroundColor: '#EFE7DB',
     backgroundImage: 'url(https://wanyj-xybjz.oss-cn-beijing.aliyuncs.com/beijingtu.png)',
-    backgroundSize: 'cover', // 改为cover让图片占满整个区域
-    backgroundPosition: 'center center', // 精确居中定位
+    backgroundSize: 'cover',
+    backgroundPosition: 'center center',
     backgroundRepeat: 'no-repeat',
-    backgroundAttachment: 'scroll', // 改为scroll避免fixed带来的问题
+    backgroundAttachment: 'scroll',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center', // 改为居中布局，让内容更饱满
-    padding: '0', // 移除内边距让背景图片完全填充
+    justifyContent: 'center',
+    padding: '0',
     position: 'relative',
-    minHeight: '100vh', // 确保最小高度
+    minHeight: '100vh',
     filter: 'saturate(0.95)',
     '&::after': {
       content: '""',
@@ -54,159 +55,64 @@ const useStyles = createStyles(() => ({
       pointerEvents: 'none',
     },
     '@media (max-width: 768px)': {
-      display: 'none', // 移动端隐藏左侧面板，显示完整背景图片
+      display: 'none',
     },
   },
   rightPanel: {
-    flex: 1, // 增加右侧面板占比，平衡布局
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '24px',
-    backgroundColor: '#F7F2E6', // 温暖的象牙白背景，替代纯白色
-    '@media (max-width: 768px)': {
-      flex: 'none',
-      width: '100%',
-      padding: '16px', // 移动端减小内边距
-      alignItems: 'center', // 移动端居中对齐
-      justifyContent: 'center', // 移动端垂直居中
-      minHeight: '100vh', // 移动端占满视口高度
-      backgroundColor: '#F7F2E6', // 移动端也保持温暖背景
-    },
-  },
-  logoContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center', // 确保内容居中
-    gap: '12px', // 适当减小图标和文字间距
-    marginBottom: '0px', // 进一步减小底部间距，让标题更接近登录表单
-  },
-  logoIcon: {
-    width: '48px', // 增大图标尺寸
-    height: '48px',
-    backgroundColor: '#7A5638', // 温暖的古铜棕色，匹配传统风格
-    borderRadius: '10px', // 稍微增加圆角
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#F7F2E6', // 象牙白文字，与背景协调
-    fontSize: '24px', // 增大字体
-    fontWeight: 'bold',
-  },
-  logoText: {
-    fontSize: '28px', // 增大品牌文字
-    fontWeight: 'bold',
-    color: '#7A5638', // 温暖的古铜棕色，匹配传统风格
-    margin: 0,
-  },
-  headline: {
-    fontSize: '56px', // 增大标题字体
-    fontWeight: 'bold',
-    color: '#7A5638', // 温暖的古铜棕色，匹配传统风格
-    marginBottom: '24px', // 增加底部间距
-    lineHeight: 1.2,
-  },
-  subtext: {
-    fontSize: '18px', // 增大副标题字体
-    color: '#8A7D73', // 温暖的灰色，匹配传统风格
-    marginBottom: '64px', // 增加底部间距
-    lineHeight: 1.6,
-  },
-  illustration: {
     flex: 1,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
-  },
-  illustrationGraphic: {
-    width: '480px', // 增大图形尺寸
-    height: '360px',
-    background: 'linear-gradient(45deg, #D3A94C 0%, #C8A04A 100%)', // 温暖的金色渐变
-    borderRadius: '24px', // 增加圆角
-    opacity: 0.15, // 稍微增加透明度
-    position: 'relative',
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      top: '24px',
-      left: '24px',
-      right: '24px',
-      bottom: '24px',
-      background: 'rgba(247, 242, 230, 0.8)', // 温暖的象牙白背景
-      borderRadius: '16px',
+    padding: '24px',
+    backgroundColor: '#F7F2E6',
+    '@media (max-width: 768px)': {
+      flex: 'none',
+      width: '100%',
+      padding: '16px',
+      minHeight: '100vh',
     },
-  },
-  reactionIcons: {
-    position: 'absolute',
-    bottom: '32px', // 增加底部距离
-    left: '32px', // 增加左侧距离
-    display: 'flex',
-    gap: '16px', // 增加图标间距
-  },
-  reactionIcon: {
-    width: '40px', // 增大图标尺寸
-    height: '40px',
-    borderRadius: '50%',
-    backgroundColor: '#7A5638', // 温暖的古铜棕色
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#F7F2E6', // 温暖的象牙白文字
-    fontSize: '18px', // 增大图标字体
-  },
-  leftPanelContent: {
-    padding: '48px 64px', // 将内边距移到内容容器
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-  brandHeader: {
-    display: 'flex',
-    justifyContent: 'center', // 水平居中
-    alignItems: 'center', // 垂直居中
-    marginBottom: '16px', // 进一步减小底部间距，让标题更接近登录表单
-    paddingTop: '16px', // 减小顶部内边距
-    // 移动端也显示这个品牌标题
   },
   loginCard: {
     width: '100%',
-    maxWidth: '450px', // 增大登录卡片宽度
-    backgroundColor: '#F7F2E6', // 温暖的象牙白背景，融入左侧传统风格
+    maxWidth: '460px',
+    backgroundColor: '#F7F2E6',
     borderRadius: '16px',
-    boxShadow: '0 8px 24px rgba(139, 69, 19, 0.15)', // 温暖的棕色阴影
-    padding: '24px 40px', // 减小顶部和底部内边距，让布局更紧凑
-    ':global(.ant-form-item-has-error .ant-input-affix-wrapper)': {
-      backgroundColor: '#F7F2E6 !important',
-      borderColor: '#C95C3A !important',
-      boxShadow: 'none !important',
-    },
-    ':global(.ant-form-item-has-error .ant-input-affix-wrapper .ant-input)': {
-      backgroundColor: '#F7F2E6 !important',
-    },
-    '@media (max-width: 768px)': {
-      padding: '24px 20px', // 移动端保持合适的内边距
-      boxShadow: '0 4px 16px rgba(139, 69, 19, 0.1)', // 移动端温暖阴影
-      borderRadius: '16px', // 保持移动端圆角
-      minHeight: 'auto', // 改为自动高度
-      margin: '16px auto',
-      width: '360px',
-    },
+    boxShadow: '0 8px 24px rgba(139, 69, 19, 0.15)',
+    padding: '24px 36px',
   },
-  formItem: {
-    marginBottom: '24px', // 增加底部间距，因为移除了其他元素
-    '& .ant-form-item-control-input': {
-      backgroundColor: 'transparent', // 透明背景
-    },
+  brandHeader: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '16px',
+  },
+  logoContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  logoIcon: {
+    width: '48px',
+    height: '48px',
+    borderRadius: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#7A5638',
+    color: '#F7F2E6',
+    fontSize: '24px',
+    fontWeight: 'bold',
+  },
+  logoText: {
+    margin: 0,
+    fontSize: '28px',
+    fontWeight: 'bold',
+    color: '#7A5638',
   },
   input: {
     height: '48px',
     borderRadius: '8px',
-    border: '1px solid #C8A04A', // 温暖的金色边框
-    fontSize: '16px',
+    border: '1px solid #C8A04A',
     backgroundColor: '#F7F2E6',
-    color: '#7A5638',
     '&:hover': {
       borderColor: '#7A5638',
       backgroundColor: '#F7F2E6',
@@ -217,22 +123,8 @@ const useStyles = createStyles(() => ({
       boxShadow: 'none',
       backgroundColor: '#F7F2E6',
     },
-    '&.ant-input-affix-wrapper-status-error, &.ant-input-status-error': {
-      backgroundColor: '#F7F2E6 !important',
-      borderColor: '#C95C3A !important',
-      boxShadow: 'none !important',
-    },
-    '&.ant-input-affix-wrapper-status-error:hover, &.ant-input-status-error:hover': {
-      borderColor: '#C95C3A !important',
-      boxShadow: 'none !important',
-      backgroundColor: '#F7F2E6 !important',
-    },
-    '&.ant-input-affix-wrapper-status-error .ant-input, &.ant-input-status-error .ant-input': {
-      backgroundColor: '#F7F2E6 !important',
-    },
     '& .ant-input': {
       backgroundColor: 'transparent',
-      color: '#7A5638',
     },
     '& .ant-input:focus': {
       backgroundColor: 'transparent',
@@ -241,83 +133,49 @@ const useStyles = createStyles(() => ({
     '&:hover .ant-input': {
       backgroundColor: 'transparent',
     },
-    '& .ant-input::placeholder': {
-      color: '#8A7D73',
+    '&.ant-input-affix-wrapper-status-error, &.ant-input-status-error': {
+      backgroundColor: '#F7F2E6 !important',
+      boxShadow: 'none !important',
     },
-    '& .ant-input-prefix': {
+    '&.ant-input-affix-wrapper-status-error:hover, &.ant-input-status-error:hover': {
+      backgroundColor: '#F7F2E6 !important',
+      boxShadow: 'none !important',
+    },
+    '&.ant-input-affix-wrapper-status-error.ant-input-affix-wrapper-focused, &.ant-input-status-error.ant-input-affix-wrapper-focused':
+      {
+        backgroundColor: '#F7F2E6 !important',
+        boxShadow: 'none !important',
+      },
+    '&.ant-input-affix-wrapper-status-error .ant-input, &.ant-input-status-error .ant-input': {
+      backgroundColor: 'transparent !important',
+    },
+  },
+  tabs: {
+    '& .ant-tabs-nav::before': {
+      borderBottom: '1px solid #C8A04A',
+    },
+    '& .ant-tabs-tab': {
+      color: '#3A2A1C',
+    },
+    '& .ant-tabs-tab:hover': {
       color: '#7A5638',
     },
-    '& .ant-input-suffix': {
-      color: '#8A7D73',
+    '& .ant-tabs-tab-active .ant-tabs-tab-btn': {
+      color: '#7A5638 !important',
+      fontWeight: 600,
     },
-  },
-  passwordWrapper: {
-    position: 'relative',
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: '12px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    cursor: 'pointer',
-    color: '#8A7D73', // 温暖的灰色
-    fontSize: '18px',
-  },
-  forgotPassword: {
-    textAlign: 'right',
-    marginBottom: '24px',
-  },
-  forgotPasswordLink: {
-    color: '#7A5638', // 温暖的古铜棕色
-    fontSize: '14px',
-    textDecoration: 'none',
-    lineHeight: '1', // Match checkbox text line height
-    paddingTop: '0 !important',
-    paddingBottom: '0 !important',
-    marginTop: '0 !important',
-    marginBottom: '0 !important',
-    verticalAlign: 'baseline', // Ensure baseline alignment
-    '&:hover': {
-      color: '#6B4A2E', // 稍深的温暖棕色
-      textDecoration: 'underline',
+    '& .ant-tabs-ink-bar': {
+      backgroundColor: '#7A5638',
     },
   },
   checkboxContainer: {
     display: 'flex',
-    alignItems: 'baseline',
-    height: 'auto',
-    lineHeight: '1',
-    '& .ant-checkbox': {
-      marginTop: '0 !important',
-      marginBottom: '0 !important',
-      transform: 'translateY(0.5px)',
-    },
-    '& .ant-checkbox + span': {
-      paddingTop: '0 !important',
-      paddingBottom: '0 !important',
-      lineHeight: '1',
-      fontSize: '14px',
-      color: '#8A7D73',
-    },
-    '& .ant-checkbox-inner': {
-      borderColor: '#C8A04A',
-      backgroundColor: 'transparent',
-    },
-    '& .ant-checkbox:hover .ant-checkbox-inner': {
-      borderColor: '#C8A04A !important',
-    },
-    '& .ant-checkbox-input:focus + .ant-checkbox-inner': {
-      boxShadow: 'none',
-      borderColor: '#7A5638 !important',
-    },
-    '& .ant-checkbox-checked .ant-checkbox-inner': {
-      backgroundColor: '#7A5638 !important',
-      borderColor: '#7A5638 !important',
-    },
-    '& .ant-checkbox-checked:hover .ant-checkbox-inner': {
-      backgroundColor: '#6B4A2E !important',
-      borderColor: '#6B4A2E !important',
-    },
+    alignItems: 'center',
+  },
+  forgotPasswordLink: {
+    color: '#7A5638',
+    fontSize: '14px',
+    textDecoration: 'none',
   },
   loginButton: {
     width: '100%',
@@ -328,191 +186,121 @@ const useStyles = createStyles(() => ({
     backgroundColor: '#7A5638 !important',
     borderColor: '#7A5638 !important',
     color: '#F7F2E6 !important',
-    boxShadow: '0 2px 8px rgba(122, 86, 56, 0.3)',
-    '&:hover': {
-      backgroundColor: '#6B4A2E !important',
-      borderColor: '#6B4A2E !important',
-      color: '#F7F2E6 !important',
-      boxShadow: '0 2px 8px rgba(122, 86, 56, 0.35)',
-    },
-    '&:focus': {
-      backgroundColor: '#6B4A2E !important',
-      borderColor: '#6B4A2E !important',
-      color: '#F7F2E6 !important',
-    },
   },
   captchaButton: {
-    height: '48px',
-    borderRadius: '8px',
+    borderRadius: '6px',
     backgroundColor: '#7A5638 !important',
     borderColor: '#7A5638 !important',
     color: '#F7F2E6 !important',
-    boxShadow: '0 2px 6px rgba(122, 86, 56, 0.25)',
-    padding: '0 16px',
-    '&:hover': {
-      backgroundColor: '#6B4A2E !important',
-      borderColor: '#6B4A2E !important',
-      color: '#F7F2E6 !important',
-      boxShadow: '0 2px 8px rgba(122, 86, 56, 0.30)',
-    },
-    '&:focus': {
-      backgroundColor: '#6B4A2E !important',
-      borderColor: '#6B4A2E !important',
-      color: '#F7F2E6 !important',
-      boxShadow: 'none',
-    },
+    height: '32px',
+    padding: '0 10px',
   },
   helperText: {
     textAlign: 'center',
-    marginTop: '24px',
+    marginTop: '20px',
     fontSize: '14px',
-    color: '#8A7D73', // 温暖的灰色
-  },
-  createAccountLink: {
-    color: '#7A5638', // 温暖的古铜棕色
-    textDecoration: 'none',
-    '&:hover': {
-      color: '#6B4A2E', // 稍深的温暖棕色
-      textDecoration: 'underline',
-    },
-  },
-  divider: {
-    textAlign: 'center',
-    margin: '32px 0 24px',
-    position: 'relative',
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      top: '50%',
-      left: '0',
-      right: '0',
-      height: '1px',
-      backgroundColor: '#C8A04A', // 温暖的金色分隔线
-    },
-  },
-  dividerText: {
-    backgroundColor: '#F7F2E6', // 温暖的象牙白背景
-    padding: '0 16px',
-    position: 'relative',
-    fontSize: '14px',
-    color: '#8A7D73', // 温暖的灰色
-  },
-  socialIcons: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '16px',
-    marginTop: '24px',
-  },
-  socialIcon: {
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
-    backgroundColor: '#EDE4D3', // 温暖的米色背景
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    fontSize: '18px',
-    color: '#7A5638', // 温暖的古铜棕色
-    '&:hover': {
-      backgroundColor: '#D3A94C', // 温暖的金色悬停
-      color: '#F7F2E6', // 象牙白图标
-      transform: 'translateY(-2px)',
-    },
-  },
-  tabs: {
-    '& .ant-tabs-nav::before': {
-      borderBottom: '1px solid #C8A04A', // 温暖的金色边框
-    },
-    '& .ant-tabs-tab': {
-      color: '#8A7D73 !important',
-      backgroundColor: 'transparent',
-      boxShadow: 'none !important',
-      '&:hover': {
-        color: '#7A5638 !important',
-        backgroundColor: 'transparent',
-        boxShadow: 'none !important',
-      },
-    },
-    '& .ant-tabs-tab-btn': {
-      color: '#8A7D73 !important',
-    },
-    '& .ant-tabs-tab-active .ant-tabs-tab-btn': {
-      color: '#7A5638 !important',
-      backgroundColor: 'transparent',
-      boxShadow: 'none !important',
-    },
-    '& .ant-tabs-ink-bar': {
-      backgroundColor: '#7A5638',
-    },
-    '& .ant-tabs-content': {
-      backgroundColor: 'transparent',
-    },
-  },
-  mobileLogo: {
-    display: 'none', // 始终隐藏mobileLogo，只使用brandHeader
-    '@media (max-width: 768px)': {
-      display: 'none', // 移动端也隐藏
-    },
-  },
-  mobileLogoText: {
-    fontSize: '20px',
-    fontWeight: 'bold',
-    color: '#7A5638', // 温暖的古铜棕色，匹配传统风格
-    marginLeft: '8px',
+    color: '#8A7D73',
   },
 }));
 
 const Login: React.FC = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [activeTab, setActiveTab] = useState<'emailLogin' | 'emailRegister'>('emailLogin');
+  const [sendCodeLoading, setSendCodeLoading] = useState(false);
+  const [codeCooldown, setCodeCooldown] = useState(0);
   const { setInitialState } = useModel('@@initialState');
   const { styles } = useStyles();
   const [form] = Form.useForm();
 
   useEffect(() => {
     form.setFieldsValue({
-      username: 'wanyj',
-      password: '123456',
+      password: '',
     });
-  }, []);
+  }, [form]);
+
+  useEffect(() => {
+    if (codeCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCodeCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [codeCooldown]);
+
+  const handleLoginSuccess = (resp: any) => {
+    const loginData = (resp?.data ?? resp) as any;
+    if (!loginData?.accessToken) {
+      message.error(resp?.message || '登录失败，请检查输入信息');
+      return false;
+    }
+
+    localStorage.setItem('authToken', loginData.accessToken);
+    localStorage.setItem('refreshToken', loginData.refreshToken);
+    localStorage.setItem('tokenExpiresAt', String(Date.now() + (loginData.expiresIn || 3600) * 1000));
+
+    const currentUser = {
+      name: loginData.username,
+      userId: String(loginData.id || ''),
+      access: 'admin',
+    } as API.CurrentUser;
+
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    flushSync(() => {
+      setInitialState((s) => ({
+        ...s,
+        currentUser,
+      }));
+    });
+
+    const urlParams = new URL(window.location.href).searchParams;
+    history.push(urlParams.get('redirect') || '/');
+    return true;
+  };
 
   const handleSubmit = async (values: API.LoginParams) => {
     try {
-      const resp = await user_login({
-        username: values.username,
-        password: values.password,
-      });
-      console.log('Login response:', resp);
-      // 兼容两种情况：resp 可能是 BaseResponse 包裹结构，也可能是直接的 data
-      const loginData = (resp?.data ?? resp) as any;
-      if (loginData?.accessToken) {
-        localStorage.setItem('authToken', loginData.accessToken);
-        localStorage.setItem('refreshToken', loginData.refreshToken);
-        localStorage.setItem(
-          'tokenExpiresAt',
-          String(Date.now() + (loginData.expiresIn || 3600) * 1000),
-        );
-        const currentUser = {
-          name: loginData.username,
-          userId: String(loginData.id || ''),
-          access: 'admin',
-        } as API.CurrentUser;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        flushSync(() => {
-          setInitialState((s) => ({
-            ...s,
-            currentUser,
-          }));
+      if (activeTab === 'emailLogin') {
+        const resp = await user_email_login({
+          email: values.email || '',
+          password: values.password || '',
         });
-        const urlParams = new URL(window.location.href).searchParams;
-        history.push(urlParams.get('redirect') || '/');
+        handleLoginSuccess(resp);
         return;
       }
-      message.error(resp?.message || '登录失败，请检查用户名或密码');
+
+      const resp = await user_email_register({
+        email: values.email || '',
+        passCode: values.passCode || '',
+        password: values.password || '',
+      });
+
+      if (handleLoginSuccess(resp)) {
+        message.success('邮箱注册成功');
+      }
     } catch (error) {
-      console.error('Login error:', error);
-      message.error('登录失败，请重试！');
+      console.error('login/register error:', error);
+      message.error('操作失败，请稍后重试');
+    }
+  };
+
+  const sendEmailCode = async () => {
+    try {
+      const email = await form.validateFields(['email']).then((result) => result.email);
+      setSendCodeLoading(true);
+      const resp = await user_send_email_code(email);
+      if (Number(resp?.code) === 1000) {
+        message.success('验证码已发送，请查收邮箱');
+        setCodeCooldown(60);
+      } else {
+        message.error(resp?.message || '验证码发送失败');
+      }
+    } catch (error) {
+      if ((error as any)?.errorFields) {
+        return;
+      }
+      console.error('send email code error:', error);
+      message.error('验证码发送失败');
+    } finally {
+      setSendCodeLoading(false);
     }
   };
 
@@ -524,15 +312,10 @@ const Login: React.FC = () => {
         </title>
       </Helmet>
 
-      {/* Left Panel */}
-      <div className={styles.leftPanel}>
-        <div className={styles.leftPanelContent}>{/* 左侧面板现在只显示背景图片 */}</div>
-      </div>
+      <div className={styles.leftPanel} />
 
-      {/* Right Panel */}
       <div className={styles.rightPanel}>
         <div className={styles.loginCard}>
-          {/* Brand Header */}
           <div className={styles.brandHeader}>
             <div className={styles.logoContainer}>
               <div className={styles.logoIcon}>福</div>
@@ -542,126 +325,96 @@ const Login: React.FC = () => {
 
           <Form
             form={form}
-            initialValues={{
-              autoLogin: true,
-              username: 'admin',
-              password: '123456',
-            }}
             onFinish={handleSubmit}
           >
             <Tabs
               centered
               className={styles.tabs}
+              activeKey={activeTab}
+              onChange={(key) => {
+                setActiveTab(key as 'emailLogin' | 'emailRegister');
+                form.resetFields(['password', 'passCode']);
+              }}
               items={[
-                {
-                  key: 'account',
-                  label: '账户密码登录',
-                },
+                { key: 'emailLogin', label: '邮箱登录' },
+                { key: 'emailRegister', label: '邮箱注册' },
               ]}
             />
 
-            <Form.Item
-              name="username"
-              rules={[
-                {
-                  required: true,
-                  message: '用户名是必填项！',
-                },
-              ]}
-            >
-              <Input
-                size="large"
-                prefix={<UserOutlined />}
-                placeholder="请输入用户名"
-                className={styles.input}
-              />
-            </Form.Item>
+            {(activeTab === 'emailLogin' || activeTab === 'emailRegister') && (
+              <Form.Item
+                name="email"
+                rules={[
+                  { required: true, message: '邮箱是必填项' },
+                  { type: 'email', message: '邮箱格式不正确' },
+                ]}
+              >
+                <Input
+                  size="large"
+                  prefix={<MailOutlined />}
+                  placeholder="请输入邮箱"
+                  className={styles.input}
+                />
+              </Form.Item>
+            )}
+
+            {activeTab === 'emailRegister' && (
+              <Form.Item
+                name="passCode"
+                rules={[{ required: true, message: '验证码是必填项' }]}
+              >
+                <Input
+                  size="large"
+                  prefix={<SafetyCertificateOutlined />}
+                  placeholder="请输入验证码"
+                  className={styles.input}
+                  suffix={
+                    <Button
+                      type="primary"
+                      size="small"
+                      className={styles.captchaButton}
+                      loading={sendCodeLoading}
+                      disabled={codeCooldown > 0}
+                      onClick={sendEmailCode}
+                    >
+                      {codeCooldown > 0 ? `${codeCooldown}s` : '发送验证码'}
+                    </Button>
+                  }
+                />
+              </Form.Item>
+            )}
 
             <Form.Item
               name="password"
               rules={[
-                {
-                  required: true,
-                  message: '密码是必填项！',
-                },
+                { required: true, message: '密码是必填项' },
+                ...(activeTab === 'emailRegister' ? [{ min: 6, message: '密码至少 6 位' }] : []),
               ]}
             >
-              <div className={styles.passwordWrapper}>
-                <Input.Password
-                  size="large"
-                  prefix={<LockOutlined />}
-                  placeholder="请输入密码"
-                  defaultValue="123456"
-                  autoComplete="current-password"
-                  visibilityToggle={{
-                    visible: passwordVisible,
-                    onVisibleChange: setPasswordVisible,
-                  }}
-                  className={styles.input}
-                />
-              </div>
-            </Form.Item>
-
-            <div
-              style={{
-                marginBottom: 12,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'baseline',
-              }}
-            >
-              <div className={styles.checkboxContainer}>
-                <Form.Item name="autoLogin" valuePropName="checked" noStyle>
-                  <ProFormCheckbox>自动登录</ProFormCheckbox>
-                </Form.Item>
-              </div>
-              <a
-                className={styles.forgotPasswordLink}
-                onClick={(e) => {
-                  e.preventDefault();
-                  message.info('请用默认账密登录');
+              <Input.Password
+                size="large"
+                prefix={<LockOutlined />}
+                placeholder={activeTab === 'emailRegister' ? '请输入用于登录的新密码' : '请输入密码'}
+                autoComplete="current-password"
+                visibilityToggle={{
+                  visible: passwordVisible,
+                  onVisibleChange: setPasswordVisible,
                 }}
-              >
-                忘记密码
-              </a>
-            </div>
+                className={styles.input}
+              />
+            </Form.Item>
 
             <Form.Item>
               <Button type="primary" htmlType="submit" className={styles.loginButton}>
-                登录
+                {activeTab === 'emailRegister' ? '注册并登录' : '登录'}
               </Button>
             </Form.Item>
           </Form>
 
-          <div className={styles.helperText}>
-            如果没有账号？
-            <a
-              href="#"
-              className={styles.createAccountLink}
-              onClick={(e) => {
-                e.preventDefault();
-                message.info('请用默认账密登录');
-              }}
-            >
-              创建账号
-            </a>
-          </div>
+          {activeTab === 'emailRegister' && (
+            <div className={styles.helperText}>注册成功后将自动完成登录</div>
+          )}
 
-          <div className={styles.divider}>
-            <span className={styles.dividerText}>其他</span>
-          </div>
-
-          <div className={styles.socialIcons}>
-            <div className={styles.socialIcon}>
-              <AlipayCircleOutlined />
-            </div>
-            <div className={styles.socialIcon}>
-              <TaobaoCircleOutlined />
-            </div>
-            <div className={styles.socialIcon}>
-              <WeiboCircleOutlined />
-            </div>
-          </div>
         </div>
       </div>
     </div>

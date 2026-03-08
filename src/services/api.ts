@@ -70,6 +70,43 @@ export async function user_logout() {
   });
 }
 
+export async function user_send_email_code(email: string) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/email/send-code`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: { email },
+  });
+}
+
+export async function user_email_register(options: {
+  email: string;
+  passCode: string;
+  password: string;
+}) {
+  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(
+    `${apiHostUrl}/api/v1/user/email/register`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: options,
+    },
+  );
+}
+
+export async function user_email_login(options: { email: string; password: string }) {
+  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(`${apiHostUrl}/api/v1/user/email/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
 // 效果展示
 export async function queryLotteryAwardList(options?: { [key: string]: any }) {
   return requestSafe<API.LotteryAwardList>(
