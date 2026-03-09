@@ -301,6 +301,17 @@ const Activity: React.FC = () => {
                             <Button
                               block
                               className={styles.configButton}
+                              onClick={() =>
+                                history.push(
+                                  `/rebate/activity_sku?activityId=${encodeURIComponent(itemId)}`,
+                                )
+                              }
+                            >
+                              活动SKU配置
+                            </Button>
+                            <Button
+                              block
+                              className={styles.configButton}
                               disabled={!strategyId}
                               onClick={() =>
                                 history.push(
