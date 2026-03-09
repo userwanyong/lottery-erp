@@ -174,6 +174,25 @@ const useStyles = createStyles(() => ({
       backgroundColor: '#7A5638',
     },
   },
+  recommendedTabLabel: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  recommendedBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '30px',
+    height: '18px',
+    padding: '0 6px',
+    borderRadius: '999px',
+    background: 'linear-gradient(135deg, #B57A2E 0%, #D4A24C 100%)',
+    color: '#FFF7E8',
+    fontSize: '11px',
+    lineHeight: 1,
+    fontWeight: 600,
+  },
   checkboxContainer: {
     display: 'flex',
     alignItems: 'center',
@@ -604,7 +623,15 @@ const Login: React.FC = () => {
                 form.resetFields(['password', 'passCode']);
               }}
               items={[
-                { key: 'wechatLogin', label: '微信登录' },
+                {
+                  key: 'wechatLogin',
+                  label: (
+                    <span className={styles.recommendedTabLabel}>
+                      <span>微信登录</span>
+                      <span className={styles.recommendedBadge}>推荐</span>
+                    </span>
+                  ),
+                },
                 { key: 'emailLogin', label: '邮箱登录' },
                 { key: 'emailRegister', label: '邮箱注册' },
               ]}
@@ -665,7 +692,7 @@ const Login: React.FC = () => {
                   <Input.Password
                     size="large"
                     prefix={<LockOutlined />}
-                    placeholder={activeTab === 'emailRegister' ? '请输入用于登录的新密码' : '请输入密码'}
+                    placeholder={activeTab === 'emailRegister' ? '请设置用于登录的密码' : '请输入密码'}
                     autoComplete="current-password"
                     visibilityToggle={{
                       visible: passwordVisible,
@@ -807,7 +834,7 @@ const Login: React.FC = () => {
                 )}
               </div>
               <div className={styles.qrcodeHelperText}>
-                {qrcodeStatus === 'pending' && '请使用微信小程序扫描二维码登录'}
+                {qrcodeStatus === 'pending' && '请使用微信扫描二维码登录'}
                 {qrcodeStatus === 'scanned' && '扫码成功，请在手机上确认登录'}
                 {qrcodeStatus === 'confirmed' &&
                   (qrcodeLoginLoading ? '已确认，正在完成登录...' : '已确认，请稍候...')}
