@@ -323,6 +323,24 @@ const normalizeWechatQrcodeStatus = (
   return 'pending';
 };
 
+const isWechatQrcodeExpiredError = (error: any) => {
+  const status = error?.response?.status ?? error?.data?.statusCode ?? error?.info?.status;
+  if (status === 404) {
+    return true;
+  }
+
+  const rawTexts = [
+    error?.response?.data?.message,
+    error?.data?.message,
+    error?.info?.message,
+    error?.message,
+  ]
+    .filter(Boolean)
+    .map((text) => String(text).toLowerCase());
+
+  return rawTexts.some((text) => text.includes('qrcodeid is not found or expired'));
+};
+
 const Login: React.FC = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<'wechatLogin' | 'emailLogin' | 'emailRegister'>('wechatLogin');
@@ -562,7 +580,12 @@ const Login: React.FC = () => {
           }
         }
       } catch (error) {
-        // Silently handle polling errors
+        if (isWechatQrcodeExpiredError(error)) {
+          stopPolling();
+          setQrcodeStatus('expired');
+          setQrcodeLoginLoading(false);
+          wechatLoginSubmittingRef.current = false;
+        }
       }
     }, 2000); // 每2秒轮询一次
   };

@@ -267,6 +267,7 @@ declare namespace API {
     state?: string;
     createTime?: string;
     updateTime?: string;
+    data?: BehaviorRebateItem[];
   };
 
   type AwardItem = {
@@ -312,6 +313,7 @@ declare namespace API {
     sort?: string;
     createTime?: string;
     updateTime?: string;
+    data?: StrategyAwardItem[];
   };
 
   type RuleTreeItem = {
@@ -344,6 +346,7 @@ declare namespace API {
     ruleLimitValue?: string;
     createTime?: string;
     updateTime?: string;
+    data?: RuleTreeNodeLineItem[];
   };
 
   type LotteryAwardList = {

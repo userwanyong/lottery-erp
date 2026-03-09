@@ -174,6 +174,12 @@ export default [
         component: './RuleTree',
       },
       {
+        name: '奖品规则树编排器',
+        icon: 'apartment',
+        path: '/strategy/tree/editor',
+        component: './RuleTreeEditor',
+      },
+      {
         name: '奖品规则节点配置',
         icon: 'table',
         path: '/strategy/node',
