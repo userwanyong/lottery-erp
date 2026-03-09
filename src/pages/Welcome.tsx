@@ -2,11 +2,6 @@ import { PageContainer } from '@ant-design/pro-components';
 import { Card, theme } from 'antd';
 import React from 'react';
 
-/**
- * 每个单独的卡片，为了复用样式抽成了组件
- * @param param0
- * @returns
- */
 const InfoCard: React.FC<{
   title: string;
   index: number;
@@ -14,7 +9,6 @@ const InfoCard: React.FC<{
   href: string;
 }> = ({ title, href, index, desc }) => {
   const { useToken } = theme;
-
   const { token } = useToken();
 
   return (
@@ -84,6 +78,7 @@ const InfoCard: React.FC<{
 
 const Welcome: React.FC = () => {
   const { token } = theme.useToken();
+
   return (
     <PageContainer>
       <Card
@@ -141,37 +136,21 @@ const Welcome: React.FC = () => {
                   >
                     快捷配置
                   </div>
-                  <a
-                    href="/lottery/award"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
+                  <a href="/lottery/award" style={{ marginLeft: 8 }}>
                     1.添加全局奖品
                   </a>
                   <br />
-                  <a
-                    href="/strategy/award"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
+                  <a href="/strategy/award" style={{ marginLeft: 8 }}>
                     2.配置抽奖奖品
                   </a>
                   (策略ID请选择默认策略、奖品规则ID请选择默认规则)
                   <br />
-                  <a
-                    href="/admin/activity"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
+                  <a href="/admin/activity" style={{ marginLeft: 8 }}>
                     3.创建活动
                   </a>
                   (抽奖策略ID请选择默认策略)
                   <br />
-                  <a
-                    href="/rebate/behavior_rebate"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
+                  <a href="/rebate/behavior_rebate" style={{ marginLeft: 8 }}>
                     4.配置初始抽奖次数
                   </a>
                   (行为类型请选择活动赠送、返利类型请选择抽奖次数-活动赠送、返利配置即为单次赠送的次数)
@@ -190,75 +169,43 @@ const Welcome: React.FC = () => {
                   >
                     抽奖配置
                   </div>
-                  <a
-                    href="/lottery/award"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
+                  <a href="/lottery/award" style={{ marginLeft: 8 }}>
                     1.添加全局奖品
                   </a>
                   <br />
-                  <a
-                    href="/strategy/rule"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
-                    2.创建抽奖策略规则
+                  <a href="/strategy/rule" style={{ marginLeft: 8 }}>
+                    2.创建规则模型
                   </a>
                   <br />
-                  <a
-                    href="/strategy/strategy"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
-                    3.创建抽奖策略
+                  <a href="/strategy/strategy" style={{ marginLeft: 8 }}>
+                    3.创建策略规则
                   </a>
                   <br />
-                  <a
-                    href="/strategy/tree"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
+                  <a href="/strategy/tree" style={{ marginLeft: 8 }}>
                     4.创建奖品规则树
                   </a>
                   <br />
-                  <a
-                    href="/strategy/node"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
-                    5.创建奖品规则节点
+                  <a href="/strategy/node" style={{ marginLeft: 8, textDecoration: 'line-through' }}>
+                    5.创建奖品规则节点 (旧)
                   </a>
                   <br />
-                  <a
-                    href="/strategy/line"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
-                    6.串联奖品规则节点
+                  <a href="/strategy/line" style={{ marginLeft: 8, textDecoration: 'line-through' }}>
+                    6.串联奖品规则节点 (旧)
                   </a>
                   <br />
-                  <a
-                    href="/strategy/award"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
+                  <a href="/strategy/tree-editor" style={{ marginLeft: 8 }}>
+                    5/6.可视化编排 (新)
+                  </a>
+                  <br />
+                  <a href="/strategy/award" style={{ marginLeft: 8 }}>
                     7.配置抽奖奖品
                   </a>
                   <br />
-                  <a
-                    href="/admin/activity"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
+                  <a href="/admin/activity" style={{ marginLeft: 8 }}>
                     8.创建活动
                   </a>
                   <br />
-                  <a
-                    href="/rebate/behavior_rebate"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
+                  <a href="/rebate/behavior_rebate" style={{ marginLeft: 8 }}>
                     9.配置初始抽奖次数
                   </a>
                   <br />
@@ -268,27 +215,15 @@ const Welcome: React.FC = () => {
                   >
                     返利配置
                   </div>
-                  <a
-                    href="/rebate/activity_count"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
+                  <a href="/rebate/activity_count" style={{ marginLeft: 8 }}>
                     1.配置返利抽奖次数
                   </a>
                   <br />
-                  <a
-                    href="/rebate/activity_sku"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
+                  <a href="/rebate/activity_sku" style={{ marginLeft: 8 }}>
                     2.配置积分兑换返利
                   </a>
                   <br />
-                  <a
-                    href="/rebate/behavior_rebate"
-                    // target="_blank" //打开新页面
-                    style={{ marginLeft: 8 }}
-                  >
+                  <a href="/rebate/behavior_rebate" style={{ marginLeft: 8 }}>
                     3.配置每日签到返利
                   </a>
                   <br />

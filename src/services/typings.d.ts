@@ -64,6 +64,8 @@ declare namespace API {
   type LoginParams = {
     username?: string;
     password?: string;
+    email?: string;
+    passCode?: string;
     autoLogin?: boolean;
     type?: string;
   };
@@ -209,12 +211,26 @@ declare namespace API {
     data?: ActivityItem[];
   };
 
+  type UserLoginResponse = {
+    id: number;
+    username: string;
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  };
+
+  type BaseResponse<T = any> = {
+    code?: string;
+    message?: string;
+    data?: T;
+  };
+
   type CommonResponse = {
     id: string;
     role: number;
     token: string;
     username: string | undefined;
-    code?: number;
+    code?: number | string;
     message?: string;
     data?: any;
   };
@@ -251,6 +267,7 @@ declare namespace API {
     state?: string;
     createTime?: string;
     updateTime?: string;
+    data?: BehaviorRebateItem[];
   };
 
   type AwardItem = {
@@ -296,6 +313,7 @@ declare namespace API {
     sort?: string;
     createTime?: string;
     updateTime?: string;
+    data?: StrategyAwardItem[];
   };
 
   type RuleTreeItem = {
@@ -328,6 +346,7 @@ declare namespace API {
     ruleLimitValue?: string;
     createTime?: string;
     updateTime?: string;
+    data?: RuleTreeNodeLineItem[];
   };
 
   type LotteryAwardList = {
@@ -394,5 +413,32 @@ declare namespace API {
     data: any;
     total?: number;
     items?: any[];
+  };
+
+  // 微信小程序扫码登录相关类型
+  type WechatQrcodeResponse = {
+    /** 二维码唯一标识 */
+    qrcodeId: string;
+    /** 二维码图片URL（后端返回的图片地址） */
+    qrcodeUrl: string;
+    /** 二维码内容（可选，用于生成二维码） */
+    qrcodeContent?: string;
+    /** 二维码过期时间（秒） */
+    expiresIn?: number;
+  };
+
+  type WechatQrcodeStatusResponse = {
+    /** 二维码唯一标识 */
+    qrcodeId: string;
+    /** 二维码状态: pending-待扫码, scanned-已扫码未确认, confirmed-已确认登录, expired-已过期 */
+    status: 'pending' | 'scanned' | 'confirmed' | 'expired' | 'WAITING' | 'SCANED' | 'AUTHORIZED' | 'CANCELED' | string;
+    /** 用户信息（当状态为 confirmed 时返回） */
+    userInfo?: {
+      id: number;
+      username: string;
+      accessToken: string;
+      refreshToken: string;
+      expiresIn: number;
+    };
   };
 }

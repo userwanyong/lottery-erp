@@ -1,275 +1,352 @@
+import AddForm from '@/pages/StrategyAward/compoents/AddForm';
 import UpdateForm from '@/pages/StrategyAward/compoents/UpdateForm';
 import { delete_strategy_award, query_strategy_award } from '@/services/api';
-import { ProDescriptions } from '@ant-design/pro-components';
+import { ClusterOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { PageContainer, ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import { PageContainer } from '@ant-design/pro-components';
-import type { ActionType, ProColumns } from '@ant-design/pro-table';
-import ProTable from '@ant-design/pro-table';
-import { App, Button, Drawer, Popconfirm } from 'antd';
-import { useRef, useState } from 'react';
-import AddForm from './compoents/AddForm';
+import {
+  App,
+  Button,
+  Card,
+  Col,
+  Collapse,
+  Drawer,
+  Empty,
+  Popconfirm,
+  Row,
+  Space,
+  Spin,
+  Tag,
+  Typography,
+} from 'antd';
+import { useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'umi';
+import styles from './index.less';
+
+type GroupedStrategyAward = {
+  strategyId: string;
+  items: API.StrategyAwardItem[];
+};
+
+const formatRatePercent = (value?: string) => {
+  if (!value) return '--';
+  const rate = Number(value);
+  if (Number.isNaN(rate)) return value;
+  const percent = rate * 100;
+  return `${Number.isInteger(percent) ? percent.toFixed(0) : percent.toFixed(2)}%`;
+};
 
 const StrategyAward: React.FC = () => {
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false); // 控制修改表单可见性
-  const [currentRow, setCurrentRow] = useState<API.StrategyAwardItem>(); // 存储当前编辑行的数据
-  const [showDetail, setShowDetail] = useState<boolean>(false); // 控制详情抽屉可见性
-  const actionRef = useRef<ActionType>();
-  const { message: msg } = App.useApp(); // 获取 Ant Design 的 message 实例
+  const [modalVisible, setModalVisible] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [currentRow, setCurrentRow] = useState<API.StrategyAwardItem>();
+  const [showDetail, setShowDetail] = useState(false);
+  const [awards, setAwards] = useState<API.StrategyAwardItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [activeKeys, setActiveKeys] = useState<string[]>([]);
+  const [createInitialValues, setCreateInitialValues] = useState<Partial<API.StrategyAwardItem>>(
+    {},
+  );
+  const location = useLocation();
+  const { message } = App.useApp();
 
-  const handleDelete = async (record: { id: any }) => {
+  const loadStrategyAwards = async () => {
+    setLoading(true);
     try {
-      const res = await delete_strategy_award(record);
-      if (res.code === 1000) {
-        msg.success('删除成功');
-        actionRef.current?.reload();
-      } else {
-        msg.error('删除失败');
-      }
+      const res = await query_strategy_award();
+      setAwards(Array.isArray(res?.data) ? res.data : []);
     } catch (error) {
-      msg.error('删除失败，请重试');
+      message.error('获取策略奖品列表失败');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const columns: ProColumns<API.StrategyAwardItem>[] = [
-    {
-      title: '策略奖品ID',
-      dataIndex: 'id',
-      width: 160,
-      valueType: 'textarea',
-      render: (dom, entity) => {
-        return (
-          <a
-            style={{ color: '#0862ec' }}
-            onClick={() => {
-              setCurrentRow(entity);
-              setShowDetail(true);
-            }}
-          >
-            {dom}
-          </a>
-        );
-      },
-    },
-    {
-      title: '策略ID',
-      dataIndex: 'strategyId',
-      valueType: 'textarea',
-      ellipsis: false,
-    },
-    {
-      title: '奖品ID',
-      dataIndex: 'awardId',
-      valueType: 'textarea',
-      ellipsis: false,
-    },
-    {
-      title: '奖品标题',
-      dataIndex: 'awardTitle',
-      valueType: 'textarea',
-      ellipsis: false,
-    },
-    // {
-    //   title: '奖品副标题',
-    //   dataIndex: 'awardSubtitle',
-    //   valueType: 'textarea',
-    //   ellipsis: true,
-    // },
-    // {
-    //   title: '总库存',
-    //   dataIndex: 'awardCount',
-    //   valueType: 'textarea',
-    //   ellipsis: true,
-    // },
-    {
-      title: '剩余库存',
-      dataIndex: 'awardCountSurplus',
-      valueType: 'textarea',
-      ellipsis: false,
-    },
-    {
-      title: '中奖概率',
-      dataIndex: 'awardRate',
-      valueType: 'textarea',
-      ellipsis: false,
-    },
-    {
-      title: '奖品规则ID',
-      dataIndex: 'ruleTreeId',
-      valueType: 'textarea',
-      ellipsis: false,
-    },
-    // {
-    //   title: '排序',
-    //   dataIndex: 'sort',
-    //   valueType: 'textarea',
-    //   ellipsis: true,
-    // },
-    // {
-    //   title: '创建时间',
-    //   dataIndex: 'createTime',
-    //   valueType: 'dateTime',
-    //   ellipsis: true,
-    // },
-    // {
-    //   title: '更新时间',
-    //   dataIndex: 'updateTime',
-    //   valueType: 'dateTime',
-    //   ellipsis: true,
-    // },
-    {
-      title: '操作',
-      dataIndex: 'option',
-      valueType: 'option',
-      render: (_, record) => [
-        <a
-          key="update"
-          onClick={() => {
-            setUpdateModalVisible(true);
-            setCurrentRow(record);
-          }}
-        >
-          修改
-        </a>,
-        <Popconfirm
-          key="delete"
-          title="确定删除该策略奖品规则吗？"
-          onConfirm={() => handleDelete(record.id as any)}
-          okText="是"
-          cancelText="否"
-        >
-          <a>删除</a>
-        </Popconfirm>,
-      ],
-    },
-  ];
+  useEffect(() => {
+    loadStrategyAwards();
+  }, []);
 
-  const descriptionColumns: ProDescriptionsItemProps<API.StrategyItem>[] = [
-    {
-      title: '策略奖品ID',
-      dataIndex: 'id',
-    },
-    {
-      title: '策略ID',
-      dataIndex: 'strategyId',
-    },
-    {
-      title: '奖品ID',
-      dataIndex: 'awardId',
-    },
-    {
-      title: '奖品标题',
-      dataIndex: 'awardTitle',
-    },
-    {
-      title: '奖品副标题',
-      dataIndex: 'awardSubtitle',
-    },
-    {
-      title: '总库存',
-      dataIndex: 'awardCount',
-    },
-    {
-      title: '剩余库存',
-      dataIndex: 'awardCountSurplus',
-    },
-    {
-      title: '中奖概率',
-      dataIndex: 'awardRate',
-    },
-    {
-      title: '奖品规则ID',
-      dataIndex: 'ruleTreeId',
-    },
-    {
-      title: '排序',
-      dataIndex: 'sort',
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      valueType: 'dateTime',
-    },
-    {
-      title: '更新时间',
-      dataIndex: 'updateTime',
-      valueType: 'dateTime',
-    },
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await delete_strategy_award(id);
+      if (res.code === 1000) {
+        message.success('删除成功');
+        if (currentRow?.id === id) {
+          setCurrentRow(undefined);
+          setShowDetail(false);
+        }
+        await loadStrategyAwards();
+      } else {
+        message.error(res.message || '删除失败');
+      }
+    } catch (error) {
+      message.error('删除失败，请重试');
+    }
+  };
+
+  const groupedAwards = useMemo<GroupedStrategyAward[]>(() => {
+    const grouped = awards.reduce<Record<string, API.StrategyAwardItem[]>>((acc, item) => {
+      const key = String(item.strategyId || '未分组策略');
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(item);
+      return acc;
+    }, {});
+
+    return Object.entries(grouped)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([strategyId, items]) => ({
+        strategyId,
+        items: [...items].sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0)),
+      }));
+  }, [awards]);
+
+  const allGroupKeys = useMemo(
+    () => groupedAwards.map((item) => item.strategyId),
+    [groupedAwards],
+  );
+
+  const targetStrategyId = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    const value = params.get('strategyId');
+    return value ? String(value) : '';
+  }, [location.search]);
+
+  const isAllExpanded =
+    allGroupKeys.length > 0 && allGroupKeys.every((key) => activeKeys.includes(key));
+
+  useEffect(() => {
+    if (targetStrategyId && allGroupKeys.includes(targetStrategyId)) {
+      setActiveKeys([targetStrategyId]);
+      return;
+    }
+    setActiveKeys([]);
+  }, [allGroupKeys, targetStrategyId]);
+
+  const openCreateModal = (strategyId?: string) => {
+    setCreateInitialValues(strategyId ? { strategyId } : {});
+    setModalVisible(true);
+  };
+
+  const descriptionColumns: ProDescriptionsItemProps<API.StrategyAwardItem>[] = [
+    { title: '策略奖品ID', dataIndex: 'id' },
+    { title: '策略ID', dataIndex: 'strategyId' },
+    { title: '奖品ID', dataIndex: 'awardId' },
+    { title: '奖品标题', dataIndex: 'awardTitle' },
+    { title: '奖品副标题', dataIndex: 'awardSubtitle' },
+    { title: '总库存', dataIndex: 'awardCount' },
+    { title: '剩余库存', dataIndex: 'awardCountSurplus' },
+    { title: '中奖概率', dataIndex: 'awardRate' },
+    { title: '奖品规则ID', dataIndex: 'ruleTreeId' },
+    { title: '排序', dataIndex: 'sort' },
+    { title: '创建时间', dataIndex: 'createTime', valueType: 'dateTime' },
+    { title: '更新时间', dataIndex: 'updateTime', valueType: 'dateTime' },
   ];
 
   return (
-    <PageContainer>
-      <ProTable<API.StrategyAwardItem, API.PageParams>
-        headerTitle="策略列表"
-        actionRef={actionRef}
-        rowKey="id"
-        request={query_strategy_award}
-        columns={columns}
-        scroll={{ x: 'max-content' }}
-        toolBarRender={() => [
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setModalVisible(true);
-            }}
-          >
-            + 新建策略奖品
-          </Button>,
-        ]}
-      />
+    <PageContainer header={{ title: false, breadcrumb: undefined }}>
+      <Card
+        bordered={false}
+        className={styles.pageCard}
+        title="策略奖品列表"
+        extra={
+          <Space>
+            <Button icon={<ReloadOutlined />} onClick={loadStrategyAwards}>
+              刷新全部
+            </Button>
+            <Button onClick={() => setActiveKeys(isAllExpanded ? [] : allGroupKeys)}>
+              {isAllExpanded ? '一键收起全部' : '一键展开全部'}
+            </Button>
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => openCreateModal()}>
+              新建策略奖品
+            </Button>
+          </Space>
+        }
+      >
+        <Spin spinning={loading}>
+          {groupedAwards.length === 0 ? (
+            <Empty description="暂无策略奖品配置" />
+          ) : (
+            <Collapse
+              className={styles.groupCollapse}
+              activeKey={activeKeys}
+              onChange={(keys) =>
+                setActiveKeys(
+                  Array.isArray(keys)
+                    ? keys.map(String)
+                    : keys
+                      ? [String(keys)]
+                      : [],
+                )
+              }
+              items={groupedAwards.map((group) => ({
+                key: group.strategyId,
+                label: (
+                  <div className={styles.groupHeader}>
+                    <Space size={12}>
+                      <ClusterOutlined />
+                      <Typography.Text strong>策略ID：{group.strategyId}</Typography.Text>
+                    </Space>
+                    <div className={styles.groupHeaderRight}>
+                      <div
+                        className={styles.groupHeaderActions}
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        <Button size="small" icon={<ReloadOutlined />} onClick={loadStrategyAwards}>
+                          刷新
+                        </Button>
+                        <Button
+                          size="small"
+                          type="primary"
+                          icon={<PlusOutlined />}
+                          onClick={() => openCreateModal(group.strategyId)}
+                        >
+                          新建奖品
+                        </Button>
+                      </div>
+                      <Tag color="blue">{group.items.length} 条配置</Tag>
+                    </div>
+                  </div>
+                ),
+                children: (
+                  <Row gutter={[16, 16]}>
+                    {group.items.map((item) => (
+                      <Col xs={24} md={12} xl={8} key={item.id}>
+                        <Card
+                          hoverable
+                          bordered={false}
+                          className={styles.awardCard}
+                          title={
+                            <Space size={10}>
+                              <Typography.Text ellipsis className={styles.cardTitle}>
+                                {item.awardTitle || item.awardId || '未命名奖品'}
+                              </Typography.Text>
+                              <Tag color="processing">排序 {item.sort || '--'}</Tag>
+                            </Space>
+                          }
+                          extra={
+                            <Space size={4}>
+                              <Button
+                                type="link"
+                                size="small"
+                                onClick={() => {
+                                  setCurrentRow(item);
+                                  setShowDetail(true);
+                                }}
+                              >
+                                详情
+                              </Button>
+                              <Button
+                                size="small"
+                                type="link"
+                                onClick={() => {
+                                  setCurrentRow(item);
+                                  setUpdateModalVisible(true);
+                                }}
+                              >
+                                修改
+                              </Button>
+                              <Popconfirm
+                                title="确定删除这条策略奖品吗？"
+                                onConfirm={() => handleDelete(String(item.id || ''))}
+                                okText="确定"
+                                cancelText="取消"
+                              >
+                                <Button type="link" size="small" danger>
+                                  删除
+                                </Button>
+                              </Popconfirm>
+                            </Space>
+                          }
+                        >
+                          <div className={styles.metaRow}>
+                            <div className={`${styles.metaChip} ${styles.primaryChip}`}>
+                              <span className={styles.infoLabel}>概率</span>
+                              <span className={styles.infoValue}>
+                                {formatRatePercent(item.awardRate)}
+                              </span>
+                            </div>
+                            <div className={`${styles.metaChip} ${styles.warningChip}`}>
+                              <span className={styles.infoLabel}>剩余库存</span>
+                              <span className={styles.infoValue}>
+                                {item.awardCountSurplus || '--'}
+                              </span>
+                            </div>
+                          </div>
+                        </Card>
+                      </Col>
+                    ))}
+                  </Row>
+                ),
+              }))}
+            />
+          )}
+        </Spin>
+      </Card>
+
       <AddForm
         visible={modalVisible}
-        onVisibleChange={setModalVisible}
-        onFinish={() => actionRef.current?.reload()}
+        initialValues={createInitialValues}
+        onVisibleChange={(visible) => {
+          setModalVisible(visible);
+          if (!visible) {
+            setCreateInitialValues({});
+          }
+        }}
+        onFinish={() => loadStrategyAwards()}
       />
+
       <UpdateForm
         visible={updateModalVisible}
         onVisibleChange={setUpdateModalVisible}
-        onFinish={() => actionRef.current?.reload()}
+        onFinish={() => loadStrategyAwards()}
         initialValues={currentRow || {}}
       />
+
       <Drawer
-        width={600}
-        visible={showDetail}
+        width={640}
+        open={showDetail}
         onClose={() => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }}
-        closable={true}
+        closable
       >
         {currentRow && (
           <ProDescriptions<API.StrategyAwardItem>
             column={2}
-            title={currentRow?.id}
+            title={currentRow.id}
             request={async () => ({
-              data: currentRow || {},
+              data: currentRow,
             })}
-            params={{
-              id: currentRow?.id,
-            }}
+            params={{ id: currentRow.id }}
             columns={descriptionColumns}
             extra={[
-              <a
+              <Button
                 key="update"
+                type="link"
+                style={{ paddingInline: 0 }}
                 onClick={() => {
                   setUpdateModalVisible(true);
-                  setShowDetail(false); // 关闭详情抽屉
+                  setShowDetail(false);
                 }}
               >
                 修改
-              </a>,
+              </Button>,
               <Popconfirm
                 key="delete"
-                title="确定删除该策略奖品吗？"
+                title="确定删除这条策略奖品吗？"
                 onConfirm={() => {
-                  handleDelete(currentRow?.id as any);
-                  setShowDetail(false); // 关闭详情抽屉
+                  handleDelete(String(currentRow.id || ''));
+                  setShowDetail(false);
                 }}
-                okText="是"
-                cancelText="否"
+                okText="确定"
+                cancelText="取消"
               >
-                <a>删除</a>
+                <Button type="link" danger style={{ paddingInline: 0 }}>
+                  删除
+                </Button>
               </Popconfirm>,
             ]}
           />

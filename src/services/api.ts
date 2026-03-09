@@ -36,13 +36,114 @@ function requestSafe<T>(url: string, options: any): Promise<T> {
 const apiHostUrl = process.env.UMI_APP_API_HOST || '';
 
 export async function user_login(options?: { [key: string]: any }) {
-  return requestSafe<API.CommonResponse>(`${apiHostUrl}/api/v1/user/login`, {
+  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(
+    `${apiHostUrl}/api/v1/user/login`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: options,
+    },
+  );
+}
+
+export async function user_refresh(refreshToken: string) {
+  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(
+    `${apiHostUrl}/api/v1/user/refresh`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: { refreshToken },
+    },
+  );
+}
+
+export async function user_logout() {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/logout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export async function user_send_email_code(email: string) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/email/send-code`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: { email },
+  });
+}
+
+export async function user_email_register(options: {
+  email: string;
+  passCode: string;
+  password: string;
+}) {
+  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(
+    `${apiHostUrl}/api/v1/user/email/register`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: options,
+    },
+  );
+}
+
+export async function user_email_login(options: { email: string; password: string }) {
+  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(`${apiHostUrl}/api/v1/user/email/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     data: options,
   });
+}
+
+// 微信小程序扫码登录
+export async function wechat_miniapp_qrcode() {
+  return requestSafe<API.BaseResponse<API.WechatQrcodeResponse>>(
+    `${apiHostUrl}/api/v1/user/wechat-mini-program/qrcode/generate`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+}
+
+export async function wechat_miniapp_qrcode_status(qrcodeId: string) {
+  return requestSafe<API.BaseResponse<API.WechatQrcodeStatusResponse>>(
+    `${apiHostUrl}/api/v1/user/wechat-mini-program/qrcode/status`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: { qrcodeId },
+    },
+  );
+}
+
+export async function wechat_miniapp_qrcode_login(ticket: string) {
+  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(
+    `${apiHostUrl}/api/v1/user/wechat-mini-program/qrcode/login`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: { ticket },
+    },
+  );
 }
 
 // 效果展示
