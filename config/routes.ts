@@ -23,6 +23,12 @@ export default [
     ],
   },
   {
+    path: '/welcome',
+    name: '系统介绍',
+    icon: 'smile',
+    component: './Welcome',
+  },
+  {
     path: '/admin',
     name: '活动管理',
     icon: 'crown',
