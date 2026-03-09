@@ -107,6 +107,45 @@ export async function user_email_login(options: { email: string; password: strin
   });
 }
 
+// 微信小程序扫码登录
+export async function wechat_miniapp_qrcode() {
+  return requestSafe<API.BaseResponse<API.WechatQrcodeResponse>>(
+    `${apiHostUrl}/api/v1/user/wechat-mini-program/qrcode/generate`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+}
+
+export async function wechat_miniapp_qrcode_status(qrcodeId: string) {
+  return requestSafe<API.BaseResponse<API.WechatQrcodeStatusResponse>>(
+    `${apiHostUrl}/api/v1/user/wechat-mini-program/qrcode/status`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: { qrcodeId },
+    },
+  );
+}
+
+export async function wechat_miniapp_qrcode_login(ticket: string) {
+  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(
+    `${apiHostUrl}/api/v1/user/wechat-mini-program/qrcode/login`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: { ticket },
+    },
+  );
+}
+
 // 效果展示
 export async function queryLotteryAwardList(options?: { [key: string]: any }) {
   return requestSafe<API.LotteryAwardList>(

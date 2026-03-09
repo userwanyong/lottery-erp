@@ -40,4 +40,5 @@ screenshot
 
 build
 /.local-config
+.claude
 /edge-functions/

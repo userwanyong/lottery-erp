@@ -411,4 +411,31 @@ declare namespace API {
     total?: number;
     items?: any[];
   };
+
+  // 微信小程序扫码登录相关类型
+  type WechatQrcodeResponse = {
+    /** 二维码唯一标识 */
+    qrcodeId: string;
+    /** 二维码图片URL（后端返回的图片地址） */
+    qrcodeUrl: string;
+    /** 二维码内容（可选，用于生成二维码） */
+    qrcodeContent?: string;
+    /** 二维码过期时间（秒） */
+    expiresIn?: number;
+  };
+
+  type WechatQrcodeStatusResponse = {
+    /** 二维码唯一标识 */
+    qrcodeId: string;
+    /** 二维码状态: pending-待扫码, scanned-已扫码未确认, confirmed-已确认登录, expired-已过期 */
+    status: 'pending' | 'scanned' | 'confirmed' | 'expired' | 'WAITING' | 'SCANED' | 'AUTHORIZED' | 'CANCELED' | string;
+    /** 用户信息（当状态为 confirmed 时返回） */
+    userInfo?: {
+      id: number;
+      username: string;
+      accessToken: string;
+      refreshToken: string;
+      expiresIn: number;
+    };
+  };
 }
