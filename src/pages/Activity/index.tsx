@@ -27,6 +27,7 @@ import {
 } from '@ant-design/icons';
 import { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
+import { history } from 'umi';
 import AddForm from './compoents/AddForm';
 import UpdateForm from './compoents/UpdateForm';
 import styles from './index.less';
@@ -283,6 +284,17 @@ const Activity: React.FC = () => {
                               <span>结束：{formatDateTime(item.endDateTime)}</span>
                             </div>
                           </div>
+                          <Button
+                            block
+                            className={styles.configButton}
+                            onClick={() =>
+                              history.push(
+                                `/rebate/behavior_rebate?activityId=${encodeURIComponent(itemId)}`,
+                              )
+                            }
+                          >
+                            返利配置
+                          </Button>
                         </Space>
                       </Card>
                     </Col>
