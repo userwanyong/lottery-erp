@@ -150,13 +150,13 @@ export default [
     routes: [
       { path: '/strategy', redirect: '/strategy/strategy' },
       {
-        name: '策略配置',
+        name: '策略规则配置',
         icon: 'table',
         path: '/strategy/strategy',
         component: './Strategy',
       },
       {
-        name: '策略规则配置',
+        name: '规则模型配置',
         icon: 'table',
         path: '/strategy/rule',
         component: './Rule',
@@ -174,19 +174,19 @@ export default [
         component: './RuleTree',
       },
       {
-        name: '奖品规则树编排器',
+        name: '奖品规则树编排器 (新)',
         icon: 'apartment',
-        path: '/strategy/tree/editor',
+        path: '/strategy/tree-editor',
         component: './RuleTreeEditor',
       },
       {
-        name: '奖品规则节点配置',
+        name: '奖品规则节点配置 (旧)',
         icon: 'table',
         path: '/strategy/node',
         component: './RuleTreeNode',
       },
       {
-        name: '奖品规则节点连线配置',
+        name: '奖品规则节点连线配置 (旧)',
         icon: 'table',
         path: '/strategy/line',
         component: './RuleTreeNodeLine',

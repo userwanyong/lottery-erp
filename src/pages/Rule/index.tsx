@@ -139,7 +139,7 @@ const Rule: React.FC = () => {
   return (
     <PageContainer>
       <ProTable<API.RuleItem, API.PageParams>
-        headerTitle="策略规则配置列表"
+        headerTitle="规则模型配置列表"
         actionRef={actionRef}
         rowKey="id"
         request={query_rule}

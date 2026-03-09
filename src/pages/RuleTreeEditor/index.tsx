@@ -487,8 +487,30 @@ const RuleTreeEditor: React.FC = () => {
   }, [drag, connect]);
 
   return (
-    <PageContainer header={{ title: '奖品规则树编排器', breadcrumb: undefined }}>
-      <Card bordered={false} className={styles.pageCard}>
+    <PageContainer pageHeaderRender={false}>
+      <Card
+        bordered={false}
+        className={styles.pageCard}
+        title="奖品规则树编排器 (新)"
+        extra={
+          <Space wrap>
+            <Select
+              style={{ minWidth: 320 }}
+              placeholder="请选择规则树"
+              value={treeId}
+              options={trees.map((item) => ({ label: `${item.id} (${item.treeName})`, value: item.id }))}
+              onChange={setTreeId}
+              showSearch
+              optionFilterProp="label"
+            />
+            <Button icon={<ReloadOutlined />} onClick={refreshCurrentTree}>刷新</Button>
+            <Button onClick={() => setDrawerOpen(true)}>属性面板</Button>
+            <Button icon={<ApartmentOutlined />} onClick={() => history.push('/strategy/tree')}>规则树列表</Button>
+            <Button icon={<NodeIndexOutlined />} onClick={() => { nodeForm.resetFields(); nodeForm.setFieldsValue({ ruleTreeId: treeId }); setEditNode(undefined); setNodeOpen(true); }}>新建节点</Button>
+            <Button type="primary" icon={<BranchesOutlined />} onClick={() => openCreateLineModal()}>新建连线</Button>
+          </Space>
+        }
+      >
         <div className={styles.editorLayout}>
           <Card bordered={false} className={styles.sideCard} title={<span className={styles.sectionTitle}>节点模板</span>}>
             <Typography.Paragraph type="secondary">节点可拖拽排布，节点右侧拖到其他节点左侧即可创建连线。</Typography.Paragraph>
@@ -520,27 +542,6 @@ const RuleTreeEditor: React.FC = () => {
           </Card>
 
           <Card bordered={false} className={styles.graphPanel} loading={loading}>
-            <div className={styles.graphToolbar}>
-              <Space wrap>
-                <Select
-                  style={{ minWidth: 320 }}
-                  placeholder="请选择规则树"
-                  value={treeId}
-                  options={trees.map((item) => ({ label: `${item.id} (${item.treeName})`, value: item.id }))}
-                  onChange={setTreeId}
-                  showSearch
-                  optionFilterProp="label"
-                />
-                <Button icon={<ReloadOutlined />} onClick={refreshCurrentTree}>刷新</Button>
-                <Button onClick={() => setDrawerOpen(true)}>属性面板</Button>
-                <Button icon={<ApartmentOutlined />} onClick={() => history.push('/strategy/tree')}>规则树列表</Button>
-              </Space>
-              <Space wrap>
-                <Button icon={<NodeIndexOutlined />} onClick={() => { nodeForm.resetFields(); nodeForm.setFieldsValue({ ruleTreeId: treeId }); setEditNode(undefined); setNodeOpen(true); }}>新建节点</Button>
-                <Button type="primary" icon={<BranchesOutlined />} onClick={() => openCreateLineModal()}>新建连线</Button>
-              </Space>
-            </div>
-
             {getDuplicateRuleNames(nodes).length > 0 && (
               <Typography.Paragraph type="warning" style={{ marginBottom: 16 }}>
                 当前树存在重复节点类型，现有接口按 `ruleName` 连线，编排器会限制新增重复类型节点。

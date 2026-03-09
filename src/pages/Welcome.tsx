@@ -174,23 +174,27 @@ const Welcome: React.FC = () => {
                   </a>
                   <br />
                   <a href="/strategy/rule" style={{ marginLeft: 8 }}>
-                    2.创建抽奖策略规则
+                    2.创建规则模型
                   </a>
                   <br />
                   <a href="/strategy/strategy" style={{ marginLeft: 8 }}>
-                    3.创建抽奖策略
+                    3.创建策略规则
                   </a>
                   <br />
                   <a href="/strategy/tree" style={{ marginLeft: 8 }}>
                     4.创建奖品规则树
                   </a>
                   <br />
-                  <a href="/strategy/node" style={{ marginLeft: 8 }}>
-                    5.创建奖品规则节点
+                  <a href="/strategy/node" style={{ marginLeft: 8, textDecoration: 'line-through' }}>
+                    5.创建奖品规则节点 (旧)
                   </a>
                   <br />
-                  <a href="/strategy/line" style={{ marginLeft: 8 }}>
-                    6.串联奖品规则节点
+                  <a href="/strategy/line" style={{ marginLeft: 8, textDecoration: 'line-through' }}>
+                    6.串联奖品规则节点 (旧)
+                  </a>
+                  <br />
+                  <a href="/strategy/tree-editor" style={{ marginLeft: 8 }}>
+                    5/6.可视化编排 (新)
                   </a>
                   <br />
                   <a href="/strategy/award" style={{ marginLeft: 8 }}>
