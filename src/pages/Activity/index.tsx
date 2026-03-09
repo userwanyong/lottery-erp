@@ -139,7 +139,7 @@ const Activity: React.FC = () => {
     { title: '活动描述', dataIndex: 'activityDesc', valueType: 'textarea' },
     { title: '开始时间', dataIndex: 'beginDateTime', valueType: 'dateTime' },
     { title: '结束时间', dataIndex: 'endDateTime', valueType: 'dateTime' },
-    { title: '抽奖策略ID', dataIndex: 'strategyId', copyable: true },
+    { title: '策略ID', dataIndex: 'strategyId', copyable: true },
     {
       title: '活动状态',
       dataIndex: 'state',
@@ -203,6 +203,7 @@ const Activity: React.FC = () => {
               <Row gutter={[18, 18]}>
                 {paginatedActivities.map((item) => {
                   const itemId = String(item.id || '');
+                  const strategyId = String(item.strategyId || '');
                   const isOpen = item.state === 'open';
 
                   return (
@@ -284,17 +285,32 @@ const Activity: React.FC = () => {
                               <span>结束：{formatDateTime(item.endDateTime)}</span>
                             </div>
                           </div>
-                          <Button
-                            block
-                            className={styles.configButton}
-                            onClick={() =>
-                              history.push(
-                                `/rebate/behavior_rebate?activityId=${encodeURIComponent(itemId)}`,
-                              )
-                            }
-                          >
-                            返利配置
-                          </Button>
+
+                          <div className={styles.configActions}>
+                            <Button
+                              block
+                              className={styles.configButton}
+                              onClick={() =>
+                                history.push(
+                                  `/rebate/behavior_rebate?activityId=${encodeURIComponent(itemId)}`,
+                                )
+                              }
+                            >
+                              返利配置
+                            </Button>
+                            <Button
+                              block
+                              className={styles.configButton}
+                              disabled={!strategyId}
+                              onClick={() =>
+                                history.push(
+                                  `/strategy/award?strategyId=${encodeURIComponent(strategyId)}`,
+                                )
+                              }
+                            >
+                              策略奖品配置
+                            </Button>
+                          </div>
                         </Space>
                       </Card>
                     </Col>
