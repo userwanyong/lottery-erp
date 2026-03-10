@@ -1,6 +1,6 @@
 import AddForm from '@/pages/StrategyAward/compoents/AddForm';
 import UpdateForm from '@/pages/StrategyAward/compoents/UpdateForm';
-import { delete_strategy_award, query_strategy_award } from '@/services/api';
+import { delete_strategy_award, query_activity, query_strategy_award } from '@/services/api';
 import { ClusterOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { PageContainer, ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
@@ -23,10 +23,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'umi';
 import styles from './index.less';
 
-type GroupedStrategyAward = {
-  strategyId: string;
+type GroupedActivityAward = {
+  key: string;
+  activityId: string;
+  activityName?: string;
   items: API.StrategyAwardItem[];
+  isUnlinked?: boolean;
 };
+
+const UNLINKED_PREFIX = '__unlinked__';
 
 const formatRatePercent = (value?: string) => {
   if (!value) return '--';
@@ -42,6 +47,7 @@ const StrategyAward: React.FC = () => {
   const [currentRow, setCurrentRow] = useState<API.StrategyAwardItem>();
   const [showDetail, setShowDetail] = useState(false);
   const [awards, setAwards] = useState<API.StrategyAwardItem[]>([]);
+  const [activities, setActivities] = useState<API.ActivityItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeKeys, setActiveKeys] = useState<string[]>([]);
   const [createInitialValues, setCreateInitialValues] = useState<Partial<API.StrategyAwardItem>>(
@@ -50,20 +56,21 @@ const StrategyAward: React.FC = () => {
   const location = useLocation();
   const { message } = App.useApp();
 
-  const loadStrategyAwards = async () => {
+  const loadActivityAwards = async () => {
     setLoading(true);
     try {
-      const res = await query_strategy_award();
-      setAwards(Array.isArray(res?.data) ? res.data : []);
+      const [awardRes, activityRes] = await Promise.all([query_strategy_award(), query_activity()]);
+      setAwards(Array.isArray(awardRes?.data) ? awardRes.data : []);
+      setActivities(Array.isArray(activityRes?.data) ? activityRes.data : []);
     } catch (error) {
-      message.error('获取策略奖品列表失败');
+      message.error('获取活动奖品列表失败');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadStrategyAwards();
+    void loadActivityAwards();
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -75,7 +82,7 @@ const StrategyAward: React.FC = () => {
           setCurrentRow(undefined);
           setShowDetail(false);
         }
-        await loadStrategyAwards();
+        await loadActivityAwards();
       } else {
         message.error(res.message || '删除失败');
       }
@@ -84,9 +91,12 @@ const StrategyAward: React.FC = () => {
     }
   };
 
-  const groupedAwards = useMemo<GroupedStrategyAward[]>(() => {
-    const grouped = awards.reduce<Record<string, API.StrategyAwardItem[]>>((acc, item) => {
-      const key = String(item.strategyId || '未分组策略');
+  const groupedAwards = useMemo<GroupedActivityAward[]>(() => {
+    const awardsByActivity = awards.reduce<Record<string, API.StrategyAwardItem[]>>((acc, item) => {
+      const key = String(item.activityId || '');
+      if (!key) {
+        return acc;
+      }
       if (!acc[key]) {
         acc[key] = [];
       }
@@ -94,22 +104,51 @@ const StrategyAward: React.FC = () => {
       return acc;
     }, {});
 
-    return Object.entries(grouped)
+    const sortItems = (items: API.StrategyAwardItem[]) =>
+      [...items].sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0));
+
+    const linkedActivityIds = new Set<string>();
+    const groups: GroupedActivityAward[] = [];
+
+    [...activities]
+      .sort((a, b) => String(a.id || '').localeCompare(String(b.id || '')))
+      .forEach((activity) => {
+        const activityId = String(activity.id || '');
+        const items = awardsByActivity[activityId];
+
+        if (!activityId || !items?.length) {
+          return;
+        }
+
+        linkedActivityIds.add(activityId);
+        groups.push({
+          key: activityId,
+          activityId,
+          activityName: activity.activityName,
+          items: sortItems(items),
+        });
+      });
+
+    Object.entries(awardsByActivity)
+      .filter(([activityId]) => !linkedActivityIds.has(activityId))
       .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([strategyId, items]) => ({
-        strategyId,
-        items: [...items].sort((a, b) => Number(a.sort || 0) - Number(b.sort || 0)),
-      }));
-  }, [awards]);
+      .forEach(([activityId, items]) => {
+        groups.push({
+          key: `${UNLINKED_PREFIX}:${activityId}`,
+          activityId,
+          items: sortItems(items),
+          isUnlinked: true,
+        });
+      });
 
-  const allGroupKeys = useMemo(
-    () => groupedAwards.map((item) => item.strategyId),
-    [groupedAwards],
-  );
+    return groups;
+  }, [activities, awards]);
 
-  const targetStrategyId = useMemo(() => {
+  const allGroupKeys = useMemo(() => groupedAwards.map((item) => item.key), [groupedAwards]);
+
+  const targetActivityId = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    const value = params.get('strategyId');
+    const value = params.get('activityId');
     return value ? String(value) : '';
   }, [location.search]);
 
@@ -117,21 +156,27 @@ const StrategyAward: React.FC = () => {
     allGroupKeys.length > 0 && allGroupKeys.every((key) => activeKeys.includes(key));
 
   useEffect(() => {
-    if (targetStrategyId && allGroupKeys.includes(targetStrategyId)) {
-      setActiveKeys([targetStrategyId]);
-      return;
+    if (targetActivityId) {
+      const matchedKeys = groupedAwards
+        .filter((group) => group.activityId === targetActivityId)
+        .map((group) => group.key);
+      if (matchedKeys.length > 0) {
+        setActiveKeys(matchedKeys);
+        return;
+      }
     }
-    setActiveKeys([]);
-  }, [allGroupKeys, targetStrategyId]);
 
-  const openCreateModal = (strategyId?: string) => {
-    setCreateInitialValues(strategyId ? { strategyId } : {});
+    setActiveKeys([]);
+  }, [groupedAwards, targetActivityId]);
+
+  const openCreateModal = (initialValues?: Partial<API.StrategyAwardItem>) => {
+    setCreateInitialValues(initialValues || {});
     setModalVisible(true);
   };
 
   const descriptionColumns: ProDescriptionsItemProps<API.StrategyAwardItem>[] = [
-    { title: '策略奖品ID', dataIndex: 'id' },
-    { title: '策略ID', dataIndex: 'strategyId' },
+    { title: '活动奖品ID', dataIndex: 'id' },
+    { title: '活动ID', dataIndex: 'activityId' },
     { title: '奖品ID', dataIndex: 'awardId' },
     { title: '奖品标题', dataIndex: 'awardTitle' },
     { title: '奖品副标题', dataIndex: 'awardSubtitle' },
@@ -149,24 +194,24 @@ const StrategyAward: React.FC = () => {
       <Card
         bordered={false}
         className={styles.pageCard}
-        title="策略奖品列表"
+        title="活动奖品配置"
         extra={
           <Space>
-            <Button icon={<ReloadOutlined />} onClick={loadStrategyAwards}>
+            <Button icon={<ReloadOutlined />} onClick={loadActivityAwards}>
               刷新全部
             </Button>
             <Button onClick={() => setActiveKeys(isAllExpanded ? [] : allGroupKeys)}>
               {isAllExpanded ? '一键收起全部' : '一键展开全部'}
             </Button>
             <Button type="primary" icon={<PlusOutlined />} onClick={() => openCreateModal()}>
-              新建策略奖品
+              新建活动奖品
             </Button>
           </Space>
         }
       >
         <Spin spinning={loading}>
           {groupedAwards.length === 0 ? (
-            <Empty description="暂无策略奖品配置" />
+            <Empty description="暂无活动奖品配置" />
           ) : (
             <Collapse
               className={styles.groupCollapse}
@@ -181,26 +226,27 @@ const StrategyAward: React.FC = () => {
                 )
               }
               items={groupedAwards.map((group) => ({
-                key: group.strategyId,
+                key: group.key,
                 label: (
                   <div className={styles.groupHeader}>
                     <Space size={12}>
                       <ClusterOutlined />
-                      <Typography.Text strong>策略ID：{group.strategyId}</Typography.Text>
+                      <Typography.Text strong>{group.activityName || group.activityId}</Typography.Text>
+                      {group.isUnlinked ? <Tag>未关联活动</Tag> : null}
                     </Space>
                     <div className={styles.groupHeaderRight}>
                       <div
                         className={styles.groupHeaderActions}
                         onClick={(event) => event.stopPropagation()}
                       >
-                        <Button size="small" icon={<ReloadOutlined />} onClick={loadStrategyAwards}>
+                        <Button size="small" icon={<ReloadOutlined />} onClick={loadActivityAwards}>
                           刷新
                         </Button>
                         <Button
                           size="small"
                           type="primary"
                           icon={<PlusOutlined />}
-                          onClick={() => openCreateModal(group.strategyId)}
+                          onClick={() => openCreateModal({ activityId: group.activityId })}
                         >
                           新建奖品
                         </Button>
@@ -248,7 +294,7 @@ const StrategyAward: React.FC = () => {
                                 修改
                               </Button>
                               <Popconfirm
-                                title="确定删除这条策略奖品吗？"
+                                title="确定删除这条活动奖品吗？"
                                 onConfirm={() => handleDelete(String(item.id || ''))}
                                 okText="确定"
                                 cancelText="取消"
@@ -294,13 +340,13 @@ const StrategyAward: React.FC = () => {
             setCreateInitialValues({});
           }
         }}
-        onFinish={() => loadStrategyAwards()}
+        onFinish={() => loadActivityAwards()}
       />
 
       <UpdateForm
         visible={updateModalVisible}
         onVisibleChange={setUpdateModalVisible}
-        onFinish={() => loadStrategyAwards()}
+        onFinish={() => loadActivityAwards()}
         initialValues={currentRow || {}}
       />
 
@@ -336,9 +382,9 @@ const StrategyAward: React.FC = () => {
               </Button>,
               <Popconfirm
                 key="delete"
-                title="确定删除这条策略奖品吗？"
+                title="确定删除这条活动奖品吗？"
                 onConfirm={() => {
-                  handleDelete(String(currentRow.id || ''));
+                  void handleDelete(String(currentRow.id || ''));
                   setShowDetail(false);
                 }}
                 okText="确定"

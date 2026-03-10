@@ -6,5 +6,6 @@
  * 布局组件
  */
 import Footer from './Footer';
+import GuideAssistant, { OPEN_GUIDE_ASSISTANT_EVENT } from './GuideAssistant';
 import { AvatarDropdown, AvatarName } from './RightContent/AvatarDropdown';
-export { AvatarDropdown, AvatarName, Footer };
+export { AvatarDropdown, AvatarName, Footer, GuideAssistant, OPEN_GUIDE_ASSISTANT_EVENT };

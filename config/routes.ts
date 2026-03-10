@@ -23,12 +23,6 @@ export default [
     ],
   },
   {
-    path: '/welcome',
-    name: '系统介绍',
-    icon: 'smile',
-    component: './Welcome',
-  },
-  {
     path: '/admin',
     name: '活动管理',
     icon: 'crown',
@@ -40,6 +34,12 @@ export default [
         name: '活动配置',
         icon: 'table',
         component: './Activity',
+      },
+      {
+        name: '活动奖品配置',
+        icon: 'table',
+        path: '/admin/activity-award',
+        component: './StrategyAward',
       },
     ],
   },
@@ -130,7 +130,7 @@ export default [
       },
       {
         path: '/rebate/activity_sku',
-        name: '返利sku配置',
+        name: '活动SKU配置',
         icon: 'table',
         component: './ActivitySku',
       },
@@ -160,12 +160,6 @@ export default [
         icon: 'table',
         path: '/strategy/rule',
         component: './Rule',
-      },
-      {
-        name: '策略奖品配置',
-        icon: 'table',
-        path: '/strategy/award',
-        component: './StrategyAward',
       },
       {
         name: '奖品规则树配置',

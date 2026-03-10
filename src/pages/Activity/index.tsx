@@ -296,7 +296,7 @@ const Activity: React.FC = () => {
                                 )
                               }
                             >
-                              返利配置
+                              活动返利配置
                             </Button>
                             <Button
                               block
@@ -315,11 +315,11 @@ const Activity: React.FC = () => {
                               disabled={!strategyId}
                               onClick={() =>
                                 history.push(
-                                  `/strategy/award?strategyId=${encodeURIComponent(strategyId)}`,
+                                  `/admin/activity-award?activityId=${encodeURIComponent(itemId)}`,
                                 )
                               }
                             >
-                              策略奖品配置
+                              活动奖品配置
                             </Button>
                           </div>
                         </Space>

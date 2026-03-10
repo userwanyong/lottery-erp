@@ -1,7 +1,7 @@
 import {
+  query_activity,
   query_award,
   query_rule_tree,
-  query_strategy,
   update_strategy_award,
 } from '@/services/api';
 import { history } from '@@/core/history';
@@ -27,35 +27,37 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
   const { visible, onVisibleChange, onFinish, initialValues } = props;
   const { message } = App.useApp();
   const formRef = useRef<ProFormInstance>();
-  const [strategyList, setStrategyList] = useState<API.StrategyItem[]>([]);
+  const [activityList, setActivityList] = useState<API.ActivityItem[]>([]);
   const [awardList, setAwardList] = useState<API.AwardItem[]>([]);
   const [ruleTreeList, setRuleTreeList] = useState<API.RuleTreeItem[]>([]);
 
   useEffect(() => {
-    const fetchStrategyData = async () => {
+    const fetchActivityData = async () => {
       try {
-        const strategyRes = await query_strategy();
-        if (strategyRes && strategyRes.data) {
-          setStrategyList(strategyRes.data);
+        const activityRes = await query_activity();
+        if (activityRes?.data) {
+          setActivityList(activityRes.data);
         }
       } catch (error) {
-        message.error('获取策略列表失败');
+        message.error('获取活动列表失败');
       }
     };
+
     const fetchAwardData = async () => {
       try {
         const awardRes = await query_award();
-        if (awardRes && awardRes.data) {
+        if (awardRes?.data) {
           setAwardList(awardRes.data);
         }
       } catch (error) {
         message.error('获取奖品列表失败');
       }
     };
-    const fetchRuleTerrData = async () => {
+
+    const fetchRuleTreeData = async () => {
       try {
         const ruleTreeRes = await query_rule_tree();
-        if (ruleTreeRes && ruleTreeRes.data) {
+        if (ruleTreeRes?.data) {
           setRuleTreeList(ruleTreeRes.data);
         }
       } catch (error) {
@@ -64,53 +66,51 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
     };
 
     if (visible) {
-      fetchStrategyData();
-      fetchAwardData();
-      fetchRuleTerrData();
+      void fetchActivityData();
+      void fetchAwardData();
+      void fetchRuleTreeData();
     }
-  }, [visible]);
+  }, [message, visible]);
 
   return (
     <ModalForm
-      title="修改策略奖品"
+      title="修改活动奖品"
       visible={visible}
       formRef={formRef}
-      onVisibleChange={(v) => {
-        onVisibleChange(v);
-      }}
-      key={initialValues.id} // 作用：打开一行数据再关掉，再打开另一行时，数据会随之变化
+      onVisibleChange={onVisibleChange}
+      key={initialValues.id}
       initialValues={initialValues}
       onFinish={async (values) => {
         const result = await update_strategy_award(values);
         if (result.code === 1000) {
           message.success('修改成功');
-          if (onFinish) {
-            onFinish();
-          }
+          onFinish?.();
           return true;
         }
         message.error(result.message);
         return false;
       }}
     >
-      <ProFormText name="id" label="策略奖品ID" disabled />
+      <ProFormText name="id" label="活动奖品ID" disabled />
       <ProFormSelect
-        name="strategyId"
-        label="策略ID"
-        rules={[{ required: true, message: '请选择策略ID' }]}
+        name="activityId"
+        label="活动ID"
+        rules={[{ required: true, message: '请选择活动ID' }]}
         options={[
-          ...strategyList.map((item) => ({
-            label: `${item.id} (${item.strategyDesc})`,
+          ...activityList.map((item) => ({
+            label: `${item.id} (${item.activityName})`,
             value: item.id,
           })),
-          { label: '去新建+', value: '__NEW_STRATEGY__' }, // 添加新建选项
+          { label: '去新建', value: '__NEW_ACTIVITY__' },
         ]}
         showSearch
         fieldProps={{
           filterOption: (input, option) =>
-            (option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
+            String(option?.label ?? '')
+              .toLowerCase()
+              .includes(input.toLowerCase()),
           onChange: (value) => {
-            if (value === '__NEW_STRATEGY__') {
+            if (value === '__NEW_ACTIVITY__') {
               history.push('/admin/activity');
             }
           },
@@ -125,12 +125,14 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
             label: `${item.id} (${item.awardDesc})`,
             value: item.id,
           })),
-          { label: '去新建+', value: '__NEW_AWARD__' }, // 添加新建选项
+          { label: '去新建', value: '__NEW_AWARD__' },
         ]}
         showSearch
         fieldProps={{
           filterOption: (input, option) =>
-            (option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
+            String(option?.label ?? '')
+              .toLowerCase()
+              .includes(input.toLowerCase()),
           onChange: (value) => {
             if (value === '__NEW_AWARD__') {
               history.push('/lottery/award');
@@ -141,18 +143,20 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
       <ProFormSelect
         name="ruleTreeId"
         label="奖品规则ID"
-        rules={[{ required: true, message: '请选择奖品规则' }]}
+        rules={[{ required: true, message: '请选择奖品规则ID' }]}
         options={[
           ...ruleTreeList.map((item) => ({
             label: `${item.id} (${item.treeName})`,
             value: item.id,
           })),
-          { label: '去新建+', value: '__NEW_RULE_TREE__' }, // 添加新建选项
+          { label: '去新建', value: '__NEW_RULE_TREE__' },
         ]}
         showSearch
         fieldProps={{
           filterOption: (input, option) =>
-            (option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
+            String(option?.label ?? '')
+              .toLowerCase()
+              .includes(input.toLowerCase()),
           onChange: (value) => {
             if (value === '__NEW_RULE_TREE__') {
               history.push('/strategy/tree');
@@ -184,8 +188,8 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
         <Form.Item
           name="awardRate"
           label="中奖概率"
-          tooltip="同一策略下的奖品概率之和应为1"
-          rules={[{ required: true, type: 'number', min: 0.0000, max: 1 }]}
+          tooltip="同一活动下的奖品概率之和应为 1"
+          rules={[{ required: true, type: 'number', min: 0, max: 1 }]}
         >
           <InputNumber step={0.0001} />
         </Form.Item>
