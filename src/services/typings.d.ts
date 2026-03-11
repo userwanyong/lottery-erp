@@ -302,6 +302,7 @@ declare namespace API {
 
   type StrategyAwardItem = {
     id?: string;
+    activityId?: string;
     strategyId?: string;
     awardId?: string;
     awardTitle?: string;

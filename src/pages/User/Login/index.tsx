@@ -323,22 +323,38 @@ const normalizeWechatQrcodeStatus = (
   return 'pending';
 };
 
+const getWechatQrcodeErrorTexts = (payload: any) => {
+  return [
+    payload?.response?.data?.message,
+    payload?.data?.message,
+    payload?.info?.message,
+    payload?.message,
+  ]
+    .filter(Boolean)
+    .map((text) => String(text).toLowerCase());
+};
+
+const isWechatQrcodeExpiredPayload = (payload: any) => {
+  const code = Number(payload?.code ?? payload?.data?.code ?? payload?.errorCode);
+  if (code === 2022) {
+    return true;
+  }
+
+  const rawTexts = getWechatQrcodeErrorTexts(payload);
+  return rawTexts.some(
+    (text) =>
+      text.includes('qrcodeid is not found or expired') ||
+      (text.includes('qrcode') && text.includes('expired')),
+  );
+};
+
 const isWechatQrcodeExpiredError = (error: any) => {
   const status = error?.response?.status ?? error?.data?.statusCode ?? error?.info?.status;
   if (status === 404) {
     return true;
   }
 
-  const rawTexts = [
-    error?.response?.data?.message,
-    error?.data?.message,
-    error?.info?.message,
-    error?.message,
-  ]
-    .filter(Boolean)
-    .map((text) => String(text).toLowerCase());
-
-  return rawTexts.some((text) => text.includes('qrcodeid is not found or expired'));
+  return isWechatQrcodeExpiredPayload(error);
 };
 
 const Login: React.FC = () => {
@@ -550,6 +566,16 @@ const Login: React.FC = () => {
     pollTimerRef.current = setInterval(async () => {
       try {
         const resp = await wechat_miniapp_qrcode_status(id);
+        if (Number(resp?.code) !== 1000) {
+          if (isWechatQrcodeExpiredPayload(resp)) {
+            stopPolling();
+            setQrcodeStatus('expired');
+            setQrcodeLoginLoading(false);
+            wechatLoginSubmittingRef.current = false;
+          }
+          return;
+        }
+
         const statusData = (resp?.data ?? resp) as WechatQrcodeData;
 
         if (statusData?.status) {

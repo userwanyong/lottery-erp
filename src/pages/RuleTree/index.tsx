@@ -1,22 +1,9 @@
 import { history } from '@@/core/history';
 import { delete_rule_tree, query_rule_tree } from '@/services/api';
+import { ApartmentOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { PageContainer, ProDescriptions } from '@ant-design/pro-components';
 import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
-import { ApartmentOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
-import {
-  App,
-  Button,
-  Card,
-  Col,
-  Drawer,
-  Empty,
-  Popconfirm,
-  Row,
-  Space,
-  Spin,
-  Tag,
-  Typography,
-} from 'antd';
+import { App, Button, Card, Col, Drawer, Empty, Popconfirm, Row, Space, Spin, Typography } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
 import AddForm from './compoents/AddForm';
 import UpdateForm from './compoents/UpdateForm';
@@ -50,7 +37,7 @@ const RuleTree: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       const res = await delete_rule_tree(id);
-      if (res.code === 1000) {
+      if (Number(res?.code) === 1000) {
         message.success('删除成功');
         if (currentRow?.id === id) {
           setCurrentRow(undefined);
@@ -58,7 +45,7 @@ const RuleTree: React.FC = () => {
         }
         await loadTrees();
       } else {
-        message.error(res.message || '删除失败');
+        message.error(res?.message || '删除失败');
       }
     } catch (error) {
       message.error('删除失败，请重试');
@@ -81,35 +68,35 @@ const RuleTree: React.FC = () => {
       <Card
         bordered={false}
         className={styles.pageCard}
-        title="规则树配置"
+        title={'规则树配置'}
         extra={
           <Space>
             <Typography.Text type="secondary">{summaryText}</Typography.Text>
-            <Button icon={<ReloadOutlined />} onClick={loadTrees}>
-              刷新
+            <Button icon={<ReloadOutlined />} onClick={() => void loadTrees()}>
+              {'刷新'}
             </Button>
             <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalVisible(true)}>
-              新建规则树
+              {'新建规则树'}
             </Button>
           </Space>
         }
       >
         <Spin spinning={loading}>
           {trees.length === 0 ? (
-            <Empty description="暂无规则树配置" />
+            <Empty description={'暂无规则树配置'} />
           ) : (
             <Row gutter={[16, 16]}>
               {trees.map((item) => (
                 <Col xs={24} md={12} xl={8} key={item.id}>
-                    <Card
-                      hoverable
-                      bordered={false}
-                      className={styles.treeCard}
-                      title={
-                        <Typography.Text ellipsis className={styles.cardTitle}>
-                          {item.treeName || '未命名规则树'}
-                        </Typography.Text>
-                      }
+                  <Card
+                    hoverable
+                    bordered={false}
+                    className={styles.treeCard}
+                    title={
+                      <Typography.Text ellipsis className={styles.cardTitle}>
+                        {item.treeName || '未命名规则树'}
+                      </Typography.Text>
+                    }
                     extra={
                       <Space size={4}>
                         <Button
@@ -120,7 +107,7 @@ const RuleTree: React.FC = () => {
                             setShowDetail(true);
                           }}
                         >
-                          详情
+                          {'详情'}
                         </Button>
                         <Button
                           size="small"
@@ -130,56 +117,50 @@ const RuleTree: React.FC = () => {
                             setUpdateModalVisible(true);
                           }}
                         >
-                          修改
+                          {'修改'}
                         </Button>
                         <Popconfirm
-                          title="确定删除该奖品规则树吗？"
-                          onConfirm={() => handleDelete(String(item.id || ''))}
-                          okText="确定"
-                          cancelText="取消"
+                          title={'确定删除该奖品规则树吗？'}
+                          onConfirm={() => void handleDelete(String(item.id || ''))}
+                          okText={'确定'}
+                          cancelText={'取消'}
                         >
                           <Button type="link" size="small" danger>
-                            删除
+                            {'删除'}
                           </Button>
                         </Popconfirm>
                       </Space>
                     }
-                    >
-                      <Space direction="vertical" size={12} className={styles.cardBody}>
-                        <div className={styles.metaPanel}>
+                  >
+                    <Space direction="vertical" size={12} className={styles.cardBody}>
+                      <div className={styles.metaPanel}>
+                        <Typography.Text className={styles.infoInlineText} ellipsis>
+                          <span className={styles.inlineLabel}>{'规则树描述：'}</span>
+                          {item.treeDesc || '--'}
+                        </Typography.Text>
+                      </div>
+                      <div className={styles.metaInlineRow}>
+                        <div className={`${styles.metaPanel} ${styles.entryPanel}`}>
                           <Typography.Text className={styles.infoInlineText} ellipsis>
-                            <span className={styles.inlineLabel}>规则树名称：</span>
-                            {item.treeName || '--'}
+                            <span className={styles.inlineLabel}>{'入口规则：'}</span>
+                            {item.treeNodeRuleKey || '--'}
                           </Typography.Text>
                         </div>
-                        <div className={styles.metaPanel}>
-                          <Typography.Text className={styles.infoInlineText} ellipsis>
-                            <span className={styles.inlineLabel}>规则树描述：</span>
-                            {item.treeDesc || '--'}
-                          </Typography.Text>
+                        <div className={`${styles.metaPanel} ${styles.editorPanel}`}>
+                          <Button
+                            type="default"
+                            icon={<ApartmentOutlined />}
+                            className={styles.editorButton}
+                            onClick={() => {
+                              history.push(`/strategy/tree-editor?ruleTreeId=${item.id}`);
+                            }}
+                          >
+                            {'可视化编排'}
+                          </Button>
                         </div>
-                        <div className={styles.metaInlineRow}>
-                          <div className={`${styles.metaPanel} ${styles.entryPanel}`}>
-                            <Typography.Text className={styles.infoInlineText} ellipsis>
-                              <span className={styles.inlineLabel}>入口规则：</span>
-                              {item.treeNodeRuleKey || '--'}
-                            </Typography.Text>
-                          </div>
-                          <div className={`${styles.metaPanel} ${styles.editorPanel}`}>
-                            <Button
-                              type="default"
-                              icon={<ApartmentOutlined />}
-                              className={styles.editorButton}
-                              onClick={() => {
-                                history.push(`/strategy/tree-editor?ruleTreeId=${item.id}`);
-                              }}
-                            >
-                              可视化编排
-                            </Button>
-                          </div>
-                        </div>
-                      </Space>
-                    </Card>
+                      </div>
+                    </Space>
+                  </Card>
                 </Col>
               ))}
             </Row>
@@ -228,7 +209,7 @@ const RuleTree: React.FC = () => {
                   history.push(`/strategy/tree-editor?ruleTreeId=${currentRow.id}`);
                 }}
               >
-                可视化编排
+                {'可视化编排'}
               </Button>,
               <Button
                 key="update"
@@ -239,17 +220,17 @@ const RuleTree: React.FC = () => {
                   setShowDetail(false);
                 }}
               >
-                修改
+                {'修改'}
               </Button>,
               <Popconfirm
                 key="delete"
-                title="确定删除该奖品规则树吗？"
-                onConfirm={() => handleDelete(String(currentRow.id || ''))}
-                okText="确定"
-                cancelText="取消"
+                title={'确定删除该奖品规则树吗？'}
+                onConfirm={() => void handleDelete(String(currentRow.id || ''))}
+                okText={'确定'}
+                cancelText={'取消'}
               >
                 <Button type="link" size="small" danger style={{ paddingInline: 0 }}>
-                  删除
+                  {'删除'}
                 </Button>
               </Popconfirm>,
             ]}

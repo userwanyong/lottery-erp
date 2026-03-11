@@ -155,7 +155,7 @@ const BehaviorRebate: React.FC = () => {
               {isAllExpanded ? '一键收起全部' : '一键展开全部'}
             </Button>
             <Button type="primary" icon={<PlusOutlined />} onClick={() => openCreateModal()}>
-              新建配置
+              新建返利配置
             </Button>
           </Space>
         }
