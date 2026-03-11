@@ -80,7 +80,7 @@ const guideCards: GuideCardData[] = [
             label: '2. 创建规则模型',
             href: '/strategy/rule',
             note:
-              '[+ 新建规则] -> \n - 权重规则：规则模型命名需包含rule_weight字段，规则值为 要达到的抽奖次数:必中奖品ID列表',
+              '[+ 新建规则] -> \n - 黑名单规则：规则模型命名需包含rule_backlist字段，规则值为 策略ID:黑名单用户ID列表 \n - 权重规则：规则模型命名需包含rule_weight字段，规则值为 要达到的抽奖次数:必中奖品ID列表',
           },
           {
             label: '3. 创建抽奖策略',
@@ -147,7 +147,7 @@ const GuideLink: React.FC<GuideItem> = ({ href, label, note, strike }) => (
     >
       {label}
     </Link>
-    {note ? <div style={{ marginTop: 4 }}>{note}</div> : null}
+    {note ? <div style={{ marginTop: 4, whiteSpace: 'pre-line' }}>{note}</div> : null}
   </div>
 );
 
