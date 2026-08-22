@@ -238,6 +238,86 @@ declare namespace API {
     roles?: string[];
     permissions?: string[];
   };
+
+  // ==================== 认证管理与个人中心 ====================
+
+  /** auth-service 用户（管理端与个人中心共用） */
+  type AuthUser = {
+    id: string;
+    username: string;
+    email?: string;
+    phone?: string;
+    nickname?: string;
+    avatar?: string;
+    status?: number;
+    roles?: string[];
+    permissions?: string[];
+    realName?: string;
+    gender?: number;
+    birthday?: string;
+    emailVerified?: boolean;
+    phoneVerified?: boolean;
+    createdAt?: number;
+    lastLoginAt?: number;
+  };
+
+  /** 用户/资料更新字段：不传=不修改；email/phone/nickname/avatar 空串=清空 */
+  type AuthUserUpdate = {
+    username?: string;
+    password?: string;
+    email?: string;
+    phone?: string;
+    nickname?: string;
+    avatar?: string;
+    status?: number;
+    realName?: string;
+    gender?: number;
+    birthday?: string;
+  };
+
+  type AuthRole = {
+    id: string;
+    code: string;
+    name: string;
+    description?: string;
+    status?: number;
+    permissions?: string[];
+  };
+
+  type AuthPermission = {
+    id: string;
+    code: string;
+    name: string;
+    resource?: string;
+    action?: string;
+    description?: string;
+  };
+
+  type AuthLoginMethodConfig = {
+    method: string;
+    category: string;
+    displayName: string;
+    /** 本租户是否启用：0-否 1-是 */
+    enabled: number;
+    /** 1=平台凭证 0=自有凭证 */
+    usePlatformConfig: number;
+    hasConfig: boolean;
+    platformEnabled: boolean;
+  };
+
+  type AuthOAuthBinding = {
+    id: string;
+    provider: string;
+    providerUid: string;
+    createdAt?: number;
+  };
+
+  type AuthPage<T> = {
+    total: number;
+    page: number;
+    size: number;
+    items: T[];
+  };
 }
 
   type BaseResponse<T = any> = {

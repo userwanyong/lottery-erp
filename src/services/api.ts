@@ -131,6 +131,226 @@ export async function user_me() {
   });
 }
 
+// ==================== 认证管理（用户/角色/权限/登录方式，RPC 委托 auth-service） ====================
+
+export async function auth_users(keyword = '', page = 1, size = 10) {
+  return requestSafe<API.BaseResponse<API.AuthPage<API.AuthUser>>>(
+    `${apiHostUrl}/api/v1/auth/users?keyword=${encodeURIComponent(keyword)}&page=${page}&size=${size}`,
+    { method: 'GET', headers: { 'Content-Type': 'application/json' } },
+  );
+}
+
+export async function auth_user_detail(userId: string) {
+  return requestSafe<API.BaseResponse<API.AuthUser>>(
+    `${apiHostUrl}/api/v1/auth/users/${userId}`,
+    { method: 'GET', headers: { 'Content-Type': 'application/json' } },
+  );
+}
+
+export async function auth_user_update(userId: string, data: Partial<API.AuthUserUpdate>) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/auth/users/${userId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data,
+  });
+}
+
+export async function auth_user_status(userId: string, status: 0 | 1) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/auth/users/${userId}/status`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: { status },
+  });
+}
+
+export async function auth_user_assign_roles(userId: string, roleIds: string[]) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/auth/users/${userId}/roles`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: { roleIds },
+  });
+}
+
+export async function auth_user_delete(userId: string) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/auth/users/${userId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function auth_roles() {
+  return requestSafe<API.BaseResponse<API.AuthRole[]>>(
+    `${apiHostUrl}/api/v1/auth/roles`,
+    { method: 'GET', headers: { 'Content-Type': 'application/json' } },
+  );
+}
+
+export async function auth_role_create(data: { code: string; name: string; description?: string }) {
+  return requestSafe<API.BaseResponse<API.AuthRole>>(`${apiHostUrl}/api/v1/auth/roles`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data,
+  });
+}
+
+export async function auth_role_update(roleId: string, data: { name: string; description?: string }) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/auth/roles/${roleId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data,
+  });
+}
+
+export async function auth_role_delete(roleId: string) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/auth/roles/${roleId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function auth_role_assign_permissions(roleId: string, permissionIds: string[]) {
+  return requestSafe<API.BaseResponse<void>>(
+    `${apiHostUrl}/api/v1/auth/roles/${roleId}/permissions`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      data: { permissionIds },
+    },
+  );
+}
+
+export async function auth_permissions() {
+  return requestSafe<API.BaseResponse<API.AuthPermission[]>>(
+    `${apiHostUrl}/api/v1/auth/permissions`,
+    { method: 'GET', headers: { 'Content-Type': 'application/json' } },
+  );
+}
+
+export async function auth_permission_create(data: {
+  code: string;
+  name: string;
+  resource?: string;
+  action?: string;
+  description?: string;
+}) {
+  return requestSafe<API.BaseResponse<API.AuthPermission>>(`${apiHostUrl}/api/v1/auth/permissions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data,
+  });
+}
+
+export async function auth_permission_delete(permissionId: string) {
+  return requestSafe<API.BaseResponse<void>>(
+    `${apiHostUrl}/api/v1/auth/permissions/${permissionId}`,
+    { method: 'DELETE', headers: { 'Content-Type': 'application/json' } },
+  );
+}
+
+export async function auth_login_methods() {
+  return requestSafe<API.BaseResponse<API.AuthLoginMethodConfig[]>>(
+    `${apiHostUrl}/api/v1/auth/login-methods`,
+    { method: 'GET', headers: { 'Content-Type': 'application/json' } },
+  );
+}
+
+export async function auth_login_method_save(
+  method: string,
+  data: { enabled: 0 | 1; usePlatformConfig: 0 | 1; configJson?: string },
+) {
+  return requestSafe<API.BaseResponse<void>>(
+    `${apiHostUrl}/api/v1/auth/login-methods/${encodeURIComponent(method)}`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      data,
+    },
+  );
+}
+
+// ==================== 个人中心 ====================
+
+export async function user_profile() {
+  return requestSafe<API.BaseResponse<API.AuthUser>>(`${apiHostUrl}/api/v1/user/profile`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function user_profile_update(data: Partial<API.AuthUserUpdate>) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/profile`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data,
+  });
+}
+
+export async function user_profile_password(oldPassword: string, newPassword: string) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/profile/password`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: { oldPassword, newPassword },
+  });
+}
+
+export async function user_profile_avatar(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+  return requestSafe<API.BaseResponse<{ url: string }>>(
+    `${apiHostUrl}/api/v1/user/profile/avatar`,
+    { method: 'POST', data: formData },
+  );
+}
+
+export async function user_profile_oauth_bindings() {
+  return requestSafe<API.BaseResponse<API.AuthOAuthBinding[]>>(
+    `${apiHostUrl}/api/v1/user/profile/oauth-bindings`,
+    { method: 'GET', headers: { 'Content-Type': 'application/json' } },
+  );
+}
+
+/** OAuth 绑定授权跳转地址（后端 302 到提供方，回调后回个人中心） */
+export function oauth_bind_authorize_url(provider: string) {
+  return `${apiHostUrl}/api/v1/user/profile/oauth-bindings/${provider}/authorize`;
+}
+
+export async function user_profile_oauth_unbind(provider: string) {
+  return requestSafe<API.BaseResponse<void>>(
+    `${apiHostUrl}/api/v1/user/profile/oauth-bindings/${provider}`,
+    { method: 'DELETE', headers: { 'Content-Type': 'application/json' } },
+  );
+}
+
+export async function user_profile_bind_email(method: string, target: string, code: string) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/profile/email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: { method, target, code },
+  });
+}
+
+export async function user_profile_unbind_email() {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/profile/email`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function user_profile_bind_phone(method: string, target: string, code: string) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/profile/phone`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: { method, target, code },
+  });
+}
+
+export async function user_profile_unbind_phone() {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/profile/phone`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
 // 效果展示
 export async function queryLotteryAwardList(options?: { [key: string]: any }) {
   return requestSafe<API.LotteryAwardList>(

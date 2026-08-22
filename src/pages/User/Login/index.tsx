@@ -610,7 +610,9 @@ const Login: React.FC = () => {
                 <div className={styles.helperText}>未注册的手机号将自动注册并登录</div>
               )}
               {activeTab === 'password' && (
-                <div className={styles.helperText}>账号由管理员在认证服务中心创建分配</div>
+                <div className={styles.helperText}>
+                  账号由管理员在认证服务中心创建分配或使用其他登录方式登录后创建
+                </div>
               )}
 
               {oauthProviders.length > 0 && (
