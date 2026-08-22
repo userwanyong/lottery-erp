@@ -35,7 +35,23 @@ function requestSafe<T>(url: string, options: any): Promise<T> {
 
 const apiHostUrl = process.env.UMI_APP_API_HOST || '';
 
-export async function user_login(options?: { [key: string]: any }) {
+// ==================== 认证授权（委托 auth-service，经 lottery 后端 RPC 转发） ====================
+
+/** 登录页渲染依据：当前租户启用的登录方式（与 auth-service 管理端开闭实时同步） */
+export async function user_login_methods() {
+  return requestSafe<API.BaseResponse<API.LoginMethod[]>>(
+    `${apiHostUrl}/api/v1/user/login-methods`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+}
+
+/** 账号密码登录（用户名或邮箱） */
+export async function user_login(options: { username: string; password: string }) {
   return requestSafe<API.BaseResponse<API.UserLoginResponse>>(
     `${apiHostUrl}/api/v1/user/login`,
     {
@@ -46,6 +62,40 @@ export async function user_login(options?: { [key: string]: any }) {
       data: options,
     },
   );
+}
+
+/** 发送登录验证码（邮箱/短信，通道由 method 决定） */
+export async function user_send_code(options: { method: API.LoginMethod; target: string }) {
+  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/send-code`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: options,
+  });
+}
+
+/** 验证码登录（未知邮箱/手机号自动注册） */
+export async function user_login_by_code(options: {
+  method: API.LoginMethod;
+  target: string;
+  code: string;
+}) {
+  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(
+    `${apiHostUrl}/api/v1/user/login-by-code`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: options,
+    },
+  );
+}
+
+/** OAuth 登录跳转地址（后端 302 到第三方授权页） */
+export function oauth_authorize_url(provider: string) {
+  return `${apiHostUrl}/api/v1/user/oauth/${provider}/authorize`;
 }
 
 export async function user_refresh(refreshToken: string) {
@@ -61,89 +111,24 @@ export async function user_refresh(refreshToken: string) {
   );
 }
 
-export async function user_logout() {
+export async function user_logout(refreshToken?: string) {
   return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/logout`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    data: refreshToken ? { refreshToken } : {},
   });
 }
 
-export async function user_send_email_code(email: string) {
-  return requestSafe<API.BaseResponse<void>>(`${apiHostUrl}/api/v1/user/email/send-code`, {
-    method: 'POST',
+/** 当前登录用户信息（服务端校验 token） */
+export async function user_me() {
+  return requestSafe<API.BaseResponse<API.UserInfoResponse>>(`${apiHostUrl}/api/v1/user/me`, {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
-    data: { email },
   });
-}
-
-export async function user_email_register(options: {
-  email: string;
-  passCode: string;
-  password: string;
-}) {
-  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(
-    `${apiHostUrl}/api/v1/user/email/register`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      data: options,
-    },
-  );
-}
-
-export async function user_email_login(options: { email: string; password: string }) {
-  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(`${apiHostUrl}/api/v1/user/email/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: options,
-  });
-}
-
-// 微信小程序扫码登录
-export async function wechat_miniapp_qrcode() {
-  return requestSafe<API.BaseResponse<API.WechatQrcodeResponse>>(
-    `${apiHostUrl}/api/v1/user/wechat-mini-program/qrcode/generate`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
-  );
-}
-
-export async function wechat_miniapp_qrcode_status(qrcodeId: string) {
-  return requestSafe<API.BaseResponse<API.WechatQrcodeStatusResponse>>(
-    `${apiHostUrl}/api/v1/user/wechat-mini-program/qrcode/status`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      data: { qrcodeId },
-    },
-  );
-}
-
-export async function wechat_miniapp_qrcode_login(ticket: string) {
-  return requestSafe<API.BaseResponse<API.UserLoginResponse>>(
-    `${apiHostUrl}/api/v1/user/wechat-mini-program/qrcode/login`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      data: { ticket },
-    },
-  );
 }
 
 // 效果展示

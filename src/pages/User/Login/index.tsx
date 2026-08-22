@@ -1,24 +1,31 @@
-﻿import {
+import {
   LockOutlined,
   MailOutlined,
+  MobileOutlined,
   SafetyCertificateOutlined,
-  WechatOutlined,
-  ReloadOutlined,
+  UserOutlined,
+  GithubOutlined,
 } from '@ant-design/icons';
 import { Helmet, history, useModel } from '@umijs/max';
-import { message, Button, Input, Form, Tabs, Spin } from 'antd';
+import { message, Button, Divider, Input, Form, Tabs, Spin } from 'antd';
 import { createStyles } from 'antd-style';
-import React, { useEffect, useState, useRef } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
-import {
-  user_email_login,
-  user_email_register,
-  user_send_email_code,
-  wechat_miniapp_qrcode_login,
-  wechat_miniapp_qrcode,
-  wechat_miniapp_qrcode_status,
-} from '@/services/api';
+import React, { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
+import {
+  oauth_authorize_url,
+  user_login,
+  user_login_by_code,
+  user_login_methods,
+  user_me,
+  user_send_code,
+} from '@/services/api';
+import {
+  CURRENT_USER_KEY,
+  buildCurrentUser,
+  clearLoginSession,
+  consumeOAuthFragment,
+  saveLoginSession,
+} from '@/utils/auth';
 import Settings from '../../../../config/defaultSettings';
 
 const useStyles = createStyles(() => ({
@@ -147,7 +154,7 @@ const useStyles = createStyles(() => ({
       backgroundColor: '#F7F2E6 !important',
       boxShadow: 'none !important',
     },
-    '&.ant-input-affix-wrapper-status-error.ant-input-affix-wrapper-focused, &.ant-input-status-error.ant-input-affix-wrapper-focused':
+    '&.ant-input-affix-wrapper-status-error.ant-input-affix-wrapper-focused, &.ant-input-status-error.ant-input-status-error:focus':
       {
         backgroundColor: '#F7F2E6 !important',
         boxShadow: 'none !important',
@@ -174,34 +181,6 @@ const useStyles = createStyles(() => ({
       backgroundColor: '#7A5638',
     },
   },
-  recommendedTabLabel: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-  },
-  recommendedBadge: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: '30px',
-    height: '18px',
-    padding: '0 6px',
-    borderRadius: '999px',
-    background: 'linear-gradient(135deg, #B57A2E 0%, #D4A24C 100%)',
-    color: '#FFF7E8',
-    fontSize: '11px',
-    lineHeight: 1,
-    fontWeight: 600,
-  },
-  checkboxContainer: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  forgotPasswordLink: {
-    color: '#7A5638',
-    fontSize: '14px',
-    textDecoration: 'none',
-  },
   loginButton: {
     width: '100%',
     height: '48px',
@@ -226,166 +205,177 @@ const useStyles = createStyles(() => ({
     fontSize: '14px',
     color: '#8A7D73',
   },
-  qrcodeContainer: {
+  loadingContainer: {
     display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: '20px 0',
-  },
-  qrcodeWrapper: {
-    position: 'relative',
-    width: '200px',
-    height: '200px',
-    display: 'flex',
-    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
-    borderRadius: '12px',
-    padding: '16px',
-    boxShadow: '0 4px 12px rgba(122, 86, 56, 0.1)',
+    alignItems: 'center',
+    minHeight: '220px',
   },
-  qrcodeOverlay: {
-    position: 'absolute',
-    inset: 0,
-    backgroundColor: 'rgba(247, 242, 230, 0.9)',
-    borderRadius: '12px',
+  oauthSection: {
+    marginTop: '8px',
+  },
+  oauthDivider: {
+    color: '#8A7D73',
+    fontSize: '13px',
+    margin: '20px 0 16px',
+  },
+  oauthButtons: {
     display: 'flex',
-    flexDirection: 'column',
+    gap: '12px',
+  },
+  oauthButton: {
+    flex: 1,
+    height: '44px',
+    borderRadius: '8px',
+    display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '8px',
-  },
-  qrcodeStatusText: {
+    border: '1px solid #C8A04A',
+    backgroundColor: '#F7F2E6',
+    color: '#3A2A1C',
     fontSize: '14px',
-    color: '#7A5638',
     fontWeight: 500,
-  },
-  qrcodeRefreshBtn: {
-    marginTop: '8px',
-    fontSize: '13px',
-    color: '#7A5638',
     cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
+    transition: 'all 0.2s',
     '&:hover': {
-      color: '#5A3D28',
+      borderColor: '#7A5638',
+      color: '#7A5638',
+      backgroundColor: '#F3EBDD',
     },
   },
-  qrcodeHelperText: {
-    textAlign: 'center',
-    marginTop: '16px',
-    fontSize: '13px',
-    color: '#8A7D73',
-  },
-  qrcodeScanUser: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '6px',
-  },
-  qrcodeScanAvatar: {
-    width: '40px',
-    height: '40px',
+  giteeMark: {
+    width: '20px',
+    height: '20px',
     borderRadius: '50%',
-    objectFit: 'cover',
-    border: '1px solid rgba(122, 86, 56, 0.18)',
+    backgroundColor: '#C71D23',
+    color: '#fff',
+    fontSize: '13px',
+    fontWeight: 'bold',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 }));
 
-type WechatQrcodeData = {
-  qrcodeId?: string;
-  qrCodeUrl?: string;
-  qrcodeUrl?: string;
-  qrcodeContent?: string;
-  status?: string;
-  ticket?: string;
-  displayName?: string;
-  photo?: string;
+type TabKey = 'password' | 'emailCode' | 'smsCode';
+
+type OAuthProviderMeta = {
+  provider: string;
+  label: string;
 };
 
-const normalizeWechatQrcodeStatus = (
-  backendStatus?: string,
-): 'pending' | 'scanned' | 'confirmed' | 'expired' => {
-  const statusUpper = backendStatus?.toUpperCase();
-  if (statusUpper === 'PENDING' || statusUpper === 'WAITING') {
-    return 'pending';
-  }
-  if (statusUpper === 'SCANNED' || statusUpper === 'SCANED') {
-    return 'scanned';
-  }
-  if (statusUpper === 'CONFIRMED' || statusUpper === 'AUTHORIZED') {
-    return 'confirmed';
-  }
-  if (statusUpper === 'EXPIRED' || statusUpper === 'CANCELED') {
-    return 'expired';
-  }
-  return 'pending';
-};
-
-const getWechatQrcodeErrorTexts = (payload: any) => {
-  return [
-    payload?.response?.data?.message,
-    payload?.data?.message,
-    payload?.info?.message,
-    payload?.message,
-  ]
-    .filter(Boolean)
-    .map((text) => String(text).toLowerCase());
-};
-
-const isWechatQrcodeExpiredPayload = (payload: any) => {
-  const code = Number(payload?.code ?? payload?.data?.code ?? payload?.errorCode);
-  if (code === 2022) {
-    return true;
-  }
-
-  const rawTexts = getWechatQrcodeErrorTexts(payload);
-  return rawTexts.some(
-    (text) =>
-      text.includes('qrcodeid is not found or expired') ||
-      (text.includes('qrcode') && text.includes('expired')),
-  );
-};
-
-const isWechatQrcodeExpiredError = (error: any) => {
-  const status = error?.response?.status ?? error?.data?.statusCode ?? error?.info?.status;
-  if (status === 404) {
-    return true;
-  }
-
-  return isWechatQrcodeExpiredPayload(error);
+/** 登录方式 → 第三方提供方（oauth:gitee → gitee） */
+const toProviderMeta = (method: string): OAuthProviderMeta => {
+  const provider = method.substring('oauth:'.length);
+  return { provider, label: provider.charAt(0).toUpperCase() + provider.slice(1) };
 };
 
 const Login: React.FC = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState<'wechatLogin' | 'emailLogin' | 'emailRegister'>('wechatLogin');
+  const [methods, setMethods] = useState<string[]>([]);
+  const [methodsLoading, setMethodsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<TabKey>('password');
   const [sendCodeLoading, setSendCodeLoading] = useState(false);
   const [codeCooldown, setCodeCooldown] = useState(0);
-
-  // 微信扫码登录相关状态
-  const [qrcodeId, setQrcodeId] = useState<string>('');
-  const [qrcodeUrl, setQrcodeUrl] = useState<string>('');
-  const [qrcodeContent, setQrcodeContent] = useState<string>('');
-  const [qrcodeStatus, setQrcodeStatus] = useState<'pending' | 'scanned' | 'confirmed' | 'expired'>('pending');
-  const [qrcodeLoading, setQrcodeLoading] = useState(false);
-  const [qrcodeLoginLoading, setQrcodeLoginLoading] = useState(false);
-  const [imageLoadError, setImageLoadError] = useState(false);
-  const [scannedDisplayName, setScannedDisplayName] = useState('');
-  const [scannedPhoto, setScannedPhoto] = useState('');
-  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const qrcodeStatusRef = useRef<'pending' | 'scanned' | 'confirmed' | 'expired'>('pending');
-  const wechatLoginSubmittingRef = useRef(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [oauthPending, setOauthPending] = useState('');
 
   const { setInitialState } = useModel('@@initialState');
   const { styles } = useStyles();
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    form.setFieldsValue({
-      password: '',
+  // 登录方式分组：与 auth-service 管理端开闭实时同步
+  const passwordEnabled = methods.includes('password');
+  const emailMethod = methods.find((m) => m.startsWith('email:')) || '';
+  const smsMethod = methods.find((m) => m.startsWith('sms:')) || '';
+  const oauthProviders = methods.filter((m) => m.startsWith('oauth:')).map(toProviderMeta);
+
+  const fetchMethods = async () => {
+    setMethodsLoading(true);
+    try {
+      const resp = await user_login_methods();
+      if (resp?.code === 1000 && Array.isArray(resp.data)) {
+        setMethods(resp.data);
+      } else {
+        message.error(resp?.message || '登录方式加载失败');
+      }
+    } catch {
+      message.error('登录方式加载失败，请检查网络后刷新重试');
+    } finally {
+      setMethodsLoading(false);
+    }
+  };
+
+  const redirectAfterLogin = () => {
+    const urlParams = new URL(window.location.href).searchParams;
+    const redirectUrl = urlParams.get('redirect') || '/';
+    setTimeout(() => {
+      history.push(redirectUrl);
+    }, 100);
+  };
+
+  const handleLoginSuccess = (resp: any): boolean => {
+    const loginData = resp?.data ?? resp;
+    if (resp?.code !== 1000 || !loginData?.accessToken) {
+      message.error(resp?.message || '登录失败，未获取到访问令牌');
+      return false;
+    }
+    const currentUser = saveLoginSession(loginData);
+    flushSync(() => {
+      setInitialState((s) => ({
+        ...s,
+        currentUser,
+      }));
     });
-  }, [form]);
+    redirectAfterLogin();
+    return true;
+  };
+
+  // OAuth 回调：后端 302 回 /user/login#oauth=... 后在此完成登录
+  useEffect(() => {
+    const fragment = consumeOAuthFragment();
+    if (!fragment) return;
+    if (fragment.type === 'error') {
+      message.error(fragment.message);
+      return;
+    }
+    (async () => {
+      // OAuth fragment 只带令牌，先落会话再向服务端换取用户身份
+      saveLoginSession(fragment.data);
+      try {
+        const me = await user_me();
+        if (me?.code === 1000 && me.data?.id) {
+          const currentUser = buildCurrentUser({
+            ...fragment.data,
+            id: me.data.id,
+            username: me.data.username,
+            nickname: me.data.nickname,
+            avatar: me.data.avatar,
+            roles: me.data.roles,
+            permissions: me.data.permissions,
+          });
+          localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+          flushSync(() => {
+            setInitialState((s) => ({
+              ...s,
+              currentUser,
+            }));
+          });
+          message.success('登录成功');
+          redirectAfterLogin();
+          return;
+        }
+      } catch {}
+      clearLoginSession();
+      message.error('第三方登录失败，请重试');
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    fetchMethods();
+  }, []);
 
   useEffect(() => {
     if (codeCooldown <= 0) return;
@@ -395,79 +385,57 @@ const Login: React.FC = () => {
     return () => clearInterval(timer);
   }, [codeCooldown]);
 
+  // 默认选中第一个可用的登录方式
   useEffect(() => {
-    qrcodeStatusRef.current = qrcodeStatus;
-  }, [qrcodeStatus]);
-
-  const handleLoginSuccess = (resp: any) => {
-    const loginData = (resp?.data ?? resp) as any;
-    if (!loginData?.accessToken) {
-      message.error(resp?.message || '登录失败，未获取到访问令牌');
-      return false;
+    if (methodsLoading) return;
+    const order: TabKey[] = ['password', 'emailCode', 'smsCode'];
+    const available: Record<TabKey, boolean> = {
+      password: passwordEnabled,
+      emailCode: !!emailMethod,
+      smsCode: !!smsMethod,
+    };
+    if (!available[activeTab]) {
+      const first = order.find((key) => available[key]);
+      if (first) {
+        setActiveTab(first);
+      }
     }
-    if (!loginData?.id) {
-      message.error('登录失败，用户信息不完整');
-      return false;
-    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [methodsLoading, methods]);
 
-    localStorage.setItem('authToken', loginData.accessToken);
-    localStorage.setItem('refreshToken', loginData.refreshToken || '');
-    localStorage.setItem('tokenExpiresAt', String(Date.now() + (loginData.expiresIn || 3600) * 1000));
-
-    const currentUser = {
-      name: loginData.username || '用户',
-      userId: String(loginData.id),
-      access: 'admin',
-    } as API.CurrentUser;
-
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    flushSync(() => {
-      setInitialState((s) => ({
-        ...s,
-        currentUser,
-      }));
-    });
-
-    const urlParams = new URL(window.location.href).searchParams;
-    const redirectUrl = urlParams.get('redirect') || '/';
-    setTimeout(() => {
-      history.push(redirectUrl);
-    }, 100);
-    return true;
-  };
-
-  const handleSubmit = async (values: API.LoginParams) => {
+  const handleSubmit = async (values: Record<string, string>) => {
+    setSubmitting(true);
     try {
-      if (activeTab === 'emailLogin') {
-        const resp = await user_email_login({
-          email: values.email || '',
+      if (activeTab === 'password') {
+        const resp = await user_login({
+          username: values.username || '',
           password: values.password || '',
         });
         handleLoginSuccess(resp);
         return;
       }
-
-      const resp = await user_email_register({
-        email: values.email || '',
-        passCode: values.passCode || '',
-        password: values.password || '',
+      const method = activeTab === 'emailCode' ? emailMethod : smsMethod;
+      const resp = await user_login_by_code({
+        method,
+        target: values.target || '',
+        code: values.code || '',
       });
-
-      if (handleLoginSuccess(resp)) {
-        message.success('邮箱注册成功');
-      }
-    } catch (error) {
+      handleLoginSuccess(resp);
+    } catch {
       message.error('操作失败，请稍后重试');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const sendEmailCode = async () => {
+  const sendLoginCode = async () => {
     try {
-      const email = await form.validateFields(['email']).then((result) => result.email);
+      const target = await form.validateFields(['target']).then((result) => result.target);
       setSendCodeLoading(true);
-      const resp = await user_send_email_code(email);
-      if (Number(resp?.code) === 1000) {
-        message.success('验证码已发送，请查收邮箱');
+      const method = activeTab === 'emailCode' ? emailMethod : smsMethod;
+      const resp = await user_send_code({ method, target });
+      if (resp?.code === 1000) {
+        message.success('验证码已发送，请查收');
         setCodeCooldown(60);
       } else {
         message.error(resp?.message || '验证码发送失败');
@@ -482,163 +450,24 @@ const Login: React.FC = () => {
     }
   };
 
-  // 生成微信登录二维码
-  const generateQrcode = async () => {
-    setImageLoadError(false);
-    setQrcodeUrl('');
-    setQrcodeContent('');
-    setScannedDisplayName('');
-    setScannedPhoto('');
-    setQrcodeLoginLoading(false);
-    wechatLoginSubmittingRef.current = false;
-
-    try {
-      setQrcodeLoading(true);
-      setQrcodeStatus('pending');
-      const resp = await wechat_miniapp_qrcode();
-      const qrcodeData = (resp?.data ?? resp) as WechatQrcodeData;
-      const qrCodeUrl = qrcodeData?.qrCodeUrl || qrcodeData?.qrcodeUrl;
-
-      if (qrcodeData?.qrcodeId) {
-        setQrcodeId(qrcodeData.qrcodeId);
-
-        if (qrcodeData.status) {
-          setQrcodeStatus(normalizeWechatQrcodeStatus(qrcodeData.status));
-        }
-
-        if (qrCodeUrl) {
-          setQrcodeUrl(qrCodeUrl);
-        } else if (qrcodeData.qrcodeContent) {
-          setQrcodeContent(qrcodeData.qrcodeContent);
-        } else {
-          message.error('二维码数据格式错误');
-        }
-
-        setQrcodeLoading(false);
-        startPolling(qrcodeData.qrcodeId);
-      } else {
-        message.error(resp?.message || '二维码生成失败');
-        setQrcodeLoading(false);
-      }
-    } catch (error) {
-      message.error('二维码生成失败，请稍后重试');
-      setQrcodeLoading(false);
-    }
+  const startOAuthLogin = (provider: string) => {
+    if (oauthPending) return;
+    setOauthPending(provider);
+    window.location.href = oauth_authorize_url(provider);
   };
 
-  // 停止轮询
-  const stopPolling = () => {
-    if (pollTimerRef.current) {
-      clearInterval(pollTimerRef.current);
-      pollTimerRef.current = null;
-    }
-  };
+  const tabItems = [];
+  if (passwordEnabled) {
+    tabItems.push({ key: 'password' as TabKey, label: '账号登录' });
+  }
+  if (emailMethod) {
+    tabItems.push({ key: 'emailCode' as TabKey, label: '邮箱验证码登录' });
+  }
+  if (smsMethod) {
+    tabItems.push({ key: 'smsCode' as TabKey, label: '短信验证码登录' });
+  }
 
-  const loginByWechatTicket = async (ticket: string) => {
-    if (!ticket || wechatLoginSubmittingRef.current) {
-      return;
-    }
-
-    wechatLoginSubmittingRef.current = true;
-    setQrcodeLoginLoading(true);
-
-    try {
-      const resp = await wechat_miniapp_qrcode_login(ticket);
-      const loginResult = handleLoginSuccess(resp);
-      if (loginResult) {
-        message.success('微信登录成功');
-      } else {
-        wechatLoginSubmittingRef.current = false;
-        setQrcodeLoginLoading(false);
-      }
-    } catch (error) {
-      wechatLoginSubmittingRef.current = false;
-      setQrcodeLoginLoading(false);
-      setQrcodeStatus('expired');
-      message.error('微信登录失败，请重新扫码');
-    }
-  };
-
-  // 开始轮询二维码状态
-  const startPolling = (id: string) => {
-    stopPolling(); // 先停止之前的轮询
-
-    pollTimerRef.current = setInterval(async () => {
-      try {
-        const resp = await wechat_miniapp_qrcode_status(id);
-        if (Number(resp?.code) !== 1000) {
-          if (isWechatQrcodeExpiredPayload(resp)) {
-            stopPolling();
-            setQrcodeStatus('expired');
-            setQrcodeLoginLoading(false);
-            wechatLoginSubmittingRef.current = false;
-          }
-          return;
-        }
-
-        const statusData = (resp?.data ?? resp) as WechatQrcodeData;
-
-        if (statusData?.status) {
-          const normalizedStatus = normalizeWechatQrcodeStatus(statusData.status);
-
-          if (normalizedStatus !== qrcodeStatusRef.current) {
-            setQrcodeStatus(normalizedStatus);
-          }
-
-          if (normalizedStatus === 'scanned') {
-            setScannedDisplayName(statusData.displayName || '');
-            setScannedPhoto(statusData.photo || '');
-          }
-
-          if (normalizedStatus === 'confirmed') {
-            stopPolling();
-            if (statusData.ticket) {
-              await loginByWechatTicket(statusData.ticket);
-            } else {
-              setQrcodeLoginLoading(false);
-              wechatLoginSubmittingRef.current = false;
-              message.error('扫码已确认，但未获取到登录凭证，请重新扫码');
-            }
-          } else if (normalizedStatus === 'expired') {
-            stopPolling();
-            setQrcodeLoginLoading(false);
-            wechatLoginSubmittingRef.current = false;
-          }
-        }
-      } catch (error) {
-        if (isWechatQrcodeExpiredError(error)) {
-          stopPolling();
-          setQrcodeStatus('expired');
-          setQrcodeLoginLoading(false);
-          wechatLoginSubmittingRef.current = false;
-        }
-      }
-    }, 2000); // 每2秒轮询一次
-  };
-
-  // 当切换到微信登录 tab 时自动生成二维码
-  useEffect(() => {
-    if (activeTab === 'wechatLogin') {
-      generateQrcode();
-    } else {
-      // 切换离开时停止轮询
-      stopPolling();
-      setQrcodeId('');
-      setQrcodeUrl('');
-      setQrcodeContent('');
-      setQrcodeStatus('pending');
-      setQrcodeLoginLoading(false);
-      setImageLoadError(false);
-      setScannedDisplayName('');
-      setScannedPhoto('');
-      wechatLoginSubmittingRef.current = false;
-    }
-
-    return () => {
-      stopPolling();
-    };
-  }, [activeTab]);
-
+  const hasAnyMethod = tabItems.length > 0 || oauthProviders.length > 0;
 
   return (
     <div className={styles.container}>
@@ -659,239 +488,160 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          <Form
-            form={form}
-            onFinish={handleSubmit}
-          >
-            <Tabs
-              centered
-              className={styles.tabs}
-              activeKey={activeTab}
-              onChange={(key) => {
-                setActiveTab(key as 'wechatLogin' | 'emailLogin' | 'emailRegister');
-                form.resetFields(['password', 'passCode']);
-              }}
-              items={[
-                {
-                  key: 'wechatLogin',
-                  label: (
-                    <span className={styles.recommendedTabLabel}>
-                      <span>微信登录</span>
-                      <span className={styles.recommendedBadge}>推荐</span>
-                    </span>
-                  ),
-                },
-                { key: 'emailLogin', label: '邮箱登录' },
-                { key: 'emailRegister', label: '邮箱注册' },
-              ]}
-            />
-
-            {activeTab !== 'wechatLogin' && (
-              <>
-                {(activeTab === 'emailLogin' || activeTab === 'emailRegister') && (
-                  <Form.Item
-                    name="email"
-                    rules={[
-                      { required: true, message: '邮箱是必填项' },
-                      { type: 'email', message: '邮箱格式不正确' },
-                    ]}
-                  >
-                    <Input
-                      size="large"
-                      prefix={<MailOutlined />}
-                      placeholder="请输入邮箱"
-                      className={styles.input}
-                    />
-                  </Form.Item>
-                )}
-
-                {activeTab === 'emailRegister' && (
-                  <Form.Item
-                    name="passCode"
-                    rules={[{ required: true, message: '验证码是必填项' }]}
-                  >
-                    <Input
-                      size="large"
-                      prefix={<SafetyCertificateOutlined />}
-                      placeholder="请输入验证码"
-                      className={styles.input}
-                      suffix={
-                        <Button
-                          type="primary"
-                          size="small"
-                          className={styles.captchaButton}
-                          loading={sendCodeLoading}
-                          disabled={codeCooldown > 0}
-                          onClick={sendEmailCode}
-                        >
-                          {codeCooldown > 0 ? `${codeCooldown}s` : '发送验证码'}
-                        </Button>
-                      }
-                    />
-                  </Form.Item>
-                )}
-
-                <Form.Item
-                  name="password"
-                  rules={[
-                    { required: true, message: '密码是必填项' },
-                    ...(activeTab === 'emailRegister' ? [{ min: 6, message: '密码至少 6 位' }] : []),
-                  ]}
-                >
-                  <Input.Password
-                    size="large"
-                    prefix={<LockOutlined />}
-                    placeholder={activeTab === 'emailRegister' ? '请设置用于登录的密码' : '请输入密码'}
-                    autoComplete="current-password"
-                    visibilityToggle={{
-                      visible: passwordVisible,
-                      onVisibleChange: setPasswordVisible,
-                    }}
-                    className={styles.input}
-                  />
-                </Form.Item>
-
-                <Form.Item>
-                  <Button type="primary" htmlType="submit" className={styles.loginButton}>
-                    {activeTab === 'emailRegister' ? '注册并登录' : '登录'}
-                  </Button>
-                </Form.Item>
-              </>
-            )}
-          </Form>
-
-          {activeTab === 'emailLogin' && (
-            <div className={styles.helperText}>首次登录请先使用邮箱注册</div>
-          )}
-
-          {activeTab === 'emailRegister' && (
-            <div className={styles.helperText}>注册成功后将自动完成登录</div>
-          )}
-
-          {activeTab === 'wechatLogin' && (
-            <div className={styles.qrcodeContainer}>
-              <div className={styles.qrcodeWrapper}>
-                {qrcodeLoading ? (
-                  <Spin size="large" />
-                ) : qrcodeUrl ? (
-                  <>
-                    <img
-                      src={qrcodeUrl}
-                      alt="微信登录二维码"
-                      style={{ width: '168px', height: '168px' }}
-                      onLoad={() => {
-                        setImageLoadError(false);
-                      }}
-                      onError={() => {
-                        setImageLoadError(true);
-                        message.error('二维码图片加载失败');
-                      }}
-                    />
-                    {imageLoadError && (
-                      <div className={styles.qrcodeOverlay}>
-                        <span className={styles.qrcodeStatusText}>二维码加载失败</span>
-                        <div
-                          className={styles.qrcodeRefreshBtn}
-                          onClick={generateQrcode}
-                        >
-                          <ReloadOutlined />
-                          点击重试
-                        </div>
-                      </div>
-                    )}
-                    {!imageLoadError && qrcodeStatus !== 'pending' && (
-                      <div className={styles.qrcodeOverlay}>
-                        {qrcodeStatus === 'scanned' && (
-                          <div className={styles.qrcodeScanUser}>
-                            {scannedPhoto ? (
-                              <img src={scannedPhoto} alt="扫码用户头像" className={styles.qrcodeScanAvatar} />
-                            ) : (
-                              <WechatOutlined style={{ fontSize: '32px', color: '#07C160' }} />
-                            )}
-                            <span className={styles.qrcodeStatusText}>
-                              {scannedDisplayName ? `${scannedDisplayName} 已扫码` : '已扫码'}
-                            </span>
-                            <span className={styles.qrcodeStatusText}>请在手机上确认登录</span>
-                          </div>
-                        )}
-                        {qrcodeStatus === 'confirmed' && (
-                          <>
-                            <Spin size="large" />
-                            <span className={styles.qrcodeStatusText}>确认成功，正在登录...</span>
-                          </>
-                        )}
-                        {qrcodeStatus === 'expired' && (
-                          <>
-                            <span className={styles.qrcodeStatusText}>二维码已过期</span>
-                            <div
-                              className={styles.qrcodeRefreshBtn}
-                              onClick={generateQrcode}
-                            >
-                              <ReloadOutlined />
-                              点击刷新
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </>
-                ) : qrcodeContent ? (
-                  <>
-                    <QRCodeSVG
-                      value={qrcodeContent}
-                      size={168}
-                      level="M"
-                    />
-                    {qrcodeStatus !== 'pending' && (
-                      <div className={styles.qrcodeOverlay}>
-                        {qrcodeStatus === 'scanned' && (
-                          <div className={styles.qrcodeScanUser}>
-                            {scannedPhoto ? (
-                              <img src={scannedPhoto} alt="扫码用户头像" className={styles.qrcodeScanAvatar} />
-                            ) : (
-                              <WechatOutlined style={{ fontSize: '32px', color: '#07C160' }} />
-                            )}
-                            <span className={styles.qrcodeStatusText}>
-                              {scannedDisplayName ? `${scannedDisplayName} 已扫码` : '已扫码'}
-                            </span>
-                            <span className={styles.qrcodeStatusText}>请在手机上确认登录</span>
-                          </div>
-                        )}
-                        {qrcodeStatus === 'confirmed' && (
-                          <>
-                            <Spin size="large" />
-                            <span className={styles.qrcodeStatusText}>确认成功，正在登录...</span>
-                          </>
-                        )}
-                        {qrcodeStatus === 'expired' && (
-                          <>
-                            <span className={styles.qrcodeStatusText}>二维码已过期</span>
-                            <div
-                              className={styles.qrcodeRefreshBtn}
-                              onClick={generateQrcode}
-                            >
-                              <ReloadOutlined />
-                              点击刷新
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <Spin size="large" />
-                )}
-              </div>
-              <div className={styles.qrcodeHelperText}>
-                {qrcodeStatus === 'pending' && '请使用微信扫描二维码登录'}
-                {qrcodeStatus === 'scanned' && '扫码成功，请在手机上确认登录'}
-                {qrcodeStatus === 'confirmed' &&
-                  (qrcodeLoginLoading ? '已确认，正在完成登录...' : '已确认，请稍候...')}
-                {qrcodeStatus === 'expired' && '二维码已过期，请点击刷新'}
-              </div>
+          {methodsLoading ? (
+            <div className={styles.loadingContainer}>
+              <Spin size="large" />
             </div>
-          )}
+          ) : (
+            <>
+              {tabItems.length > 0 && (
+                <Form form={form} onFinish={handleSubmit} preserve={false}>
+                  <Tabs
+                    centered
+                    className={styles.tabs}
+                    activeKey={activeTab}
+                    onChange={(key) => {
+                      setActiveTab(key as TabKey);
+                      form.resetFields();
+                      setCodeCooldown(0);
+                    }}
+                    items={tabItems}
+                  />
 
+                  {activeTab === 'password' && (
+                    <>
+                      <Form.Item
+                        name="username"
+                        rules={[{ required: true, message: '用户名或邮箱是必填项' }]}
+                      >
+                        <Input
+                          size="large"
+                          prefix={<UserOutlined />}
+                          placeholder="请输入用户名或邮箱"
+                          className={styles.input}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        name="password"
+                        rules={[{ required: true, message: '密码是必填项' }]}
+                      >
+                        <Input.Password
+                          size="large"
+                          prefix={<LockOutlined />}
+                          placeholder="请输入密码"
+                          autoComplete="current-password"
+                          visibilityToggle={{
+                            visible: passwordVisible,
+                            onVisibleChange: setPasswordVisible,
+                          }}
+                          className={styles.input}
+                        />
+                      </Form.Item>
+                    </>
+                  )}
+
+                  {(activeTab === 'emailCode' || activeTab === 'smsCode') && (
+                    <>
+                      <Form.Item
+                        name="target"
+                        rules={
+                          activeTab === 'emailCode'
+                            ? [
+                                { required: true, message: '邮箱是必填项' },
+                                { type: 'email', message: '邮箱格式不正确' },
+                              ]
+                            : [
+                                { required: true, message: '手机号是必填项' },
+                                {
+                                  pattern: /^1\d{10}$/,
+                                  message: '手机号格式不正确',
+                                },
+                              ]
+                        }
+                      >
+                        <Input
+                          size="large"
+                          prefix={activeTab === 'emailCode' ? <MailOutlined /> : <MobileOutlined />}
+                          placeholder={activeTab === 'emailCode' ? '请输入邮箱' : '请输入手机号'}
+                          className={styles.input}
+                        />
+                      </Form.Item>
+                      <Form.Item name="code" rules={[{ required: true, message: '验证码是必填项' }]}>
+                        <Input
+                          size="large"
+                          prefix={<SafetyCertificateOutlined />}
+                          placeholder="请输入验证码"
+                          maxLength={6}
+                          className={styles.input}
+                          suffix={
+                            <Button
+                              type="primary"
+                              size="small"
+                              className={styles.captchaButton}
+                              loading={sendCodeLoading}
+                              disabled={codeCooldown > 0}
+                              onClick={sendLoginCode}
+                            >
+                              {codeCooldown > 0 ? `${codeCooldown}s` : '发送验证码'}
+                            </Button>
+                          }
+                        />
+                      </Form.Item>
+                    </>
+                  )}
+
+                  <Form.Item>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      className={styles.loginButton}
+                      loading={submitting}
+                    >
+                      登录
+                    </Button>
+                  </Form.Item>
+                </Form>
+              )}
+
+              {activeTab === 'emailCode' && (
+                <div className={styles.helperText}>未注册的邮箱将自动注册并登录</div>
+              )}
+              {activeTab === 'smsCode' && (
+                <div className={styles.helperText}>未注册的手机号将自动注册并登录</div>
+              )}
+              {activeTab === 'password' && (
+                <div className={styles.helperText}>账号由管理员在认证服务中心创建分配</div>
+              )}
+
+              {oauthProviders.length > 0 && (
+                <div className={styles.oauthSection}>
+                  <Divider className={styles.oauthDivider}>其他登录方式</Divider>
+                  <div className={styles.oauthButtons}>
+                    {oauthProviders.map(({ provider, label }) => (
+                      <div
+                        key={provider}
+                        className={styles.oauthButton}
+                        onClick={() => startOAuthLogin(provider)}
+                      >
+                        {provider === 'github' ? (
+                          <GithubOutlined style={{ fontSize: '20px' }} />
+                        ) : (
+                          <span className={styles.giteeMark}>G</span>
+                        )}
+                        <span>{label} 登录</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {!hasAnyMethod && (
+                <div className={styles.helperText}>
+                  当前未开放任何登录方式，请联系管理员在认证服务中心开启
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

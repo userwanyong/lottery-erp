@@ -3,7 +3,8 @@
  * */
 export default function access(initialState: { currentUser?: API.CurrentUser } | undefined) {
   const { currentUser } = initialState ?? {};
+  const roles = currentUser?.roles || [];
   return {
-    canAdmin: currentUser && currentUser.access === 'admin',
+    canAdmin: currentUser?.access === 'admin' || roles.includes('ROLE_ADMIN'),
   };
 }
