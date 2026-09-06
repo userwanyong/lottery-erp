@@ -1,6 +1,7 @@
 // @ts-ignore
 /* eslint-disable */
 import { request } from '@umijs/max';
+import { getAuthToken } from '@/utils/auth';
 
 function safeJsonParse(data: string) {
   try {
@@ -309,9 +310,12 @@ export async function user_profile_oauth_bindings() {
   );
 }
 
-/** OAuth 绑定授权跳转地址（后端 302 到提供方，回调后回个人中心） */
+/** OAuth 绑定授权跳转地址（后端 302 到提供方，回调后回个人中心）。
+ *  整页跳转无法携带 Authorization 头，token 以查询参数传递，由 API 代理层翻译成请求头 */
 export function oauth_bind_authorize_url(provider: string) {
-  return `${apiHostUrl}/api/v1/user/profile/oauth-bindings/${provider}/authorize`;
+  const token = getAuthToken();
+  const query = token ? `?access_token=${encodeURIComponent(token)}` : '';
+  return `${apiHostUrl}/api/v1/user/profile/oauth-bindings/${provider}/authorize${query}`;
 }
 
 export async function user_profile_oauth_unbind(provider: string) {

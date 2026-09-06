@@ -17,7 +17,20 @@ export default {
       changeOrigin: true,
       ws: true,
       pathRewrite: { '^': '' },
-    },
+      // 与线上边缘函数对齐：整页跳转场景以 access_token 查询参数传递令牌，
+      // 代理层翻译成 Authorization 头并从转发 URL 中剥离
+      onProxyReq(proxyReq: any, req: any) {
+        const url = new URL(req.url, 'http://localhost');
+        const token = url.searchParams.get('access_token');
+        if (token) {
+          if (!proxyReq.getHeader('authorization')) {
+            proxyReq.setHeader('authorization', `Bearer ${token}`);
+          }
+          url.searchParams.delete('access_token');
+          proxyReq.path = url.pathname + url.search;
+        }
+      },
+    } as any,
   },
 
   /**

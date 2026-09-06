@@ -318,7 +318,6 @@ declare namespace API {
     size: number;
     items: T[];
   };
-}
 
   type BaseResponse<T = any> = {
     code?: string;

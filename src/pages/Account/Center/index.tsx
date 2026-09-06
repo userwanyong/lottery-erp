@@ -13,6 +13,7 @@ import {
   user_profile_update,
   user_send_code,
 } from '@/services/api';
+import { ensureFreshToken } from '@/utils/auth';
 import {
   GithubOutlined,
   KeyOutlined,
@@ -170,7 +171,9 @@ const AccountCenter: React.FC = () => {
     }
   };
 
-  const bindOAuth = (provider: string) => {
+  const bindOAuth = async (provider: string) => {
+    // 跳转走整页导航且 token 经查询参数传递，临期先静默刷新，避免代理透传后被判 401
+    await ensureFreshToken();
     window.location.href = oauth_bind_authorize_url(provider);
   };
 
