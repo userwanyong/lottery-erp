@@ -44,8 +44,9 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
    */
   const loginOut = async () => {
     try {
-      // 调用后端退出登录接口
-      await user_logout().catch(() => {});
+      // 调用后端退出登录接口（携带 refreshToken 一并撤销）
+      const refreshToken = localStorage.getItem('refreshToken') || undefined;
+      await user_logout(refreshToken).catch(() => {});
       localStorage.removeItem('currentUser');
       localStorage.removeItem('authToken');
       localStorage.removeItem('refreshToken');
@@ -113,20 +114,18 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
     ...(menu
       ? [
           {
-            key: 'center',
-            icon: <UserOutlined />,
-            label: '个人中心',
-          },
-          {
             key: 'settings',
             icon: <SettingOutlined />,
             label: '个人设置',
           },
-          {
-            type: 'divider' as const,
-          },
         ]
       : []),
+    {
+      key: 'center',
+      icon: <UserOutlined />,
+      label: '个人中心',
+    },
+    { type: 'divider' as const },
     {
       key: 'logout',
       icon: <LogoutOutlined />,

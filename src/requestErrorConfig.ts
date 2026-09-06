@@ -61,7 +61,7 @@ export const errorConfig: RequestConfig = {
       const token = localStorage.getItem('authToken');
       const headers = { ...(options?.headers || {}) } as Record<string, string>;
       if (token) {
-        headers.Authorization = token;
+        headers.Authorization = `Bearer ${token}`;
       }
       return { url, options: { ...options, headers } };
     },

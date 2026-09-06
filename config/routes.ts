@@ -189,6 +189,43 @@ export default [
   },
 
   {
+    path: '/auth',
+    name: '认证管理',
+    icon: 'safetyCertificate',
+    access: 'canAdmin',
+    routes: [
+      { path: '/auth', redirect: '/auth/users' },
+      {
+        name: '用户管理',
+        icon: 'team',
+        path: '/auth/users',
+        component: './Auth/Users',
+      },
+      {
+        name: '角色管理',
+        icon: 'userSwitch',
+        path: '/auth/roles',
+        component: './Auth/Roles',
+      },
+      {
+        name: '权限管理',
+        icon: 'lock',
+        path: '/auth/permissions',
+        component: './Auth/Permissions',
+      },
+      {
+        name: '登录方式',
+        icon: 'key',
+        path: '/auth/login-methods',
+        component: './Auth/LoginMethods',
+      },
+    ],
+  },
+  {
+    path: '/account/center',
+    component: './Account/Center',
+  },
+  {
     name: '效果体验',
     icon: 'aimOutlined',
     path: '/experience',

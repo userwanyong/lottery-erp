@@ -1,4 +1,5 @@
 import { AvatarDropdown, AvatarName, Footer, GuideAssistant } from '@/components';
+import { user_me } from '@/services/api';
 import { LinkOutlined } from '@ant-design/icons';
 import type { Settings as LayoutSettings } from '@ant-design/pro-components';
 import type { RunTimeLayoutConfig } from '@umijs/max';
@@ -6,6 +7,7 @@ import { history, Link } from '@umijs/max';
 import { App } from 'antd';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
+import { ensureFreshToken, getAuthToken } from './utils/auth';
 
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -16,12 +18,34 @@ export async function getInitialState(): Promise<{
   loading?: boolean;
   fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
 }> {
-  const fetchUserInfo = async () => {
-    const stored = localStorage.getItem('currentUser');
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch {}
+  const fetchUserInfo = async (): Promise<API.CurrentUser | undefined> => {
+    // 有令牌时以服务端为准（auth-service 解析 token），本地存储仅作无网络时兜底
+    if (!getAuthToken()) return undefined;
+    try {
+      await ensureFreshToken();
+      const resp = await user_me();
+      if (resp?.code === 1000 && resp.data?.id) {
+        const data = resp.data;
+        const roles = data.roles || [];
+        const currentUser: API.CurrentUser = {
+          userId: String(data.id),
+          name: data.nickname || data.username || '用户',
+          nickname: data.nickname,
+          avatar: data.avatar,
+          roles,
+          permissions: data.permissions || [],
+          access: roles.includes('ROLE_ADMIN') ? 'admin' : 'user',
+        };
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        return currentUser;
+      }
+    } catch {
+      const stored = localStorage.getItem('currentUser');
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch {}
+      }
     }
     return undefined;
   };
@@ -57,6 +81,15 @@ console.error = (...args) => {
   originalConsoleError(...args);
 };
 
+// Access Token 15 分钟有效，定时检查并在到期前静默轮换
+if (typeof window !== 'undefined') {
+  window.setInterval(() => {
+    if (getAuthToken()) {
+      ensureFreshToken();
+    }
+  }, 60 * 1000);
+}
+
 export const layout: RunTimeLayoutConfig = ({ initialState }) => {
   return {
     avatarProps: {
@@ -79,7 +112,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
         height: '303px',
       },
       {
-        src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/C2TWRpJpiC0AAAAAAAAAAAAAFl94AQBr',
+        src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/C2TWRpPpiC0AAAAAAAAAAAAAFl94AQBr',
         bottom: -68,
         right: -45,
         height: '303px',

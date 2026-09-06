@@ -6,6 +6,9 @@ declare namespace API {
     name?: string;
     avatar?: string;
     userId?: string;
+    nickname?: string;
+    roles?: string[];
+    permissions?: string[];
     email?: string;
     signature?: string;
     title?: string;
@@ -64,8 +67,6 @@ declare namespace API {
   type LoginParams = {
     username?: string;
     password?: string;
-    email?: string;
-    passCode?: string;
     autoLogin?: boolean;
     type?: string;
   };
@@ -211,13 +212,113 @@ declare namespace API {
     data?: ActivityItem[];
   };
 
+
+  // ==================== 认证授权（auth-service） ====================
+
+  /** 登录方式编码：password / email:aliyun / email:smtp / sms:aliyun / oauth:gitee / oauth:github */
+  type LoginMethod = string;
+
   type UserLoginResponse = {
     id: number;
     username: string;
+    nickname?: string;
+    avatar?: string;
+    roles?: string[];
+    permissions?: string[];
     accessToken: string;
     refreshToken: string;
     expiresIn: number;
   };
+
+  type UserInfoResponse = {
+    id: number;
+    username: string;
+    nickname?: string;
+    avatar?: string;
+    roles?: string[];
+    permissions?: string[];
+  };
+
+  // ==================== 认证管理与个人中心 ====================
+
+  /** auth-service 用户（管理端与个人中心共用） */
+  type AuthUser = {
+    id: string;
+    username: string;
+    email?: string;
+    phone?: string;
+    nickname?: string;
+    avatar?: string;
+    status?: number;
+    roles?: string[];
+    permissions?: string[];
+    realName?: string;
+    gender?: number;
+    birthday?: string;
+    emailVerified?: boolean;
+    phoneVerified?: boolean;
+    createdAt?: number;
+    lastLoginAt?: number;
+  };
+
+  /** 用户/资料更新字段：不传=不修改；email/phone/nickname/avatar 空串=清空 */
+  type AuthUserUpdate = {
+    username?: string;
+    password?: string;
+    email?: string;
+    phone?: string;
+    nickname?: string;
+    avatar?: string;
+    status?: number;
+    realName?: string;
+    gender?: number;
+    birthday?: string;
+  };
+
+  type AuthRole = {
+    id: string;
+    code: string;
+    name: string;
+    description?: string;
+    status?: number;
+    permissions?: string[];
+  };
+
+  type AuthPermission = {
+    id: string;
+    code: string;
+    name: string;
+    resource?: string;
+    action?: string;
+    description?: string;
+  };
+
+  type AuthLoginMethodConfig = {
+    method: string;
+    category: string;
+    displayName: string;
+    /** 本租户是否启用：0-否 1-是 */
+    enabled: number;
+    /** 1=平台凭证 0=自有凭证 */
+    usePlatformConfig: number;
+    hasConfig: boolean;
+    platformEnabled: boolean;
+  };
+
+  type AuthOAuthBinding = {
+    id: string;
+    provider: string;
+    providerUid: string;
+    createdAt?: number;
+  };
+
+  type AuthPage<T> = {
+    total: number;
+    page: number;
+    size: number;
+    items: T[];
+  };
+}
 
   type BaseResponse<T = any> = {
     code?: string;
@@ -416,30 +517,4 @@ declare namespace API {
     items?: any[];
   };
 
-  // 微信小程序扫码登录相关类型
-  type WechatQrcodeResponse = {
-    /** 二维码唯一标识 */
-    qrcodeId: string;
-    /** 二维码图片URL（后端返回的图片地址） */
-    qrcodeUrl: string;
-    /** 二维码内容（可选，用于生成二维码） */
-    qrcodeContent?: string;
-    /** 二维码过期时间（秒） */
-    expiresIn?: number;
-  };
-
-  type WechatQrcodeStatusResponse = {
-    /** 二维码唯一标识 */
-    qrcodeId: string;
-    /** 二维码状态: pending-待扫码, scanned-已扫码未确认, confirmed-已确认登录, expired-已过期 */
-    status: 'pending' | 'scanned' | 'confirmed' | 'expired' | 'WAITING' | 'SCANED' | 'AUTHORIZED' | 'CANCELED' | string;
-    /** 用户信息（当状态为 confirmed 时返回） */
-    userInfo?: {
-      id: number;
-      username: string;
-      accessToken: string;
-      refreshToken: string;
-      expiresIn: number;
-    };
-  };
 }
